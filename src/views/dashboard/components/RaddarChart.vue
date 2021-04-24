@@ -73,7 +73,7 @@ export default {
             { name: 'Information Technology', max: 20000 },
             { name: 'Customer Support', max: 20000 },
             { name: 'Development', max: 20000 },
-            { name: 'Marketing', max: 20000 }
+            // { name: 'Marketing', max: 20000 }
           ]
         },
         legend: {
