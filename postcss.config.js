@@ -1,4 +1,4 @@
-// https://github.com/michael-ciniawsky/postcss-load-config
+// https://user.com/michael-ciniawsky/postcss-load-config
 
 module.exports = {
   'plugins': {

@@ -36,7 +36,7 @@ export default {
         setData: function(dataTransfer) {
           dataTransfer.setData('Text', '')
           // to avoid Firefox bug
-          // Detail see : https://github.com/RubaXa/Sortable/issues/1012
+          // Detail see : https://user.com/RubaXa/Sortable/issues/1012
         },
         onEnd: evt => {
           const targetRow = this.value.splice(evt.oldIndex, 1)[0]

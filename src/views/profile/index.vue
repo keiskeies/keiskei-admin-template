@@ -18,8 +18,8 @@
                   <el-form-item label="头像">
                     <upload-image class="form-item" :ref="'avatar'" @uploadSuccess="mediaChange" :fileUrl="userInfo.avatar" columnName="avatar"></upload-image>
                   </el-form-item>
-                  <el-form-item label="姓名" prop="realName">
-                    <el-input clearable class="form-item" v-model="userInfo.realName" placeholder="真实姓名"></el-input>
+                  <el-form-item label="姓名" prop="name">
+                    <el-input clearable class="form-item" v-model="userInfo.name" placeholder="真实姓名"></el-input>
                   </el-form-item>
                   <el-form-item label="手机号" prop="phone">
                     <el-input clearable class="form-item" v-model="userInfo.phone" placeholder="手机号"></el-input>
@@ -69,7 +69,7 @@ export default {
   data() {
     return {
       infoRule: {
-        realName: [{ required: true, message: '请输入姓名!', trigger: 'blur' }],
+        name: [{ required: true, message: '请输入姓名!', trigger: 'blur' }],
         phone: [{ required: true, message: '请输入手机号!', trigger: 'blur' }],
         email: [{ required: true, message: '请输入邮箱!', trigger: 'blur' }],
       },
@@ -81,7 +81,7 @@ export default {
       activeName: 'first',
       temp: {},
       userInfo: {
-        realName: undefined,
+        name: undefined,
         username: undefined,
         phone: undefined,
         email: undefined,
@@ -96,19 +96,19 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['realName', 'username', 'phone', 'email', 'avatar', 'roles'])
+    ...mapGetters(['name', 'username', 'phone', 'email', 'avatar', 'roles'])
   },
   created() {
     this.getUser()
   },
   methods: {
     getUser() {
-      this.userInfo.realName = this.realName
+      this.userInfo.name = this.name
       this.userInfo.username = this.username
       this.userInfo.phone = this.phone
       this.userInfo.email = this.email
       this.userInfo.avatar = this.avatar
-      this.userInfo.roles = this.roles.join('，')
+      this.userInfo.roles = this.roles ? '' : this.roles.join('，')
     },
     resetSelfPassword() {
       const self = this

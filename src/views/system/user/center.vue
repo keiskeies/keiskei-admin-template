@@ -30,14 +30,14 @@ export default {
   data() {
     return {
       rules: {
-        realName: [{ required: true, message: '用户名不能为空!', trigger: 'blur' }],
+        name: [{ required: true, message: '用户名不能为空!', trigger: 'blur' }],
         password: [{ required: true, message: '旧密码不能为空!', trigger: 'blur' }],
         newPassword: [{ required: true, message: '新密码不能为空!', trigger: 'blur' }],
         confirmPassword: [{ required: true, message: '确定密码不能为空!', trigger: 'blur' }]
       },
       user: {
         username: undefined, // 账号
-        realName: undefined, // 用户姓名
+        name: undefined, // 用户姓名
         password: undefined, // 原始密码
         newPassword: undefined, // 新密码
         confirmPassword: undefined // 确定密码

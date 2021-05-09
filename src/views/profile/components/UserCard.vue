@@ -12,7 +12,7 @@
         </pan-thumb>
       </div>
       <div class="box-center">
-        <div class="user-name text-center">{{ user.realName }}</div>
+        <div class="user-name text-center">{{ user.name }}</div>
         <div class="user-role text-center text-muted">{{ user.roles }}</div>
       </div>
     </div>
@@ -49,7 +49,7 @@ export default {
       default: () => {
         return {
           username: '',
-          realName: '',
+          name: '',
           email: '',
           phone: '',
           avatar: '',

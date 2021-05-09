@@ -6,7 +6,7 @@ import { resetRouter } from '@/router'
 const state = {
   id: undefined,
   username: '',
-  realName: '',
+  name: '',
   avatar: '',
   phone: '',
   email: '',
@@ -19,8 +19,8 @@ const mutations = {
   SET_ID: (state, id) => {
     state.id = id
   },
-  SET_NAME: (state, realName) => {
-    state.realName = realName
+  SET_NAME: (state, name) => {
+    state.name = name
   },
   SET_USERNAME: (state, username) => {
     state.username = username

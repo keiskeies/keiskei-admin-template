@@ -75,7 +75,7 @@ export default {
         }
       },
       options: {
-        methodOptions: [{id: 'GET', name: 'GET'}, {id: 'POST', name: 'POST'}, {id: 'PUT', name: 'PUT'}, {id: 'PATCH', name: 'PATCH'}]
+        methodOptions: [{id: 'GET', name: 'GET'}, {id: 'POST', name: 'POST', type: 'success'}, {id: 'PUT', name: 'PUT', type: 'warning'}, {id: 'PATCH', name: 'PATCH', type: 'info'}, {id: 'DELETE', name: 'DELETE', type: 'danger'}]
       }
     }
   },
