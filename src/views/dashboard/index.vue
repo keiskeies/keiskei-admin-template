@@ -238,6 +238,7 @@ export default {
         })
       }
       createDashboard(this.temp).then(res => {
+        this.charts.push(res.data)
         this.dialogVisible = false
       })
     },

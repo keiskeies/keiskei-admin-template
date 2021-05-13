@@ -36,6 +36,7 @@ export default {
     return {
       chart: null,
       optionTemp: {
+        title: {},
         tooltip: {
           trigger: 'axis',
           axisPointer: { // 坐标轴指示器，坐标轴触发有效
@@ -76,14 +77,7 @@ export default {
               shadowOffsetY: 15
             }
           },
-          indicator: [
-            { name: 'Sales', max: 10000 },
-            { name: 'Administration', max: 20000 },
-            { name: 'Information Technology', max: 20000 },
-            { name: 'Customer Support', max: 20000 },
-            { name: 'Development', max: 20000 },
-            // { name: 'Marketing', max: 20000 }
-          ]
+          indicator: []
         },
         legend: {
           left: 'center',
@@ -138,6 +132,7 @@ export default {
         if (init) {
           const optionTemp = Object.assign(this.optionTemp)
           optionTemp.legend.data = res.data.legend.data
+          optionTemp.title = res.data.title
           optionTemp.series = series
           optionTemp.radar.indicator = res.data.radar.indicator
           this.chart.resize()
