@@ -147,7 +147,7 @@
                :before-close="handleCloseDrawer" :size="$store.state.app.device !== 'mobile' ? '50%' : '100%'">
       <el-form :ref="url + '_DataForm'" :rules="rules[drawerOptions[drawerStatus].value]" :model="temp"
                label-width="auto" label-suffix=": " style="margin: 15px;">
-        <el-form-item v-if="treeTable" label="上级" prop="-parentId">
+        <el-form-item v-if="treeTable" label="上级" prop="parentId">
           <el-select class="form-item" v-model="temp.parentId">
             <el-option v-for="(item, index) in parentOptions" :label="item.name" :value="item.id"
                        :key="index"></el-option>
