@@ -257,8 +257,11 @@ export default {
       })
     },
     handleDeleteDashboard(id) {
+      const index = this.charts.findIndex(e => e.id === id)
       deleteDashboard(id).then(res => {
         this.handleGetDashboardList()
+        this.charts.splice(index, 1)
+        this.dialogVisible = false
       })
     },
     handleGetTables() {
