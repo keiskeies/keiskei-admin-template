@@ -10,6 +10,11 @@ service.defaults.withCredentials = true
 // request interceptor
 service.interceptors.request.use(
   config => {
+    if (config.method.toLowerCase() === 'get') {
+      const params = config.params || {}
+      params._ = new Date().getTime()
+      config.params = params
+    }
     return config
   },
   error => {

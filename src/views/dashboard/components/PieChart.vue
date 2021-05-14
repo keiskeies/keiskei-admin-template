@@ -99,7 +99,7 @@ export default {
     }
   },
   methods: {
-    handleGetDetail(init = false) {
+    async handleGetDetail(init = false) {
       getDashboardDetail(this.dashboardId).then(res => {
         const series = []
         res.data.series.forEach(e => {

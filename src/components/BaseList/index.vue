@@ -4,26 +4,33 @@
     <div class="filter-container" v-if="listQuery && listQuery.length > 0">
       <template v-for="(column, index) in columns" v-if="column.queryFlag || false">
         <el-select v-if="column.type && column.type === 'MIDDLE_ID'" v-model="listQuery[index].value" clearable
-                   class="filter-item" :placeholder="column.label">
+                   class="filter-item" :placeholder="column.label"
+        >
           <el-option v-for="item in options[column.key.replace('Id', 'Options')]" :key="item.id" :label="item.name"
-                     :value="item.id"></el-option>
+                     :value="item.id"
+          ></el-option>
         </el-select>
         <el-select v-else-if="column.type && column.type === 'STATUS'" v-model="listQuery[index].value" clearable
-                   class="filter-item" :placeholder="column.label">
+                   class="filter-item" :placeholder="column.label"
+        >
           <el-option v-for="item in statusOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
         <el-date-picker v-else-if="column.type && column.type === 'DATE_TIME'" v-model="listQuery[index].value"
                         clearable class="filter-item-time" format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss"
                         @change="fetchData(1)"
                         type="daterange" range-separator=" - " :start-placeholder="column.label + '开始'"
-                        :end-placeholder="column.label + '结束'"></el-date-picker>
+                        :end-placeholder="column.label + '结束'"
+        ></el-date-picker>
         <el-input v-else v-model="listQuery[index].value" clearable class="filter-item" :placeholder="column.label"
-                  @keyup.enter.native="fetchData(1)"></el-input>
+                  @keyup.enter.native="fetchData(1)"
+        ></el-input>
       </template>
       <el-button v-waves type="primary" class="filter-button" icon="el-icon-search" @click="fetchData(limitQuery.page)">
         搜索
       </el-button>
-      <el-button v-waves v-permission="[permission+':add']" type="primary" class="filter-button" icon="el-icon-plus" plain @click="handleAdd">新建
+      <el-button v-waves v-permission="[permission+':add']" type="primary" class="filter-button" icon="el-icon-plus"
+                 plain @click="handleAdd"
+      >新建
       </el-button>
     </div>
     <div class="base-table">
@@ -33,9 +40,11 @@
                 row-key="id" :default-expand-all="defaultExpandAll" :indent="32"
       >
         <el-table-column v-if="showSelect" type="selection"
-                         :fixed="$store.state.app.device !== 'mobile' ? 'left' : undefined" width="55"/>
+                         :fixed="$store.state.app.device !== 'mobile' ? 'left' : undefined" width="55"
+        />
         <el-table-column v-if="!treeTable" label="编号" header-align="center" align="right"
-                         :fixed="$store.state.app.device !== 'mobile' ? 'left' : undefined" width="60">
+                         :fixed="$store.state.app.device !== 'mobile' ? 'left' : undefined" width="60"
+        >
           <template slot-scope="scope">
             <slot>{{ scope.$index + 1 }}</slot>
           </template>
@@ -48,9 +57,9 @@
         >
           <template slot="header" slot-scope="scope">
             <el-tooltip v-if="column.tooltip" class="item" effect="dark" :content="column.tooltip" placement="top">
-              <div class="cell">{{column.label}}</div>
+              <div class="cell">{{ column.label }}</div>
             </el-tooltip>
-            <div v-else class="cell">{{column.label}}</div>
+            <div v-else class="cell">{{ column.label }}</div>
           </template>
           <template slot-scope="scope" :class="column.type">
             <!--            排序-->
@@ -62,20 +71,23 @@
             <slot v-else-if="column.type === 'IMAGE'">
               <a v-if="!scope.row[column.key]">暂无图片</a>
               <img v-else :src="$media + scope.row[column.key] +'?x-oss-process=image/resize,h_30'" alt=""
-                   @click="selectImg(scope.row[column.key],column.type)">
+                   @click="selectImg(scope.row[column.key],column.type)"
+              >
             </slot>
             <!--            视频-->
             <slot v-else-if="column.type === 'VIDEO'">
               <a v-if="!scope.row[column.key]">暂无视频</a>
               <img v-else alt=""
                    :src="$media + scope.row[column.key] + '?x-oss-process=video/snapshot,t_1000,h_30,m_fast,f_jpg'"
-                   @click="selectImg(scope.row[column.key],column.type)">
+                   @click="selectImg(scope.row[column.key],column.type)"
+              >
             </slot>
             <!--            树形多选-->
             <slot v-else-if="column.type === 'TREE_SELECT'">
               <el-cascader v-model="(scope.row[column.key]||{id: undefined}).id" :options="options[column.optionKey]"
                            class="form-item" :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false}"
-                           disabled></el-cascader>
+                           disabled
+              ></el-cascader>
             </slot>
             <!--            多选-->
             <slot v-else-if="column.type === 'MULTI_SELECT'">
@@ -83,11 +95,15 @@
             </slot>
             <!--            单选-->
             <slot v-else-if="column.type === 'SELECT'">
-              <el-tag v-for="(item, index) in options[column.optionKey]" v-if="item.id === scope.row[column.key]" :key="index" :type="item.type" :effect="item.effect">{{scope.row[column.key]}}</el-tag>
+              <el-tag v-for="(item, index) in options[column.optionKey]" v-if="item.id === scope.row[column.key]"
+                      :key="index" :type="item.type" :effect="item.effect"
+              >{{ scope.row[column.key] }}
+              </el-tag>
             </slot>
             <!--            文章-->
             <slot
-              v-else-if="column.type === 'LONG_WORD' || column.type === 'LONG_TEXT' || column.type === 'TO_LONG_TEXT'">
+              v-else-if="column.type === 'LONG_WORD' || column.type === 'LONG_TEXT' || column.type === 'TO_LONG_TEXT'"
+            >
               <div v-html="scope.row[column.key]"></div>
             </slot>
             <!--            状态-->
@@ -110,18 +126,22 @@
         </el-table-column>
         <el-table-column v-if="showActions" prop="actions" label="操作" header-align="center" align="center"
                          :fixed="$store.state.app.device !== 'mobile' ? 'right' : undefined"
-                         :min-width="treeTable ? 240 : 160">
+                         :min-width="treeTable ? 240 : 160"
+        >
           <template slot-scope="scope" class="actions">
             <el-button v-if="treeTable" v-waves :v-permission="[permission+':add']" type="primary" plain
-                       @click="handleAdd(scope.$index, scope.row)">新建子类
+                       @click="handleAdd(scope.$index, scope.row)"
+            >新建子类
             </el-button>
             <el-button v-waves :v-permission="[permission+':edit']" type="primary"
-                       @click="handleEdit(scope.$index, scope.row)">编辑
+                       @click="handleEdit(scope.$index, scope.row)"
+            >编辑
             </el-button>
             <el-popconfirm :v-permission="[permission+':delete']" title="是否删除这条数据？"
                            @onConfirm="handleDelete(scope.$index, scope.row)"
-                           icon="el-icon-info" icon-color="red" confirm-button-type="danger" style="margin-left: 10px;">
-              <el-button v-waves slot="reference" type="danger">删除</el-button>
+                           icon="el-icon-info" icon-color="red" confirm-button-type="danger"
+            >
+              <el-button v-waves slot="reference" type="danger" style="margin-left: 10px">删除</el-button>
             </el-popconfirm>
           </template>
         </el-table-column>
@@ -141,46 +161,59 @@
     </div>
 
     <pagination v-if="!treeTable" v-show="total>0" :total="total" :page.sync="limitQuery.page"
-                :limit.sync="limitQuery.size" @pagination="fetchData"/>
+                :limit.sync="limitQuery.size" @pagination="fetchData"
+    />
 
     <el-drawer :title="drawerOptions[drawerStatus].title" :visible.sync="drawerVisible" direction="rtl"
-               :before-close="handleCloseDrawer" :size="$store.state.app.device !== 'mobile' ? '50%' : '100%'">
+               :before-close="handleCloseDrawer" :size="$store.state.app.device !== 'mobile' ? '50%' : '100%'"
+    >
       <el-form :ref="url + '_DataForm'" :rules="rules[drawerOptions[drawerStatus].value]" :model="temp"
-               label-width="auto" label-suffix=": " style="margin: 15px;">
+               label-width="auto" label-suffix=": " style="margin: 15px;"
+      >
         <el-form-item v-if="treeTable" label="上级" prop="parentId">
           <el-select class="form-item" v-model="temp.parentId">
             <el-option v-for="(item, index) in parentOptions" :label="item.name" :value="item.id"
-                       :key="index"></el-option>
+                       :key="index"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item v-for="(column, index) in columns" v-if="column.edit" :label="column.label" :prop="column.key"
-                      :key="index">
+                      :key="index"
+        >
 
           <!--     图片     -->
           <upload-image v-if="column.type === 'IMAGE'" class="form-item" :ref="url + '_UploadImage_' + column.key"
                         @uploadSuccess="columnValChange" :fileUrl="temp[column.key]"
-                        :columnName="column.key"></upload-image>
+                        :columnName="column.key"
+          ></upload-image>
           <!--     视频     -->
           <upload-video v-else-if="column.type === 'VIDEO'" class="form-item" :ref="url + '_UploadVideo_' + column.key"
                         @uploadSuccess="columnValChange" :fileUrl="temp[column.key]"
-                        :columnName="column.key"></upload-video>
+                        :columnName="column.key"
+          ></upload-video>
           <!--     开关     -->
           <el-switch v-else-if="column.type === 'STATUS'" v-model="temp[column.key]" active-color="#13ce66"
-                     inactive-color="#ff0000" active-text="启用" inactive-text="禁用"></el-switch>
+                     inactive-color="#ff0000" active-text="启用" inactive-text="禁用"
+          ></el-switch>
           <!--     数字     -->
           <el-input-number v-else-if="column.type === 'NUMBER'" class="form-item"
-                           v-model="temp[column.key]"></el-input-number>
+                           v-model="temp[column.key]"
+          ></el-input-number>
           <!--     多选     -->
           <el-select v-else-if="column.type === 'MULTI_SELECT'" class="form-item" v-model="temp[column.key]"
-                     value-key="id" multiple clearable>
+                     value-key="id" multiple clearable
+          >
             <el-option v-for="(item, index) in options[column.optionKey]" :key="index" :label="item.name"
-                       :value="item"></el-option>
+                       :value="item"
+            ></el-option>
           </el-select>
           <!--    单选      -->
           <el-select v-else-if="column.type === 'SELECT' || column.type === 'DICTIONARY'" class="form-item"
-                     v-model="temp[column.key]" clearable>
+                     v-model="temp[column.key]" clearable
+          >
             <el-option v-for="(item, index) in options[column.optionKey]" :key="index" :label="item.name"
-                       :value="item.id"></el-option>
+                       :value="item.id"
+            ></el-option>
           </el-select>
           <!--     树形多选       -->
           <tree-multi-select v-else-if="column.type === 'TREE_MULTI_SELECT' && drawerVisible"
@@ -188,12 +221,14 @@
                              :columnName="column.key" :tree-data="options[column.optionKey]"
                              @columnValChange="columnValChange"
                              :show-checkbox="drawerStatus > 1"
-                             :default-checked-keys="(temp[column.key]||[]).map(e => e.id)">
+                             :default-checked-keys="(temp[column.key]||[]).map(e => e.id)"
+          >
           </tree-multi-select>
           <!--     树形单选       -->
           <tree-single-select v-else-if="column.type === 'TREE_SELECT'" :options="options[column.optionKey]"
                               :check-node="temp[column.key]" :columnName="column.key"
-                              @columnValChange="columnValChange">
+                              @columnValChange="columnValChange"
+          >
           </tree-single-select>
           <!--    普通文本      -->
           <el-input v-else clearable v-model="temp[column.key]" :autofocus="column.autofocus"></el-input>
@@ -201,21 +236,25 @@
         <el-form-item>
           <el-button v-waves @click="drawerVisible = false">取消</el-button>
           <el-button v-if="drawerStatus === 3" v-waves type="primary" v-permission="[permission+':add']"
-                     @click="handleSave()">保存
+                     @click="handleSave()"
+          >保存
           </el-button>
           <el-button v-if="drawerStatus === 2" v-waves type="primary" v-permission="[permission+':edit']"
-                     @click="handleUpdate()">提交
+                     @click="handleUpdate()"
+          >提交
           </el-button>
         </el-form-item>
 
       </el-form>
     </el-drawer>
     <el-dialog :visible.sync="dialogVisibleImg" :width="$store.state.app.device === 'mobile' ? '100%' : '60%'"
-               destroy-on-close>
+               destroy-on-close
+    >
       <img :src="$media + fileUrl" width="100%" alt="">
     </el-dialog>
     <el-dialog :visible.sync="dialogVisibleVideo" :width="$store.state.app.device === 'mobile' ? '100%' : '60%'"
-               destroy-on-close>
+               destroy-on-close
+    >
       <video preload="auto" :src="$media + fileUrl" width="100%" controls="controls"/>
     </el-dialog>
     <el-backtop target=".page-component__scroll .el-scrollbar__wrap" :bottom="100"></el-backtop>
@@ -223,7 +262,7 @@
 </template>
 
 <script>
-import {getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, changeBaseSort, deleteBase} from '@/api/common'
+import { getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, changeBaseSort, deleteBase } from '@/api/common'
 import permission from '@/directive/permission' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 import { treeFind } from '@/utils/treeFind'
@@ -236,12 +275,12 @@ import TreeSingleSelect from '@/components/TreeSingleSelect'
 
 export default {
   name: 'BaseList',
-  components: {Pagination, UploadImage, UploadVideo, UploadFile, TreeMultiSelect, TreeSingleSelect},
-  directives: {permission, waves},
+  components: { Pagination, UploadImage, UploadVideo, UploadFile, TreeMultiSelect, TreeSingleSelect },
+  directives: { permission, waves },
   props: {
-    url: {type: String, default: ''},
-    permission: {type: String},
-    columns: {type: Array, default: () => []},
+    url: { type: String, default: '' },
+    permission: { type: String },
+    columns: { type: Array, default: () => [] },
     rules: {
       type: Object, default: () => {
       }
@@ -254,11 +293,11 @@ export default {
       type: Object, default: () => {
       }
     },
-    showSelect: {type: Boolean, default: false},
-    showActions: {type: Boolean, default: true},
-    spanColumn: {type: String},
-    defaultExpandAll: {type: Boolean, default: false},
-    treeTable: {type: Boolean, default: false},
+    showSelect: { type: Boolean, default: false },
+    showActions: { type: Boolean, default: true },
+    spanColumn: { type: String },
+    defaultExpandAll: { type: Boolean, default: false },
+    treeTable: { type: Boolean, default: false }
   },
   data: () => {
     return {
@@ -278,15 +317,15 @@ export default {
       dialogVisibleVideo: false,
       spanArr: [],
       spanColumns: [],
-      statusOptions: [{id: true, name: '启用'}, {id: false, name: '禁用'}],
+      statusOptions: [{ id: true, name: '启用' }, { id: false, name: '禁用' }],
       fileUrl: '',
       drawerVisible: false,
       drawerStatus: 0,
-      drawerOptions: [{value: '', title: ''}, {value: 'detail', title: '详情'}, {
+      drawerOptions: [{ value: '', title: '' }, { value: 'detail', title: '详情' }, {
         value: 'edit',
         title: '编辑'
-      }, {value: 'add', title: '新建'}],
-      parentOptions: [],
+      }, { value: 'add', title: '新建' }],
+      parentOptions: []
     }
   },
   watch: {
@@ -296,7 +335,7 @@ export default {
         // this.spanColumns = newVal.map(e => e.spanFlag)
         const listQuery = []
         newVal.forEach(e => {
-          listQuery.push({column: e.key, condition: '=', value: undefined})
+          listQuery.push({ column: e.key, condition: '=', value: undefined })
         })
         this.listQuery = listQuery
       }
@@ -315,13 +354,13 @@ export default {
     changeDataSort(rowIndex, next) {
       if (this.treeTable) {
         let rowGroupIndex
-        treeFind(this.listData,row.parentId).then(res => {
-          res.forEach((e,index) => {
+        treeFind(this.listData, row.parentId).then(res => {
+          res.forEach((e, index) => {
             if (e.id === row.id) {
               rowGroupIndex = index
             }
           })
-          let nextGroupIndex = rowGroupIndex + next;
+          let nextGroupIndex = rowGroupIndex + next
           if (-1 < nextGroupIndex && nextGroupIndex < res.length) {
             this.handleChangeSort(
               res[rowGroupIndex].id, res[rowGroupIndex].sortBy,
@@ -340,7 +379,7 @@ export default {
       }
     },
     handleChangeSort(id1, sortBy1, id2, sortBy2) {
-      changeBaseSort(this.url, {id1: id1, sortBy1: sortBy1, id2: id2, sortBy2:sortBy2}).then(res => {
+      changeBaseSort(this.url, { id1: id1, sortBy1: sortBy1, id2: id2, sortBy2: sortBy2 }).then(res => {
         this.fetchData(this.limitQuery.page)
         this.handleGetParentOptions()
       })
@@ -364,7 +403,7 @@ export default {
           conditions: JSON.stringify(this.listQuery.filter(e => e.column && e.value))
         }
         getBaseList(this.url, request).then(response => {
-          const {content, totalElements} = response.data || {content: [], totalElements: 0}
+          const { content, totalElements } = response.data || { content: [], totalElements: 0 }
           this.listData = content
           this.total = totalElements
           if (this.spanColumn) {
@@ -438,7 +477,7 @@ export default {
       })
       this.treeTable && this.$set(this.temp, 'parentId', parentId)
     },
-    handleAdd(index = 0, row = {id: undefined}) {
+    handleAdd(index = 0, row = { id: undefined }) {
       const self = this
       self.restTemp(row.id)
       self.$nextTick(() => {
@@ -507,7 +546,7 @@ export default {
       }
       this.fileUrl = val
     },
-    objectSpanMethod({row, column, rowIndex, columnIndex}) {
+    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
       if (this.spanColumn && this.spanColumns[columnIndex]) {
         const _row = this.spanArr[rowIndex]
         const _col = _row > 0 ? 1 : 0
@@ -525,7 +564,7 @@ export default {
     },
     columnValChange(val, index, column) {
       this.$set(this.temp, column, val)
-    },
+    }
   }
 }
 </script>

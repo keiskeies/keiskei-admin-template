@@ -9,10 +9,14 @@
     <!--    </el-row>-->
     <el-row :gutter="10">
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 12}" :lg="{span: 12}" :xl="{span: 12}">
-        <div></div>
+        <div style="text-align: center">
+          <el-button type="primary" icon="el-icon-plus" circle @click="handleAddDashboard()" />
+        </div>
       </el-col>
       <el-col :xs="{span: 16}" :sm="{span: 16}" :md="{span: 8}" :lg="{span: 8}" :xl="{span: 10}">
-        <div></div>
+        <div style="text-align: center">
+          <el-button type="primary" icon="el-icon-plus" circle @click="handleAddDashboard()" />
+        </div>
       </el-col>
       <el-col :xs="{span: 8}" :sm="{span: 8}" :md="{span: 4}" :lg="{span: 4}" :xl="{span: 2}">
         <div style="text-align: center">
@@ -23,7 +27,7 @@
 <!--    图表列表-->
     <el-row :gutter="10">
       <template v-for="item in charts">
-        <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: item.span * 8}" :xl="{span: item.span * 8}">
+        <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: item.span * 8}" :xl="{span: item.span * 4}">
           <el-card class="box-card" shadow="hover" style="margin-top: 10px" :body-style="{padding: 0}">
             <div class="chart-wrapper">
               <pie-chart v-if="item.type === 'PIE'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard"/>
@@ -35,8 +39,8 @@
       </template>
     </el-row>
 <!--    图表编辑-->
-    <el-dialog :title="'编辑' + (temp.name || '')" :visible.sync="dialogVisible" :width="$store.state.app.device === 'mobile' ? '100%' : '60%'">
-      <el-form ref="dashboard" :model="temp" label-width="auto" label-suffix=": " style="margin: 15px;">
+    <el-dialog :title="(temp.id ? '新增图表 - ' : '编辑图表 - ') + (temp.name || '')" :visible.sync="dialogVisible" :width="$store.state.app.device === 'mobile' ? '100%' : '60%'">
+      <el-form ref="dashboard" :model="temp" label-width="auto" label-suffix=": " style="margin: 0 15px">
         <el-form-item label="图表名称" prop="name">
           <el-input v-model="temp.name" clearable />
         </el-form-item>
@@ -72,7 +76,7 @@
             <el-row v-for="(direction, index) in temp.directions" :key="index" :gutter="20">
               <el-col :span="23">
                 <div class="y-field-card" style="margin-bottom: 10px">
-                  <el-form :ref="'dashboard_direction_' + index" :model="direction" label-width="auto" label-suffix=": " style="margin: 15px;" inline>
+                  <el-form :ref="'dashboard_direction_' + index" :model="direction" label-width="auto" label-suffix=": " style="margin: 16px 15px 0 15px" inline>
                     <el-form-item label="数据来源" prop="entityClass">
                       <el-select v-model="direction.entityClass" clearable @change="handleGetTableFields">
                         <el-option v-for="item in tableOptions" :key="item.key" :label="item.value" :value="item.key" />
@@ -285,9 +289,6 @@ export default {
 
 <style lang="scss" scoped>
 .app-container {
-  padding: 32px;
-  background-color: rgb(240, 242, 245);
-  position: relative;
 
   .user-corner {
     position: absolute;
