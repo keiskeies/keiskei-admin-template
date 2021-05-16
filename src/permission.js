@@ -19,22 +19,23 @@ router.beforeEach(async(to, from, next) => {
     if (to.path === '/login') {
       next({ path: '/' })
       NProgress.done()
-    } else if (to.path === '/404') {
+    } else if (to.path === '/404' || to.path === '/401') {
       next()
     } else {
       const hasGetUserInfo = store.getters.username
       if (hasGetUserInfo) {
-        next()
+        gotoPermissionNext(to, next, hasGetUserInfo)
       } else {
         try {
-          const { authorities, permissions } = await store.dispatch('user/getInfo')
+          const { code, data } = await store.dispatch('user/getInfo')
+          const {permissions, authorities} = data
           const accessRoutes = await store.dispatch('permission/generateRoutes', {permissions, authorities})
           router.options.routes = accessRoutes
           router.addRoutes(accessRoutes)
-          next({ ...to, replace: true })
+          gotoPermissionNext(to, next, false)
         } catch (error) {
           Message.error(error || 'Has Error')
-          next(`/login?redirect=${to.path}`)
+          next(`/401`)
           NProgress.done()
         }
       }
@@ -48,6 +49,22 @@ router.beforeEach(async(to, from, next) => {
     }
   }
 })
+
+export function gotoPermissionNext(to, next, hasGetUserInfo) {
+  if (store.getters.all_urls.indexOf(to.path) > -1) {
+    if (store.getters.permission_urls.indexOf(to.path) > -1) {
+      if (hasGetUserInfo) {
+        next()
+      } else {
+        next({ ...to, replace: true })
+      }
+    } else {
+      next({ path: '/401' })
+    }
+  } else {
+    next({ path: '/404' })
+  }
+}
 
 router.afterEach(() => {
   NProgress.done()

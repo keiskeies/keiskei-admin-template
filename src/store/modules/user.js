@@ -59,8 +59,8 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo().then(response => {
-        const { data } = response
-        if (!data) {
+        const { code, data } = response
+        if (code) {
           reject('Verification failed, please Login again.')
         }
         const { id, username, name, avatar, phone, email, authorities, permissions } = data
@@ -75,7 +75,7 @@ const actions = {
         // getDataDictionaryOptions().then(res => {
         //   localStorage.setItem('allOptions', JSON.stringify(res.data))
         // })
-        resolve(data)
+        resolve(response)
       }).catch(error => {
         reject(error)
       })
