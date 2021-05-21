@@ -63,7 +63,7 @@ service.interceptors.response.use(
   error => {
     // store.dispatch('user/logout')
     Message({
-      message: error.msg,
+      message: error.msg || 'Error',
       type: 'error',
       duration: 5 * 1000
     })

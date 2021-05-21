@@ -1,30 +1,49 @@
 <template>
   <div class="base-list page-component__scroll el-scrollbar">
 
-    <div class="filter-container" v-if="listQuery && listQuery.length > 0">
-      <template v-for="(column, index) in columns" v-if="column.queryFlag || false">
-        <el-select v-if="column.type && column.type === 'MIDDLE_ID'" v-model="listQuery[index].value" clearable
-                   class="filter-item" :placeholder="column.label"
-        >
-          <el-option v-for="item in options[column.key.replace('Id', 'Options')]" :key="item.id" :label="item.name"
-                     :value="item.id"
-          ></el-option>
-        </el-select>
-        <el-select v-else-if="column.type && column.type === 'STATUS'" v-model="listQuery[index].value" clearable
-                   class="filter-item" :placeholder="column.label"
-        >
-          <el-option v-for="item in statusOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
-        </el-select>
-        <el-date-picker v-else-if="column.type && column.type === 'DATE_TIME'" v-model="listQuery[index].value"
-                        clearable class="filter-item-time" format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss"
-                        @change="fetchData(1)"
-                        type="daterange" range-separator=" - " :start-placeholder="column.label + '开始'"
-                        :end-placeholder="column.label + '结束'"
-        ></el-date-picker>
-        <el-input v-else v-model="listQuery[index].value" clearable class="filter-item" :placeholder="column.label"
-                  @keyup.enter.native="fetchData(1)"
-        ></el-input>
-      </template>
+    <div v-if="listQuery && listQuery.length > 0" class="filter-container">
+      <el-row :gutter="5">
+        <template v-for="(column, index) in columns" v-if="column.queryFlag || false">
+          <el-col
+            :xs="{span: (column.type === 'DATE_TIME' ? 2 : 1) * 12}"
+            :sm="{span: (column.type === 'DATE_TIME' ? 2 : 1) * 8}"
+            :md="{span: (column.type === 'DATE_TIME' ? 2 : 1) * 6}"
+            :lg="{span: (column.type === 'DATE_TIME' ? 2 : 1) * 4}"
+            :xl="{span: (column.type === 'DATE_TIME' ? 2 : 1) * 3}"
+          >
+            <el-select v-if="column.type && column.type === 'MIDDLE_ID'" v-model="listQuery[index].value" clearable
+                       class="filter-item" :placeholder="column.label"
+            >
+              <el-option v-for="item in options[column.key.replace('Id', 'Options')]" :key="item.id" :label="item.name"
+                         :value="item.id"
+              ></el-option>
+            </el-select>
+            <el-select v-else-if="column.type && column.type === 'STATUS'" v-model="listQuery[index].value" clearable
+                       class="filter-item" :placeholder="column.label"
+            >
+              <el-option v-for="item in statusOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
+            </el-select>
+            <el-date-picker v-else-if="column.type && column.type === 'DATE_TIME'" v-model="listQuery[index].value"
+                            clearable class="filter-item" format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss"
+                            @change="fetchData(1)"
+                            type="daterange" range-separator=" - " :start-placeholder="column.label + '开始'"
+                            :end-placeholder="column.label + '结束'"
+            >
+              <el-select slot="prepend" v-model="listQuery[index].condition" placeholder="">
+                <el-option v-for="(item, index) in conditionOptions" v-if="item[column.type]" :key="index" :label="item.value" :value="item.key"></el-option>
+              </el-select>
+            </el-date-picker>
+            <el-input v-else v-model="listQuery[index].value" clearable class="filter-item" :placeholder="column.label"
+                      @keyup.enter.native="fetchData(1)"
+            >
+              <el-select slot="prepend" v-model="listQuery[index].condition" placeholder="">
+                <el-option v-for="(item, index) in conditionOptions" v-if="item[column.type]" :key="index" :label="item.value" :value="item.key"></el-option>
+              </el-select>
+            </el-input>
+          </el-col>
+        </template>
+      </el-row>
+
       <el-button v-waves type="primary" class="filter-button" icon="el-icon-search" @click="fetchData(limitQuery.page)">
         搜索
       </el-button>
@@ -236,7 +255,7 @@
         <el-form-item>
           <el-button v-waves @click="drawerVisible = false">取消</el-button>
           <el-button v-if="drawerStatus === 3" v-waves type="primary" v-permission="[permission+':add']"
-                     @click="handleSave()"
+                     @click="handleSave()" :loading="addLoading"
           >保存
           </el-button>
           <el-button v-if="drawerStatus === 2" v-waves type="primary" v-permission="[permission+':edit']"
@@ -278,8 +297,9 @@ export default {
   components: { Pagination, UploadImage, UploadVideo, UploadFile, TreeMultiSelect, TreeSingleSelect },
   directives: { permission, waves },
   props: {
+    editPage: { type: Boolean, default: false },
     url: { type: String, default: '' },
-    permission: { type: String },
+    permission: { type: String , default: ''},
     columns: { type: Array, default: () => [] },
     rules: {
       type: Object, default: () => {
@@ -295,7 +315,7 @@ export default {
     },
     showSelect: { type: Boolean, default: false },
     showActions: { type: Boolean, default: true },
-    spanColumn: { type: String },
+    spanColumn: { type: String, default: ''},
     defaultExpandAll: { type: Boolean, default: false },
     treeTable: { type: Boolean, default: false }
   },
@@ -325,7 +345,20 @@ export default {
         value: 'edit',
         title: '编辑'
       }, { value: 'add', title: '新建' }],
-      parentOptions: []
+      parentOptions: [],
+      addLoading: false,
+      conditionOptions: [
+        {key: 'EQ', value: '等于',    NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: true, LONG_WORD: true, LONG_TEXT: true, TO_LONG_TEXT: true, MIDDLE_ID: true, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: true },
+        {key: 'GE', value: '大/等于', NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
+        {key: 'GT', value: '大于',    NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
+        {key: 'LE', value: '小/等于', NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
+        {key: 'LT', value: '小于',    NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
+        {key: 'BT', value: '区间',    NUMBER: true, DECIMAL: true, MONEY: true, DATE: true, TIME: true, DATE_TIME: true, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
+        {key: 'LIKE', value: '包含',  NUMBER: false, DECIMAL: false, MONEY: false, DATE: false, TIME: false, DATE_TIME: false, WORD: true, LONG_WORD: true, LONG_TEXT: true, TO_LONG_TEXT: true, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: false, SORT: false, DICTIONARY: false },
+        {key: 'LL', value: '前缀',    NUMBER: false, DECIMAL: false, MONEY: false, DATE: true, TIME: true, DATE_TIME: true, WORD: true, LONG_WORD: true, LONG_TEXT: true, TO_LONG_TEXT: true, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: false, SORT: false, DICTIONARY: false },
+        {key: 'LR', value: '后缀',    NUMBER: false, DECIMAL: false, MONEY: false, DATE: true, TIME: true, DATE_TIME: true, WORD: true, LONG_WORD: true, LONG_TEXT: true, TO_LONG_TEXT: true, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: false, SORT: false, DICTIONARY: false },
+        {key: 'IN', value: '属于',    NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: true, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: false, SORT: false, DICTIONARY: true },
+      ],
     }
   },
   watch: {
@@ -335,7 +368,15 @@ export default {
         // this.spanColumns = newVal.map(e => e.spanFlag)
         const listQuery = []
         newVal.forEach(e => {
-          listQuery.push({ column: e.key, condition: '=', value: undefined })
+          let condition = 'EQ';
+          if (e.type && e.type.indexOf('SELECT') !== -1) {
+            condition = "IN"
+          } else if (e.type && e.type.indexOf('DATE_TIME') !== -1) {
+            condition = 'BT'
+          } else if (e.type && e.type.indexOf('WORD') !== -1) {
+            condition = 'LIKE'
+          }
+          listQuery.push({ column: e.key, condition: condition, value: undefined })
         })
         this.listQuery = listQuery
       }
@@ -360,8 +401,8 @@ export default {
               rowGroupIndex = index
             }
           })
-          let nextGroupIndex = rowGroupIndex + next
-          if (-1 < nextGroupIndex && nextGroupIndex < res.length) {
+          const nextGroupIndex = rowGroupIndex + next
+          if (nextGroupIndex > -1 && nextGroupIndex < res.length) {
             this.handleChangeSort(
               res[rowGroupIndex].id, res[rowGroupIndex].sortBy,
               res[nextGroupIndex].id, res[nextGroupIndex].sortBy
@@ -439,16 +480,20 @@ export default {
     handleRow(row, column, event) {
     },
     handleEdit(index, row) {
-      const self = this
-      getBaseDetail(self.url, row.id).then(res => {
-        self.temp = Object.assign(res.data)
-        self.tempBefore = Object.assign(res.data)
-        self.$nextTick(() => {
-          self.$refs[self.url + '_DataForm'].clearValidate()
+      if (this.editPage) {
+        this.$router.push({path: this.$route.path + '/edit?id=' + row.id})
+      } else {
+        const self = this
+        getBaseDetail(self.url, row.id).then(res => {
+          self.temp = Object.assign(res.data)
+          self.tempBefore = Object.assign(res.data)
+          self.$nextTick(() => {
+            self.$refs[self.url + '_DataForm'].clearValidate()
+          })
+          self.drawerStatus = 2
+          self.drawerVisible = true
         })
-        self.drawerStatus = 2
-        self.drawerVisible = true
-      })
+      }
     },
     handleUpdate() {
       this.$refs[this.url + '_DataForm'].validate((valid) => {
@@ -478,15 +523,20 @@ export default {
       this.treeTable && this.$set(this.temp, 'parentId', parentId)
     },
     handleAdd(index = 0, row = { id: undefined }) {
-      const self = this
-      self.restTemp(row.id)
-      self.$nextTick(() => {
-        self.$refs[self.url + '_DataForm'].clearValidate()
-      })
-      self.drawerStatus = 3
-      self.drawerVisible = true
+      if (this.editPage) {
+        this.$router.push({path: this.$route.path + '/add'})
+      } else {
+        const self = this
+        self.restTemp(row.id)
+        self.$nextTick(() => {
+          self.$refs[self.url + '_DataForm'].clearValidate()
+        })
+        self.drawerStatus = 3
+        self.drawerVisible = true
+      }
     },
     handleSave() {
+      this.addLoading = true
       this.$refs[this.url + '_DataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
@@ -495,7 +545,12 @@ export default {
             this.handleGetParentOptions()
             this.drawerVisible = false
             this.$notify.success('创建成功!')
+            this.addLoading = false
+          }).catch(() => {
+            this.addLoading = false
           })
+        } else {
+          this.addLoading = false
         }
       })
     },

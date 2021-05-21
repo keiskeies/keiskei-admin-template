@@ -107,10 +107,14 @@ div:focus {
   padding: 10px;
 
   .filter-container{
+    padding: 5px;
     margin-bottom: 10px;
-    padding-bottom: 5px;
     background-color: #f8f8fa;
+    .el-input-group__prepend {
+      width: 80px !important;
+    }
   }
+
   .base-table {
     padding: 5px;
     position: relative;
@@ -188,28 +192,19 @@ div:focus {
 
 
 .filter-item,
-.filter-item-time,
 .filter-button {
-  margin: 5px 5px 0 5px !important;
-}
 
-.filter-item {
-  width: 220px !important;
 }
-.filter-item-time {
-  width: 450px !important;
-  max-width: calc(100% - 10px) !important;
+.filter-item{
+  margin-bottom: 5px !important;
+  width: 100% !important;
 }
-
 .desktop {
   .form-item, .form-item-time{
     width: 315px;
   }
 }
 .mobile {
-  .filter-item {
-    max-width:  calc(50% - 10px) !important;
-  }
   .form-item {
     width: 100%;
   }

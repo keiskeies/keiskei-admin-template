@@ -51,7 +51,9 @@ router.beforeEach(async(to, from, next) => {
 })
 
 export function gotoPermissionNext(to, next, hasGetUserInfo) {
-  if (store.getters.all_urls.indexOf(to.path) > -1) {
+  if (to.path.startsWith('/redirect')) {
+    next()
+  } else if (store.getters.all_urls.indexOf(to.path) > -1) {
     if (store.getters.permission_urls.indexOf(to.path) > -1) {
       if (hasGetUserInfo) {
         next()

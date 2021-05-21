@@ -7,13 +7,26 @@ const generateRouter = {
   component: Layout,
   redirect: '/generate/project',
   name: '代码管理',
-  meta: { title: '代码生成', icon: 'example', role: 'generate' },
+  meta: { title: '代码管理', icon: 'example', role: 'generate' },
   children: [
     {
       path: '/generate/project',
-      name: '项目创建',
+      name: '项目管理',
       component: () => import('@/views/generate/project/index'),
-      meta: { title: '项目创建', icon: 'table', role: 'generate:project' }
+      meta: { title: '项目管理', icon: 'table', role: 'generate:project' }
+    },
+    {
+      path: '/generate/project/add',
+      name: '项目创建',
+      component: () => import('@/views/generate/project/edit'),
+      meta: { title: '项目创建', icon: 'table', role: 'generate:project:add' },
+    },
+    {
+      path: '/generate/project/edit',
+      name: '项目创编辑',
+      component: () => import('@/views/generate/project/edit'),
+      meta: { title: '项目编辑', icon: 'table', role: 'generate:project:edit' },
+      hidden: true
     }
   ]
 }

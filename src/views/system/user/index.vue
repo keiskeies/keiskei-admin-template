@@ -17,8 +17,8 @@ export default {
   data() {
     return {
       columns: [
-        {show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'username', label: '账号', tooltip: '登陆用户名'},
-        {show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'name', label: '姓名', tooltip: '真实姓名'},
+        {show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'username', label: '账号', tooltip: '登陆用户名', type: 'WORD'},
+        {show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'name', label: '姓名', tooltip: '真实姓名', type: 'WORD'},
         {
           show: true,
           edit: true,
@@ -61,14 +61,14 @@ export default {
           key: 'avatar',
           label: '用户头像'
         },
-        {show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'phone', label: '用户手机号'},
+        {show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'phone', label: '用户手机号', type: 'WORD'},
         {
           show: true,
           edit: true,
           queryFlag: true,
           sortable: false,
           width: 200,
-          type: 'EMAIL',
+          type: 'WORD',
           key: 'email',
           label: '用户邮箱'
         },
