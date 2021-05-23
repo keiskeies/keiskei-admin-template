@@ -17,71 +17,16 @@ export default {
   data() {
     return {
       columns: [
-        {show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'username', label: '账号', tooltip: '登陆用户名', type: 'WORD'},
-        {show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'name', label: '姓名', tooltip: '真实姓名', type: 'WORD'},
-        {
-          show: true,
-          edit: true,
-          queryFlag: false,
-          sortable: false,
-          width: 200,
-          type: 'MULTI_SELECT',
-          optionKey: 'roleOptions',
-          key: 'roles',
-          label: '用户角色'
-        },
-        {
-          show: true,
-          edit: true,
-          queryFlag: false,
-          sortable: false,
-          width: 350,
-          type: 'TREE_SELECT',
-          optionKey: 'departmentOptions',
-          key: 'department',
-          label: '所属部门'
-        },
-        {
-          show: true,
-          edit: true,
-          queryFlag: true,
-          sortable: false,
-          width: 100,
-          type: 'STATUS',
-          key: 'enabled',
-          label: '启用状态'
-        },
-        {
-          show: true,
-          edit: true,
-          queryFlag: false,
-          sortable: false,
-          width: 200,
-          type: 'IMAGE',
-          key: 'avatar',
-          label: '用户头像'
-        },
-        {show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'phone', label: '用户手机号', type: 'WORD'},
-        {
-          show: true,
-          edit: true,
-          queryFlag: true,
-          sortable: false,
-          width: 200,
-          type: 'WORD',
-          key: 'email',
-          label: '用户邮箱'
-        },
-        {
-          show: false,
-          edit: false,
-          queryFlag: true,
-          sortable: true,
-          width: 200,
-          type: 'DATE_TIME',
-          key: 'createTime',
-          label: '创建时间'
-        },
+        {show:true,false:true,queryFlag:true,sortable:false,width:80,key:'id',label:'ID',type:'NUMBER'},
+        {show:true,edit:true,queryFlag:true,sortable:false,width:200,key:'username',label:'账号',tooltip:'登陆用户名',type:'WORD'},
+        {show:true,edit:true,queryFlag:true,sortable:false,width:200,key:'name',label:'姓名',tooltip:'真实姓名',type:'WORD'},
+        {show:true,edit:true,queryFlag:false,sortable:false,width:200,type:'MULTI_SELECT',optionKey:'roleOptions',key:'roles',label:'用户角色'},
+        {show:true,edit:true,queryFlag:true,sortable:false,width:350,type:'TREE_SELECT',optionKey:'departmentOptions',key:'department',label:'所属部门'},
+        {show:true,edit:true,queryFlag:true,sortable:false,width:100,type:'STATUS',key:'enabled',label:'启用状态'},
+        {show:true,edit:true,queryFlag:false,sortable:false,width:200,type:'IMAGE',key:'avatar',label:'用户头像'},
+        {show:true,edit:true,queryFlag:true,sortable:false,width:200,key:'phone',label:'用户手机号',type:'WORD'},
+        {show:true,edit:true,queryFlag:true,sortable:false,width:200,type:'WORD',key:'email',label:'用户邮箱'},
+        {show:false,edit:false,queryFlag:true,sortable:true,width:200,type:'DATE_TIME',key:'createTime',label:'创建时间'}
       ],
       format: {},
       rules: {

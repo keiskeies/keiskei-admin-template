@@ -111,7 +111,19 @@ div:focus {
     margin-bottom: 10px;
     background-color: #f8f8fa;
     .el-input-group__prepend {
-      width: 80px !important;
+      width: 100px !important;
+    }
+    .el-cascader--mini {
+      margin-bottom: 3px !important;
+    }
+    .el-input-group__append {
+      padding: 0;
+      width: calc(50% - 100px) !important;
+    }
+    .el-input-group__append .el-input--mini .el-input__inner {
+      height: 26px !important;
+      border: none;
+      //width: 100px !important;
     }
   }
 

@@ -5,46 +5,67 @@
       <el-row :gutter="5">
         <template v-for="(column, index) in columns" v-if="column.queryFlag || false">
           <el-col
-            :xs="{span: (column.type === 'DATE_TIME' ? 2 : 1) * 12}"
-            :sm="{span: (column.type === 'DATE_TIME' ? 2 : 1) * 8}"
-            :md="{span: (column.type === 'DATE_TIME' ? 2 : 1) * 6}"
-            :lg="{span: (column.type === 'DATE_TIME' ? 2 : 1) * 4}"
-            :xl="{span: (column.type === 'DATE_TIME' ? 2 : 1) * 3}"
+            :xs="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 12}"
+            :sm="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 8}"
+            :md="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 6}"
+            :lg="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 4}"
+            :xl="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 3}"
           >
-            <el-select v-if="column.type && column.type === 'MIDDLE_ID'" v-model="listQuery[index].value" clearable
-                       class="filter-item" :placeholder="column.label"
+<!--            TREE_SELECT-->
+            <el-cascader v-if="column.type && column.type.indexOf('TREE') !== -1" v-model="listQuery[index].value[0]" :options="options[column.optionKey]"
+                         class="filter-item" :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false, multiple: true, checkStrictly : true}" collapse-tags @change="fetchData(1)"
+            ></el-cascader>
+<!--            SELECT-->
+            <el-select v-else-if="column.type && column.type.indexOf('SELECT') !== -1" v-model="listQuery[index].value[0]" clearable
+                       class="filter-item" :placeholder="column.label" multiple @change="fetchData(1)"
             >
-              <el-option v-for="item in options[column.key.replace('Id', 'Options')]" :key="item.id" :label="item.name"
+              <el-option v-for="item in options[column.optionKey]" :key="item.id" :label="item.name"
                          :value="item.id"
               ></el-option>
             </el-select>
-            <el-select v-else-if="column.type && column.type === 'STATUS'" v-model="listQuery[index].value" clearable
-                       class="filter-item" :placeholder="column.label"
+<!--            STATUS-->
+            <el-select v-else-if="column.type && column.type === 'STATUS'" v-model="listQuery[index].value[0]" clearable
+                       class="filter-item" :placeholder="column.label" @change="fetchData(1)"
             >
               <el-option v-for="item in statusOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
-            <el-date-picker v-else-if="column.type && column.type === 'DATE_TIME'" v-model="listQuery[index].value"
+<!--            DATE_TIME-->
+            <el-date-picker v-else-if="column.type && column.type === 'DATE_TIME'" v-model="listQuery[index].value[0]"
                             clearable class="filter-item" format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss"
                             @change="fetchData(1)"
                             type="daterange" range-separator=" - " :start-placeholder="column.label + '开始'"
                             :end-placeholder="column.label + '结束'"
             >
-              <el-select slot="prepend" v-model="listQuery[index].condition" placeholder="">
-                <el-option v-for="(item, index) in conditionOptions" v-if="item[column.type]" :key="index" :label="item.value" :value="item.key"></el-option>
-              </el-select>
             </el-date-picker>
-            <el-input v-else v-model="listQuery[index].value" clearable class="filter-item" :placeholder="column.label"
-                      @keyup.enter.native="fetchData(1)"
-            >
-              <el-select slot="prepend" v-model="listQuery[index].condition" placeholder="">
-                <el-option v-for="(item, index) in conditionOptions" v-if="item[column.type]" :key="index" :label="item.value" :value="item.key"></el-option>
-              </el-select>
-            </el-input>
+<!--            WORD-->
+            <template v-else>
+              <template v-if="listQuery[index].condition === 'BT'">
+                <el-input v-model="listQuery[index].value[0]" clearable class="filter-item" @keyup.enter.native="fetchData(1)">
+                  <template slot="prepend">
+                    <el-select v-model="listQuery[index].condition">
+                      <el-option v-for="(item, index) in conditionOptions" v-if="item[column.type]" :key="index" :label="column.label + item.value" :value="item.key"></el-option>
+                    </el-select>
+                  </template>
+
+                  <el-input slot="append" v-model="listQuery[index].value[1]" clearable></el-input>
+                </el-input>
+              </template>
+              <template v-else>
+                <el-input v-model="listQuery[index].value[0]" clearable class="filter-item" :placeholder="column.label" @keyup.enter.native="fetchData(1)">
+                  <template slot="prepend">
+                    <el-select v-model="listQuery[index].condition">
+                      <el-option v-for="(item, index) in conditionOptions" v-if="item[column.type]" :key="index" :label="column.label + item.value" :value="item.key"></el-option>
+                    </el-select>
+                  </template>
+
+                </el-input>
+              </template>
+            </template>
           </el-col>
         </template>
       </el-row>
 
-      <el-button v-waves type="primary" class="filter-button" icon="el-icon-search" @click="fetchData(limitQuery.page)">
+      <el-button v-waves type="primary" class="filter-button" icon="el-icon-search" @click="fetchData()">
         搜索
       </el-button>
       <el-button v-waves v-permission="[permission+':add']" type="primary" class="filter-button" icon="el-icon-plus"
@@ -52,6 +73,14 @@
       >新建
       </el-button>
     </div>
+
+
+
+
+
+
+
+<!--    表格-->
     <div class="base-table">
       <el-table class="base-table-content" v-loading="listLoading" :data="listData" element-loading-text="加载中" border
                 fit highlight-current-row stripe :span-method="objectSpanMethod" @sort-change="sortChanged"
@@ -101,10 +130,21 @@
                    @click="selectImg(scope.row[column.key],column.type)"
               >
             </slot>
-            <!--            树形多选-->
+            <!--            树形单选-->
             <slot v-else-if="column.type === 'TREE_SELECT'">
+<!--              {{ (scope.row[column.key] || {name: ''}).name }}-->
+<!--              <el-tag v-for="item in scope.row[column.key]" :key="item.id">{{item.name}}</el-tag>-->
               <el-cascader v-model="(scope.row[column.key]||{id: undefined}).id" :options="options[column.optionKey]"
-                           class="form-item" :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false}"
+                           class="form-item" :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false, checkStrictly : true}"
+                           disabled
+              ></el-cascader>
+            </slot>
+            <!--            树形多选-->
+            <slot v-else-if="column.type === 'TREE_MULTI_SELECT'">
+<!--              {{ (scope.row[column.key] || {name: ''}).name }}-->
+<!--              <el-tag v-for="item in scope.row[column.key]" :key="item.id">{{item.name}}</el-tag>-->
+              <el-cascader v-model="(scope.row[column.key]||{id: undefined}).id" :options="options[column.optionKey]"
+                           class="form-item" :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false, multiple: true, checkStrictly : true}"
                            disabled
               ></el-cascader>
             </slot>
@@ -165,12 +205,13 @@
           </template>
         </el-table-column>
       </el-table>
+<!--      字段显示控制-->
       <div class="base-table-item">
         <el-tooltip class="item" effect="dark" content="表头展示" placement="top-start">
           <el-popover placement="bottom" title="表头展示" width="250" trigger="click">
             <el-form class="base-table-item-form" ref="itemForm" label-width="150px" label-suffix=": ">
-              <el-form-item v-for="(column, index) in columns" :label="column.label" :prop="column.key" :key="index">
-                <el-switch v-model="column.show"></el-switch>
+              <el-form-item v-for="(item, index) in columns" :label="item.label" :prop="item.key" :key="index">
+                <el-switch v-model="item.show"></el-switch>
               </el-form-item>
             </el-form>
             <el-button slot="reference" type="primary" size="mini" icon="el-icon-setting" circle></el-button>
@@ -179,10 +220,19 @@
       </div>
     </div>
 
-    <pagination v-if="!treeTable" v-show="total>0" :total="total" :page.sync="limitQuery.page"
-                :limit.sync="limitQuery.size" @pagination="fetchData"
+    <pagination v-if="!treeTable" v-show="total>0" :total="total" :page="limitQuery.page"
+                :limit="limitQuery.size" @pagination="fetchData"
     />
 
+
+
+
+
+
+
+
+
+<!--编辑器-->
     <el-drawer :title="drawerOptions[drawerStatus].title" :visible.sync="drawerVisible" direction="rtl"
                :before-close="handleCloseDrawer" :size="$store.state.app.device !== 'mobile' ? '50%' : '100%'"
     >
@@ -349,9 +399,10 @@ export default {
       addLoading: false,
       conditionOptions: [
         {key: 'EQ', value: '等于',    NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: true, LONG_WORD: true, LONG_TEXT: true, TO_LONG_TEXT: true, MIDDLE_ID: true, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: true },
-        {key: 'GE', value: '大/等于', NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
+        {key: 'NE', value: '不等',   NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: true, LONG_WORD: true, LONG_TEXT: true, TO_LONG_TEXT: true, MIDDLE_ID: true, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: true },
+        {key: 'GE', value: '大/等', NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
         {key: 'GT', value: '大于',    NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
-        {key: 'LE', value: '小/等于', NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
+        {key: 'LE', value: '小/等', NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
         {key: 'LT', value: '小于',    NUMBER: true, DECIMAL: true, MONEY: true, DATE: false, TIME: false, DATE_TIME: false, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
         {key: 'BT', value: '区间',    NUMBER: true, DECIMAL: true, MONEY: true, DATE: true, TIME: true, DATE_TIME: true, WORD: false, LONG_WORD: false, LONG_TEXT: false, TO_LONG_TEXT: false, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: true, SORT: false, DICTIONARY: false },
         {key: 'LIKE', value: '包含',  NUMBER: false, DECIMAL: false, MONEY: false, DATE: false, TIME: false, DATE_TIME: false, WORD: true, LONG_WORD: true, LONG_TEXT: true, TO_LONG_TEXT: true, MIDDLE_ID: false, IMAGE: false, VIDEO: false, FILE: false, VISIT_TIMES: false, SORT: false, DICTIONARY: false },
@@ -362,31 +413,42 @@ export default {
     }
   },
   watch: {
-    columns: {
-      immediate: true,
-      handler(newVal, oldVal) {
-        // this.spanColumns = newVal.map(e => e.spanFlag)
-        const listQuery = []
-        newVal.forEach(e => {
-          let condition = 'EQ';
-          if (e.type && e.type.indexOf('SELECT') !== -1) {
-            condition = "IN"
-          } else if (e.type && e.type.indexOf('DATE_TIME') !== -1) {
-            condition = 'BT'
-          } else if (e.type && e.type.indexOf('WORD') !== -1) {
-            condition = 'LIKE'
-          }
-          listQuery.push({ column: e.key, condition: condition, value: undefined })
-        })
-        this.listQuery = listQuery
-      }
-    }
+    // columns: {
+    //   immediate: true,
+    //   handler(newVal, oldVal) {
+    //     // this.spanColumns = newVal.map(e => e.spanFlag)
+    //
+    //   }
+    // }
   },
   created() {
     this.handleGetParentOptions()
+    const listQuery = localStorage.getItem(this.url + '_listQuery')
+    if (listQuery) {
+      this.listQuery = JSON.parse(listQuery)
+      const limitQuery = localStorage.getItem(this.url + '_limitQuery')
+      if (limitQuery) {
+        this.limitQuery = JSON.parse(limitQuery)
+      }
+    } else {
+      const listQuery = []
+      this.columns.forEach(e => {
+        let condition = 'EQ';
+        if (e.type && e.type.indexOf('SELECT') !== -1) {
+          condition = "IN"
+        } else if (e.type && (e.type.indexOf('DATE_TIME') !== -1 || e.type === 'MIDDLE_ID' )) {
+          condition = 'BT'
+        } else if (e.type && e.type.indexOf('WORD') !== -1) {
+          condition = 'LIKE'
+        }
+        listQuery.push({ column: e.key, condition: condition, value: [] })
+      })
+      this.listQuery = listQuery
+    }
   },
   mounted() {
-    this.fetchData(this.limitQuery.page)
+
+    this.fetchData()
   },
   methods: {
     handleSelectionChange(val) {
@@ -421,11 +483,12 @@ export default {
     },
     handleChangeSort(id1, sortBy1, id2, sortBy2) {
       changeBaseSort(this.url, { id1: id1, sortBy1: sortBy1, id2: id2, sortBy2: sortBy2 }).then(res => {
-        this.fetchData(this.limitQuery.page)
+        this.fetchData()
         this.handleGetParentOptions()
       })
     },
-    fetchData(page) {
+    fetchData(page, size) {
+      console.log(page, size)
       this.listLoading = true
       if (this.treeTable) {
         getBaseList(this.url, {}).then(response => {
@@ -436,15 +499,29 @@ export default {
         })
       } else {
         page && typeof (page) === 'number' && (this.limitQuery.page = page)
+        size && typeof (size) === 'number' && (this.limitQuery.size = size)
+        const conditions = this.listQuery.filter(e => {
+          if (e.value && Array.isArray(e.value)) {
+            for (let i = 0; i < e.value.length; i++) {
+              if (e.value[i]) {
+                return true
+              }
+            }
+          }
+          return false
+        })
         const request = {
           page: this.limitQuery.page,
           size: this.limitQuery.size,
           desc: this.limitQuery.desc,
           asc: this.limitQuery.asc,
-          conditions: JSON.stringify(this.listQuery.filter(e => e.column && e.value))
+          conditions: JSON.stringify(conditions),
+          show: this.columns.filter(e => e.show).map(e => e.name).join(',')
         }
+        localStorage.setItem(this.url + '_listQuery', JSON.stringify(this.listQuery));
+        localStorage.setItem(this.url + '_limitQuery', JSON.stringify(this.limitQuery));
         getBaseList(this.url, request).then(response => {
-          const { content, totalElements } = response.data || { content: [], totalElements: 0 }
+          const { content, totalElements, number, size } = response.data || { content: [], totalElements: 0 }
           this.listData = content
           this.total = totalElements
           if (this.spanColumn) {
@@ -460,6 +537,8 @@ export default {
             })
             this.spanArr = spanArr
           }
+          this.limitQuery.page = number + 1
+          this.limitQuery.size = size
           this.listLoading = false
         }).catch(err => {
           this.listLoading = false
@@ -613,6 +692,7 @@ export default {
       }
     },
     handleGetParentOptions() {
+      console.log(this.options)
       this.treeTable && getBaseOptions(this.url, {}).then(res => {
         this.parentOptions = res.data
       })

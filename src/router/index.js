@@ -9,6 +9,7 @@ import Layout from '@/layout'
 /* Router Modules */
 import systemRouter from './modules/system.js'
 import generateRouter from './modules/generate'
+import logRouter from './modules/log'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -99,7 +100,7 @@ export const constantRoutes = [
 export const asyncRoutes = [
 
   /** when your routing map is too long, you can split it into small modules **/
-  systemRouter, generateRouter
+  systemRouter, generateRouter, logRouter
 
 ]
 
