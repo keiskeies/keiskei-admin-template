@@ -11,25 +11,29 @@
             :lg="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 4}"
             :xl="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 3}"
           >
-<!--            TREE_SELECT-->
-            <el-cascader v-if="column.type && column.type.indexOf('TREE') !== -1" v-model="listQuery[index].value[0]" :options="options[column.optionKey]"
-                         class="filter-item" :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false, multiple: true, checkStrictly : true}" collapse-tags @change="fetchData(1)"
+            <!--            TREE_SELECT-->
+            <el-cascader v-if="column.type && column.type.indexOf('TREE') !== -1" v-model="listQuery[index].value[0]"
+                         :options="options[column.optionKey]"
+                         class="filter-item"
+                         :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false, multiple: true, checkStrictly : true}"
+                         collapse-tags @change="fetchData(1)"
             ></el-cascader>
-<!--            SELECT-->
-            <el-select v-else-if="column.type && column.type.indexOf('SELECT') !== -1" v-model="listQuery[index].value[0]" clearable
+            <!--            SELECT-->
+            <el-select v-else-if="column.type && column.type.indexOf('SELECT') !== -1"
+                       v-model="listQuery[index].value[0]" clearable
                        class="filter-item" :placeholder="column.label" multiple @change="fetchData(1)"
             >
               <el-option v-for="item in options[column.optionKey]" :key="item.id" :label="item.name"
                          :value="item.id"
               ></el-option>
             </el-select>
-<!--            STATUS-->
+            <!--            STATUS-->
             <el-select v-else-if="column.type && column.type === 'STATUS'" v-model="listQuery[index].value[0]" clearable
                        class="filter-item" :placeholder="column.label" @change="fetchData(1)"
             >
               <el-option v-for="item in statusOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
-<!--            DATE_TIME-->
+            <!--            DATE_TIME-->
             <el-date-picker v-else-if="column.type && column.type === 'DATE_TIME'" v-model="listQuery[index].value[0]"
                             clearable class="filter-item" format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss"
                             @change="fetchData(1)"
@@ -37,13 +41,17 @@
                             :end-placeholder="column.label + '结束'"
             >
             </el-date-picker>
-<!--            WORD-->
+            <!--            WORD-->
             <template v-else>
               <template v-if="listQuery[index].condition === 'BT'">
-                <el-input v-model="listQuery[index].value[0]" clearable class="filter-item" @keyup.enter.native="fetchData(1)">
+                <el-input v-model="listQuery[index].value[0]" clearable class="filter-item"
+                          @keyup.enter.native="fetchData(1)"
+                >
                   <template slot="prepend">
                     <el-select v-model="listQuery[index].condition">
-                      <el-option v-for="(item, index) in conditionOptions" v-if="item[column.type]" :key="index" :label="column.label + item.value" :value="item.key"></el-option>
+                      <el-option v-for="(item, index) in conditionOptions" v-if="item[column.type]" :key="index"
+                                 :label="column.label + item.value" :value="item.key"
+                      ></el-option>
                     </el-select>
                   </template>
 
@@ -51,10 +59,14 @@
                 </el-input>
               </template>
               <template v-else>
-                <el-input v-model="listQuery[index].value[0]" clearable class="filter-item" :placeholder="column.label" @keyup.enter.native="fetchData(1)">
+                <el-input v-model="listQuery[index].value[0]" clearable class="filter-item" :placeholder="column.label"
+                          @keyup.enter.native="fetchData(1)"
+                >
                   <template slot="prepend">
                     <el-select v-model="listQuery[index].condition">
-                      <el-option v-for="(item, index) in conditionOptions" v-if="item[column.type]" :key="index" :label="column.label + item.value" :value="item.key"></el-option>
+                      <el-option v-for="(item, index) in conditionOptions" v-if="item[column.type]" :key="index"
+                                 :label="column.label + item.value" :value="item.key"
+                      ></el-option>
                     </el-select>
                   </template>
 
@@ -75,12 +87,7 @@
     </div>
 
 
-
-
-
-
-
-<!--    表格-->
+    <!--    表格-->
     <div class="base-table">
       <el-table class="base-table-content" v-loading="listLoading" :data="listData" element-loading-text="加载中" border
                 fit highlight-current-row stripe :span-method="objectSpanMethod" @sort-change="sortChanged"
@@ -132,19 +139,21 @@
             </slot>
             <!--            树形单选-->
             <slot v-else-if="column.type === 'TREE_SELECT'">
-<!--              {{ (scope.row[column.key] || {name: ''}).name }}-->
-<!--              <el-tag v-for="item in scope.row[column.key]" :key="item.id">{{item.name}}</el-tag>-->
+              <!--              {{ (scope.row[column.key] || {name: ''}).name }}-->
+              <!--              <el-tag v-for="item in scope.row[column.key]" :key="item.id">{{item.name}}</el-tag>-->
               <el-cascader v-model="(scope.row[column.key]||{id: undefined}).id" :options="options[column.optionKey]"
-                           class="form-item" :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false, checkStrictly : true}"
+                           class="form-item"
+                           :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false, checkStrictly : true}"
                            disabled
               ></el-cascader>
             </slot>
             <!--            树形多选-->
             <slot v-else-if="column.type === 'TREE_MULTI_SELECT'">
-<!--              {{ (scope.row[column.key] || {name: ''}).name }}-->
-<!--              <el-tag v-for="item in scope.row[column.key]" :key="item.id">{{item.name}}</el-tag>-->
+              <!--              {{ (scope.row[column.key] || {name: ''}).name }}-->
+              <!--              <el-tag v-for="item in scope.row[column.key]" :key="item.id">{{item.name}}</el-tag>-->
               <el-cascader v-model="(scope.row[column.key]||{id: undefined}).id" :options="options[column.optionKey]"
-                           class="form-item" :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false, multiple: true, checkStrictly : true}"
+                           class="form-item"
+                           :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false, multiple: true, checkStrictly : true}"
                            disabled
               ></el-cascader>
             </slot>
@@ -205,7 +214,7 @@
           </template>
         </el-table-column>
       </el-table>
-<!--      字段显示控制-->
+      <!--      字段显示控制-->
       <div class="base-table-item">
         <el-tooltip class="item" effect="dark" content="表头展示" placement="top-start">
           <el-popover placement="bottom" title="表头展示" width="250" trigger="click">
@@ -225,14 +234,7 @@
     />
 
 
-
-
-
-
-
-
-
-<!--编辑器-->
+    <!--编辑器-->
     <el-drawer :title="drawerOptions[drawerStatus].title" :visible.sync="drawerVisible" direction="rtl"
                :before-close="handleCloseDrawer" :size="$store.state.app.device !== 'mobile' ? '50%' : '100%'"
     >
@@ -371,12 +373,7 @@ export default {
   },
   data: () => {
     return {
-      limitQuery: {
-        page: 1,
-        size: 20,
-        asc: undefined,
-        desc: undefined
-      },
+      limitQuery: { page: 1, size: 20, asc: undefined, desc: undefined },
       total: 0,
       listData: [],
       listQuery: [],
@@ -391,10 +388,7 @@ export default {
       fileUrl: '',
       drawerVisible: false,
       drawerStatus: 0,
-      drawerOptions: [{ value: '', title: '' }, { value: 'detail', title: '详情' }, {
-        value: 'edit',
-        title: '编辑'
-      }, { value: 'add', title: '新建' }],
+      drawerOptions: [{ value: '', title: '' }, { value: 'detail', title: '详情' }, { value: 'edit', title: '编辑' }, { value: 'add', title: '新建' }],
       parentOptions: [],
       addLoading: false,
       conditionOptions: [
