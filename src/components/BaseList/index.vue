@@ -12,7 +12,7 @@
             :xl="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 3}"
           >
             <!--            TREE_SELECT-->
-            <el-cascader v-if="column.type && column.type.indexOf('TREE') !== -1" v-model="listQuery[index].value[0]"
+            <el-cascader v-if="column.type && column.type.indexOf('TREE') !== -1" v-model="listQuery[index].value"
                          :options="options[column.optionKey]"
                          class="filter-item"
                          :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false, multiple: true, checkStrictly : true}"
@@ -20,7 +20,7 @@
             ></el-cascader>
             <!--            SELECT-->
             <el-select v-else-if="column.type && column.type.indexOf('SELECT') !== -1"
-                       v-model="listQuery[index].value[0]" clearable
+                       v-model="listQuery[index].value" clearable multiple
                        class="filter-item" :placeholder="column.label" multiple @change="fetchData(1)"
             >
               <el-option v-for="item in options[column.optionKey]" :key="item.id" :label="item.name"
@@ -28,8 +28,8 @@
               ></el-option>
             </el-select>
             <!--            STATUS-->
-            <el-select v-else-if="column.type && column.type === 'STATUS'" v-model="listQuery[index].value[0]" clearable
-                       class="filter-item" :placeholder="column.label" @change="fetchData(1)"
+            <el-select v-else-if="column.type && column.type === 'STATUS'" v-model="listQuery[index].value" clearable
+                       class="filter-item" :placeholder="column.label" @change="fetchData(1)" multiple
             >
               <el-option v-for="item in statusOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
@@ -428,9 +428,9 @@ export default {
       const listQuery = []
       this.columns.forEach(e => {
         let condition = 'EQ';
-        if (e.type && e.type.indexOf('SELECT') !== -1) {
+        if (e.type && e.type.indexOf('SELECT') !== -1 || e.type === 'MIDDLE_ID' || e.type.indexOf('STATUS') !== -1) {
           condition = "IN"
-        } else if (e.type && (e.type.indexOf('DATE_TIME') !== -1 || e.type === 'MIDDLE_ID' )) {
+        } else if (e.type && (e.type.indexOf('DATE_TIME') !== -1)) {
           condition = 'BT'
         } else if (e.type && e.type.indexOf('WORD') !== -1) {
           condition = 'LIKE'
@@ -510,7 +510,7 @@ export default {
           desc: this.limitQuery.desc,
           asc: this.limitQuery.asc,
           conditions: JSON.stringify(conditions),
-          show: this.columns.filter(e => e.show).map(e => e.name).join(',')
+          show: this.columns.filter(e => e.show).map(e => e.key).join(',')
         }
         localStorage.setItem(this.url + '_listQuery', JSON.stringify(this.listQuery));
         localStorage.setItem(this.url + '_limitQuery', JSON.stringify(this.limitQuery));

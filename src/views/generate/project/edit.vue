@@ -64,38 +64,18 @@
                   </div>
 
                   <el-table border fit highlight-current-row stripe :data="table.fields">
-                    <el-table-column type="expand">
-                      <template slot-scope="scope">
-                        <el-form :ref="'form_module_' + moduleIndex + '_table_' + tableIndex + '_field_' + scope.index" :model="table" label-width="auto" label-suffix=": " :rule="fieldRules" inline>
-                          <el-form-item label="多对多" prop="manyToMany">
-                            <el-select v-model="scope.row.manyToMany" clearable>
-                              <el-option v-for="(item, index) in project.modules.map(e => e.tables.map(o => o))" :key="edit" :label="item.name" :value="item.name" />
-                            </el-select>
-                          </el-form-item>
-                          <el-form-item label="一对多" prop="oneToOne">
-                            <el-select v-model="scope.row.oneToOne" clearable>
-                              <el-option v-for="(item, index) in project.modules.map(e => e.tables.map(o => o))" :key="edit" :label="item.name" :value="item.name" />
-                            </el-select>
-                          </el-form-item>
-                          <el-form-item label="是否隐藏" prop="jsonIgnore">
-                            <el-switch v-model="scope.row.jsonIgnore" active-color="#13ce66" inactive-color="#ff0000" active-text="是" inactive-text="否" />
-                          </el-form-item>
-                          <el-form-item label="表格显示" prop="show">
-                            <el-switch v-model="scope.row.show" active-color="#13ce66" inactive-color="#ff0000" active-text="是" inactive-text="否" />
-                          </el-form-item>
-                          <el-form-item label="能否更新" prop="edit">
-                            <el-switch v-model="scope.row.edit" active-color="#13ce66" inactive-color="#ff0000" active-text="是" inactive-text="否" />
-                          </el-form-item>
-                          <el-form-item label="能否排序" prop="sortable">
-                            <el-switch v-model="scope.row.sortable" active-color="#13ce66" inactive-color="#ff0000" active-text="是" inactive-text="否" />
-                          </el-form-item>
-                        </el-form>
-
-                      </template>
-                    </el-table-column>
                     <el-table-column label="字段名称" header-align="center" align="left" prop="name">
                       <template slot-scope="scope">
                         <slot><el-input v-model="scope.row.name" clearable /></slot>
+                      </template>
+                    </el-table-column>
+                    <el-table-column label="字段类型" header-align="center" align="left" prop="type">
+                      <template slot-scope="scope">
+                        <slot>
+                          <el-select v-model="scope.row.type" clearable >
+                            <el-option v-for="item in fieldTypeOptions" :key="item.key" :value="item.key" :label="item.value"></el-option>
+                          </el-select>
+                        </slot>
                       </template>
                     </el-table-column>
                     <el-table-column label="字段注释" header-align="center" align="left" prop="comment">
@@ -109,23 +89,34 @@
                       </template>
                     </el-table-column>
                     <el-table-column label="字段关系" header-align="center" align="left" prop="type">
+                      <template slot="header" slot-scope="scope">
+                        <el-tooltip class="item" effect="dark" content="字段类型需要选择关联ID" placement="top">
+                          <div class="cell">字段关系</div>
+                        </el-tooltip>
+                      </template>
                       <template slot-scope="scope">
                         <slot>
-                          <el-select v-model="scope.row.relation" clearable >
+                          <el-select v-model="scope.row.relation" clearable :disabled="scope.row.type !== 'MIDDLE_ID'">
                             <el-option v-for="item in fieldRelationOptions" :key="item.key" :value="item.key" :label="item.value"></el-option>
                           </el-select>
                         </slot>
                       </template>
                     </el-table-column>
-                    <el-table-column label="字段类型" header-align="center" align="left" prop="type">
+                    <el-table-column label="关联关系表" header-align="center" align="left" prop="relationEntity">
                       <template slot-scope="scope">
+                        <template slot="header" slot-scope="scope">
+                          <el-tooltip class="item" effect="dark" content="需要先选择字段关系" placement="top">
+                            <div class="cell">关联关系表</div>
+                          </el-tooltip>
+                        </template>
                         <slot>
-                          <el-select v-model="scope.row.type" clearable >
-                            <el-option v-for="item in fieldTypeOptions" :key="item.key" :value="item.key" :label="item.value"></el-option>
+                          <el-select v-model="scope.row.relationEntity" clearable :disabled="!scope.row.relation">
+                            <el-option v-for="item in module.tables" v-if="item.name !== table.name" :key="item.name" :value="item.name" :label="item.comment || item.name"></el-option>
                           </el-select>
                         </slot>
                       </template>
                     </el-table-column>
+
                     <el-table-column label="新建必填" header-align="center" align="left" prop="createRequire">
                       <template slot-scope="scope">
                         <slot>
@@ -164,11 +155,18 @@
         </el-tab-pane>
       </el-tabs>
     </el-card>
+    <el-button v-waves type="primary" v-permission="[project+':add']"
+               @click="handleSave()" :loading="addLoading"
+    >保存
+    </el-button>
   </div>
 </template>
 
 <script>
+import permission from '@/directive/permission' // 权限判断指令
+import waves from '@/directive/waves' // waves directive
 export default {
+  directives: { permission, waves },
   name: 'Project',
   props: {
     // eslint-disable-next-line vue/require-valid-default-prop
@@ -235,6 +233,7 @@ export default {
       tableRules: [],
       fieldRules: [],
       moduleSelect: '0',
+      addLoading: false,
       fieldTypeOptions: [
         { key: 'NUMBER', value: '整数' },
         { key: 'DECIMAL', value: '小数' },
@@ -282,9 +281,15 @@ export default {
       })
     },
     handleModuleRemove(targetName) {
+      const modules = Object.assign(this.project.modules)
+      console.log(modules)
+      console.log(targetName)
       const index = parseInt(targetName)
-      this.project.modules.splice(edit, 1)
-      this.tableSelect.splice(edit, 1)
+      this.$nextTick(() => {
+        modules.splice(index, 1)
+        this.project.modules = modules
+          console.log(this.project.modules)
+      })
     },
     handleTableAdd(moduleIndex) {
       this.project.modules[moduleIndex].tables.push({
@@ -299,6 +304,11 @@ export default {
       const moduleIndex = parseInt(indexes[0])
       const tableIndex = parseInt(indexes[1])
       this.project.modules[moduleIndex].tables.splice(tableIndex, 1)
+    },
+    handleSave() {
+      this.addLoading = true
+      console.log(this.project)
+      this.addLoading = false
     }
   }
 }
