@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <span class="app-container">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <el-form ref="form_project" label-width="auto" label-suffix=": " :rule="projectRules" inline>
@@ -58,94 +58,259 @@
                         </el-select>
                       </el-form-item>
                       <el-form-item label="创建接口" prop="buildController">
-                        <el-switch v-model="table.buildController" active-color="#13ce66" inactive-color="#ff0000" active-text="是" inactive-text="否" />
+                        <el-switch v-model="table.buildController" active-color="#13ce66" inactive-color="#ff0000" />
                       </el-form-item>
                     </el-form>
                   </div>
 
                   <el-table border fit highlight-current-row stripe :data="table.fields">
-                    <el-table-column label="字段名称" header-align="center" align="left" prop="name">
+                    <!--                    -->
+                    <el-table-column label="字段名称" header-align="center" align="left" prop="name" fixed width="100">
                       <template slot-scope="scope">
                         <slot><el-input v-model="scope.row.name" clearable /></slot>
                       </template>
                     </el-table-column>
-                    <el-table-column label="字段类型" header-align="center" align="left" prop="type">
+                    <!--                    -->
+                    <el-table-column label="字段类型" header-align="center" align="left" prop="type" fixed width="120">
                       <template slot-scope="scope">
                         <slot>
-                          <el-select v-model="scope.row.type" clearable >
-                            <el-option v-for="item in fieldTypeOptions" :key="item.key" :value="item.key" :label="item.value"></el-option>
+                          <el-select
+                            v-model="scope.row.type"
+                            :filterable="fieldTypeOptions.length > 5"
+                            @change="handleFieldTypeChange(moduleIndex, tableIndex, scope.$index, scope.row.type)"
+                          >
+                            <el-option v-for="item in fieldTypeOptions" :key="item.key" :value="item.key" :label="item.value" />
                           </el-select>
                         </slot>
                       </template>
                     </el-table-column>
-                    <el-table-column label="字段注释" header-align="center" align="left" prop="comment">
+                    <!--                    -->
+                    <el-table-column label="字段注释" header-align="center" align="left" prop="comment" fixed width="130">
                       <template slot-scope="scope">
-                        <slot><el-input v-model="scope.row.comment" clearable /></slot>
+                        <slot>
+                          <el-tooltip class="item" effect="light" :content="scope.row.comment" placement="right">
+                            <el-input v-model="scope.row.comment" clearable />
+                          </el-tooltip>
+                        </slot>
                       </template>
                     </el-table-column>
-                    <el-table-column label="字段解释" header-align="center" align="left" prop="tooltip">
+                    <!--                    -->
+                    <el-table-column header-align="center" align="left" prop="tooltip" min-width="200">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="可在表头显示如此的小弹窗" placement="top">
+                          <span>字段解释</span>
+                        </el-tooltip>
+                      </template>
                       <template slot-scope="scope">
-                        <slot><el-input v-model="scope.row.tooltip" clearable /></slot>
+                        <slot>
+                          <el-tooltip class="item" effect="light" :content="scope.row.tooltip" placement="right">
+                            <el-input v-model="scope.row.tooltip" clearable />
+                          </el-tooltip>
+                        </slot>
                       </template>
                     </el-table-column>
-                    <el-table-column label="字段关系" header-align="center" align="left" prop="type">
-                      <template slot="header" slot-scope="scope">
+                    <!--                    -->
+                    <el-table-column header-align="center" align="left" prop="type" width="100">
+                      <template slot="header">
                         <el-tooltip class="item" effect="dark" content="字段类型需要选择关联ID" placement="top">
-                          <div class="cell">字段关系</div>
+                          <span>字段关系</span>
                         </el-tooltip>
                       </template>
                       <template slot-scope="scope">
                         <slot>
                           <el-select v-model="scope.row.relation" clearable :disabled="scope.row.type !== 'MIDDLE_ID'">
-                            <el-option v-for="item in fieldRelationOptions" :key="item.key" :value="item.key" :label="item.value"></el-option>
+                            <el-option v-for="item in fieldRelationOptions" :key="item.key" :value="item.key" :label="item.value" />
                           </el-select>
                         </slot>
                       </template>
                     </el-table-column>
-                    <el-table-column label="关联关系表" header-align="center" align="left" prop="relationEntity">
+                    <!--                    -->
+                    <el-table-column header-align="center" align="left" prop="relationEntity" width="100">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="需要先选择字段关系" placement="top">
+                          <span>关联表</span>
+                        </el-tooltip>
+                      </template>
                       <template slot-scope="scope">
-                        <template slot="header" slot-scope="scope">
-                          <el-tooltip class="item" effect="dark" content="需要先选择字段关系" placement="top">
-                            <div class="cell">关联关系表</div>
-                          </el-tooltip>
-                        </template>
                         <slot>
                           <el-select v-model="scope.row.relationEntity" clearable :disabled="!scope.row.relation">
-                            <el-option v-for="item in module.tables" v-if="item.name !== table.name" :key="item.name" :value="item.name" :label="item.comment || item.name"></el-option>
+                            <el-option v-for="item in module.tables" v-if="item.name !== table.name" :key="item.name" :value="item.name" :label="item.comment || item.name" />
                           </el-select>
                         </slot>
                       </template>
                     </el-table-column>
-
-                    <el-table-column label="新建必填" header-align="center" align="left" prop="createRequire">
+                    <!--                    -->
+                    <el-table-column header-align="center" align="center" prop="createRequire" width="100">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="新建数据时是否必填" placement="top">
+                          <div>新建必填</div>
+                        </el-tooltip>
+                      </template>
                       <template slot-scope="scope">
                         <slot>
-                          <el-switch v-model="scope.row.createRequire" active-color="#13ce66" inactive-color="#ff0000" active-text="是" inactive-text="否" />
+                          <el-switch v-model="scope.row.createRequire" active-color="#13ce66" inactive-color="#ff0000" />
                         </slot>
                       </template>
                     </el-table-column>
-                    <el-table-column label="更新必填" header-align="center" align="left" prop="updateRequire">
+                    <!--                    -->
+                    <el-table-column header-align="center" align="center" prop="updateRequire" width="100">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="更新数据时是否必填" placement="top">
+                          <span>更新必填</span>
+                        </el-tooltip>
+                      </template>
                       <template slot-scope="scope">
                         <slot>
-                          <el-switch v-model="scope.row.updateRequire" active-color="#13ce66" inactive-color="#ff0000" active-text="是" inactive-text="否" />
+                          <el-switch v-model="scope.row.updateRequire" active-color="#13ce66" inactive-color="#ff0000" />
                         </slot>
                       </template>
                     </el-table-column>
-
-                    <el-table-column label="是否查询" header-align="center" align="left" prop="queryColumn">
+                    <!--                    -->
+                    <el-table-column header-align="center" align="center" prop="queryAble" width="100">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="是否在页面可作为筛选项" placement="top">
+                          <span>筛选条件</span>
+                        </el-tooltip>
+                      </template>
                       <template slot-scope="scope">
                         <slot>
-                          <el-switch v-model="scope.row.queryColumn" active-color="#13ce66" inactive-color="#ff0000" active-text="是" inactive-text="否" />
+                          <el-switch v-model="scope.row.queryAble" active-color="#13ce66" inactive-color="#ff0000" />
                         </slot>
                       </template>
                     </el-table-column>
-                    <el-table-column label="表格宽度" header-align="center" align="left" prop="tableWidth">
+                    <!--                    -->
+                    <el-table-column header-align="center" align="center" prop="editAble" width="100">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="是否允许更新数据" placement="top">
+                          <span>可编辑</span>
+                        </el-tooltip>
+                      </template>
                       <template slot-scope="scope">
-                        <slot><el-input v-model="scope.row.tableWidth" clearable /></slot>
+                        <slot>
+                          <el-switch v-model="scope.row.editAble" active-color="#13ce66" inactive-color="#ff0000" />
+                        </slot>
                       </template>
                     </el-table-column>
-                    <!--                  fieldEnums:-->
+                    <!--                    -->
+                    <el-table-column header-align="center" align="center" prop="directShow" width="100">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="是否在表格中直接展示数据，否则每次需要手动开启(注意表格宽度)" placement="top">
+                          <span>直接展示</span>
+                        </el-tooltip>
+                      </template>
+                      <template slot-scope="scope">
+                        <slot>
+                          <el-switch v-model="scope.row.directShow" active-color="#13ce66" inactive-color="#ff0000" />
+                        </slot>
+                      </template>
+                    </el-table-column>
+                    <!--                    -->
 
+                    <el-table-column header-align="center" align="center" prop="jsonIgnore" width="100">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="后端将不返回该数据" placement="top">
+                          <span>隐藏数据</span>
+                        </el-tooltip>
+                      </template>
+                      <template slot-scope="scope">
+                        <slot>
+                          <el-switch v-model="scope.row.jsonIgnore" active-color="#13ce66" inactive-color="#ff0000" />
+                        </slot>
+                      </template>
+                    </el-table-column>
+                    <!--                    -->
+                    <el-table-column header-align="center" align="center" prop="sortAble" width="100">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="在表格中是否可排序查询" placement="top">
+                          <span>排序查询</span>
+                        </el-tooltip>
+                      </template>
+                      <template slot-scope="scope">
+                        <slot>
+                          <el-switch v-model="scope.row.sortAble" active-color="#13ce66" inactive-color="#ff0000"/>
+                        </slot>
+                      </template>
+                    </el-table-column>
+                    <!--                    -->
+                    <el-table-column label="表格宽度" header-align="center" align="left" prop="tableWidth" width="100">
+                      <template slot-scope="scope">
+                        <slot><el-input v-model="scope.row.tableWidth" /></slot>
+                      </template>
+                    </el-table-column>
+                    <el-table-column align="center" fixed="right" width="100">
+                      <template slot-scope="scope">
+                        <slot>
+                          <el-button-group>
+                            <el-button v-if="scope.$index === table.fields.length - 1" type="primary" size="mini" icon="el-icon-plus" circle @click="handleFieldAdd(moduleIndex, tableIndex, scope.$index)" />
+                            <el-button v-if="scope.$index !== 0" type="info" icon="el-icon-minus" circle @click="handleFieldRemove(moduleIndex, tableIndex, scope.$index)" />
+                          </el-button-group>
+                        </slot>
+                      </template>
+                    </el-table-column>
+                    <!--                    枚举表格-->
+                    <el-table-column type="expand" label="枚举编辑" fixed="right">
+                      <template slot-scope="scope">
+                        <el-table v-if="scope.row.type === 'DICTIONARY'" border fit highlight-current-row stripe :data="scope.row.fieldEnums">
+                          <el-table-column label="枚举名称" header-align="center" align="center" prop="name">
+                            <template slot-scope="scopeEnum">
+                              <slot><el-input v-model="scopeEnum.row.name" clearable /></slot>
+                            </template>
+                          </el-table-column>
+                          <el-table-column label="枚举注释" header-align="center" align="center" prop="comment">
+                            <template slot-scope="scopeEnum">
+                              <slot><el-input v-model="scopeEnum.row.comment" clearable /></slot>
+                            </template>
+                          </el-table-column>
+                          <el-table-column label="显示类型" header-align="center" align="center" prop="type">
+                            <template slot-scope="scopeEnum">
+                              <slot>
+                                <el-select v-model="scopeEnum.row.type" clearable>
+                                  <el-option v-for="item in fieldEnumTypeOptions" :key="item.name" :value="item.name" :label="item.comment" />
+                                </el-select>
+                              </slot>
+                            </template>
+                          </el-table-column>
+                          <el-table-column label="显示主题" header-align="center" align="center" prop="effect">
+                            <template slot-scope="scopeEnum">
+                              <slot>
+                                <el-select v-model="scopeEnum.row.effect" clearable>
+                                  <el-option v-for="item in fieldEnumEffectOptions" :key="item.name" :value="item.name" :label="item.comment" />
+                                </el-select>
+                              </slot>
+                            </template>
+                          </el-table-column>
+                          <el-table-column label="预览展示" header-align="center" align="center" prop="name">
+                            <template slot-scope="scopeEnum">
+                              <slot>
+                                <el-tag :type="scopeEnum.row.type" :effect="scopeEnum.row.effect">{{ scopeEnum.row.comment }}</el-tag>
+                              </slot>
+                            </template>
+                          </el-table-column>
+                          <el-table-column align="center">
+                            <template slot-scope="scopeEnum">
+                              <slot>
+                                <el-button-group>
+                                  <el-button
+                                    v-if="scopeEnum.$index === scope.row.fieldEnums.length - 1"
+                                    type="primary"
+                                    icon="el-icon-plus"
+                                    circle
+                                    @click="handleFieldEnumAdd(moduleIndex, tableIndex, scope.$index, scopeEnum.$index)"
+                                  />
+                                  <el-button
+                                    v-if="scopeEnum.$index !== 0"
+                                    type="info"
+                                    icon="el-icon-minus"
+                                    circle
+                                    @click="handleFieldEnumRemove(moduleIndex, tableIndex, scope.$index, scopeEnum.$index)"
+                                  />
+                                </el-button-group>
+                              </slot>
+                            </template>
+                          </el-table-column>
+                        </el-table>
+                      </template>
+                    </el-table-column>
                   </el-table>
                 </el-card>
               </el-tab-pane>
@@ -155,19 +320,23 @@
         </el-tab-pane>
       </el-tabs>
     </el-card>
-    <el-button v-waves type="primary" v-permission="[project+':add']"
-               @click="handleSave()" :loading="addLoading"
+    <el-button
+      v-waves
+      v-permission="[project+':add']"
+      type="primary"
+      :loading="addLoading"
+      @click="handleSave()"
     >保存
     </el-button>
-  </div>
-</template>
+    </div>
+  </span></template>
 
 <script>
 import permission from '@/directive/permission' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 export default {
-  directives: { permission, waves },
   name: 'Project',
+  directives: { permission, waves },
   props: {
     // eslint-disable-next-line vue/require-valid-default-prop
     project: {
@@ -193,29 +362,22 @@ export default {
                   buildController: true,
                   fields: [
                     {
-                      name: 'field0',
-                      comment: '字段注释',
-                      tooltip: '字段解释',
+                      name: '',
+                      comment: '',
+                      tooltip: '',
                       type: '',
                       createRequire: true,
                       updateRequire: true,
                       manyToMany: '',
                       relation: undefined,
                       relationEntity: '',
-                      queryColumn: true,
+                      queryAble: true,
                       jsonIgnore: false,
-                      show: true,
-                      edit: true,
-                      sortable: true,
+                      directShow: true,
+                      editAble: true,
+                      sortAble: false,
                       tableWidth: 200,
-                      fieldEnums: [
-                        {
-                          name: 'fieldOptions',
-                          comment: '字段选项1',
-                          type: 'info',
-                          effect: 'dark'
-                        }
-                      ]
+                      fieldEnums: []
                     }
                   ]
                 }
@@ -252,17 +414,29 @@ export default {
         { key: 'VISIT_TIMES', value: '访问次数' },
         { key: 'ENABLE', value: '启/禁用' },
         { key: 'SORT', value: '排序' },
-        { key: 'DICTIONARY', value: '枚举' },
+        { key: 'DICTIONARY', value: '枚举' }
       ],
       fieldRelationOptions: [
         { key: 'ONE_TO_ONE', value: '一对一' },
         { key: 'ONE_TO_MANY', value: '一对多' },
         { key: 'MANY_TO_MANY', value: '多对多' },
-        { key: 'MANY_TO_ONE', value: '多对一' },
+        { key: 'MANY_TO_ONE', value: '多对一' }
+      ],
+      fieldEnumTypeOptions: [
+        { name: '', comment: '默认' },
+        { name: 'success', comment: '成功' },
+        { name: 'info', comment: '信息' },
+        { name: 'warning', comment: '警告' },
+        { name: 'danger', comment: '危险' }
+      ],
+      fieldEnumEffectOptions: [
+        { name: 'light', comment: '默认' },
+        { name: 'dark', comment: '填充' },
+        { name: 'plain', comment: '镂空' }
       ],
       tableSelect: [
         '0_0'
-      ],
+      ]
     }
   },
   methods: {
@@ -282,13 +456,10 @@ export default {
     },
     handleModuleRemove(targetName) {
       const modules = Object.assign(this.project.modules)
-      console.log(modules)
-      console.log(targetName)
       const index = parseInt(targetName)
       this.$nextTick(() => {
         modules.splice(index, 1)
         this.project.modules = modules
-          console.log(this.project.modules)
       })
     },
     handleTableAdd(moduleIndex) {
@@ -304,6 +475,33 @@ export default {
       const moduleIndex = parseInt(indexes[0])
       const tableIndex = parseInt(indexes[1])
       this.project.modules[moduleIndex].tables.splice(tableIndex, 1)
+    },
+    handleFieldAdd(moduleIndex, tableIndex, fieldIndex) {
+      this.project.modules[moduleIndex].tables[tableIndex].fields.push(
+        { name: '', comment: '', tooltip: '', type: '', createRequire: true, updateRequire: true, manyToMany: '', relation: undefined, relationEntity: '', queryAble: true, jsonIgnore: false, directShow: true, editAble: true, sortAble: false, tableWidth: 200 }
+      )
+    },
+    handleFieldRemove(moduleIndex, tableIndex, fieldIndex) {
+      this.project.modules[moduleIndex].tables[tableIndex].fields.splice(fieldIndex, 1)
+    },
+    handleFieldTypeChange(moduleIndex, tableIndex, fieldIndex, val) {
+      if (val && val === 'DICTIONARY') {
+        this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex].fieldEnums = [
+          { name: '', comment: '', type: 'info', effect: 'dark' }
+        ]
+      } else {
+        this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex].fieldEnums = undefined
+      }
+      this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex].relation = undefined
+      this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex].relationEntity = undefined
+    },
+    handleFieldEnumAdd(moduleIndex, tableIndex, fieldIndex, fieldEnumIndex) {
+      this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex].fieldEnums.push(
+        { name: '', comment: '', type: 'info', effect: 'dark' }
+      )
+    },
+    handleFieldEnumRemove(moduleIndex, tableIndex, fieldIndex, fieldEnumIndex) {
+      this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex].fieldEnums.splice(fieldEnumIndex, 1)
     },
     handleSave() {
       this.addLoading = true
