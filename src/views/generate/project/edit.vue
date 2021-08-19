@@ -25,7 +25,7 @@
       </div>
       <!--模块-->
       <el-tabs ref="project-module" v-model="moduleSelect" tab-position="left" addable :closable="project.modules.length > 1" @tab-add="handleModuleAdd" @tab-remove="handleModuleRemove">
-        <el-tab-pane v-for="(module, moduleIndex) in project.modules" :key="moduleIndex" :label="module.name" :name="moduleIndex + ''">
+        <el-tab-pane v-for="(module, moduleIndex) in project.modules" :key="moduleIndex" :label="module.comment" :name="moduleIndex + ''">
           <el-card class="box-card" shadow="hover">
             <div slot="header" class="clearfix">
               <el-form :ref="'form_module_' + moduleIndex" :model="module" label-width="auto" label-suffix=": " :rule="moduleRules" inline>
@@ -65,7 +65,7 @@
 
                   <el-table border fit highlight-current-row stripe :data="table.fields">
                     <!--                    -->
-                    <el-table-column label="字段名称" header-align="center" align="left" prop="name" fixed width="250">
+                    <el-table-column label="字段名称" header-align="center" align="left" prop="name" fixed width="200">
                       <template slot-scope="scope">
                         <slot><el-input v-model="scope.row.name" clearable /></slot>
                       </template>
@@ -343,10 +343,10 @@
                                         </slot>
                                       </template>
                                     </el-table-column>
-                                    <el-table-column label="字段值" header-align="center" align="center" prop="value">
+                                    <el-table-column label="设定值" header-align="center" align="center" prop="value">
                                       <template slot="header">
                                         <el-tooltip class="item" effect="dark" content="为该字段设置默认值" placement="top">
-                                          <span>字段值</span>
+                                          <span>设定值</span>
                                         </el-tooltip>
                                       </template>
                                       <template slot-scope="enumAffect">

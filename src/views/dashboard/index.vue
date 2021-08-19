@@ -27,7 +27,7 @@
 <!--    图表列表-->
     <el-row :gutter="10">
       <template v-for="item in charts">
-        <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: item.span * 8}" :xl="{span: item.span * 4}">
+        <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: item.span * 8}" :xl="{span: item.span * 8}">
           <el-card class="box-card" shadow="hover" style="margin-top: 10px" :body-style="{padding: 0}">
             <div class="chart-wrapper">
               <pie-chart v-if="item.type === 'PIE'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard"/>
