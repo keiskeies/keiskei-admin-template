@@ -1,5 +1,5 @@
 <template>
-  <span class="app-container">
+  <div class="app-container">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <el-form ref="form_project" label-width="auto" label-suffix=": " :rule="projectRules" inline>
@@ -41,7 +41,7 @@
               </el-form>
             </div>
             <el-tabs ref="module-table" v-model="tableSelect[moduleIndex]" tab-position="left" addable :closable="module.tables.length > 1" @tab-add="handleTableAdd(moduleIndex)" @tab-remove="handleTableRemove">
-              <el-tab-pane v-for="(table, tableIndex) in module.tables" :key="tableIndex" :label="table.name" :name="moduleIndex + '_' + tableIndex">
+              <el-tab-pane v-for="(table, tableIndex) in module.tables" :key="tableIndex" :label="table.comment" :name="moduleIndex + '_' + tableIndex">
                 <el-card class="box-card">
                   <div slot="header" class="clearfix">
                     <el-form :ref="'form_module_' + moduleIndex + '_table_' + tableIndex" :model="table" label-width="auto" label-suffix=": " :rule="tableRules" inline>
@@ -65,7 +65,7 @@
 
                   <el-table border fit highlight-current-row stripe :data="table.fields">
                     <!--                    -->
-                    <el-table-column label="字段名称" header-align="center" align="left" prop="name" fixed width="100">
+                    <el-table-column label="字段名称" header-align="center" align="left" prop="name" fixed width="250">
                       <template slot-scope="scope">
                         <slot><el-input v-model="scope.row.name" clearable /></slot>
                       </template>
@@ -85,12 +85,25 @@
                       </template>
                     </el-table-column>
                     <!--                    -->
-                    <el-table-column label="字段注释" header-align="center" align="left" prop="comment" fixed width="130">
+                    <el-table-column label="字段注释" header-align="center" align="left" prop="comment" fixed width="220">
                       <template slot-scope="scope">
                         <slot>
                           <el-tooltip class="item" effect="light" :content="scope.row.comment" placement="right">
                             <el-input v-model="scope.row.comment" clearable />
                           </el-tooltip>
+                        </slot>
+                      </template>
+                    </el-table-column>
+                    <!--                    -->
+                    <el-table-column header-align="center" align="left" prop="validate" fixed width="350">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="输入正则表达式" placement="top">
+                          <span>字段校验</span>
+                        </el-tooltip>
+                      </template>
+                      <template slot-scope="scope">
+                        <slot>
+                          <el-input v-model="scope.row.validate" clearable />
                         </slot>
                       </template>
                     </el-table-column>
@@ -110,7 +123,7 @@
                       </template>
                     </el-table-column>
                     <!--                    -->
-                    <el-table-column header-align="center" align="left" prop="type" width="100">
+                    <el-table-column header-align="center" align="left" prop="type" width="150">
                       <template slot="header">
                         <el-tooltip class="item" effect="dark" content="字段类型需要选择关联ID" placement="top">
                           <span>字段关系</span>
@@ -125,7 +138,7 @@
                       </template>
                     </el-table-column>
                     <!--                    -->
-                    <el-table-column header-align="center" align="left" prop="relationEntity" width="100">
+                    <el-table-column header-align="center" align="left" prop="relationEntity" width="200">
                       <template slot="header">
                         <el-tooltip class="item" effect="dark" content="需要先选择字段关系" placement="top">
                           <span>关联表</span>
@@ -228,7 +241,7 @@
                       </template>
                       <template slot-scope="scope">
                         <slot>
-                          <el-switch v-model="scope.row.sortAble" active-color="#13ce66" inactive-color="#ff0000"/>
+                          <el-switch v-model="scope.row.sortAble" active-color="#13ce66" inactive-color="#ff0000" />
                         </slot>
                       </template>
                     </el-table-column>
@@ -249,11 +262,16 @@
                       </template>
                     </el-table-column>
                     <!--                    枚举表格-->
-                    <el-table-column label="枚举编辑" fixed="right">
+                    <el-table-column label="枚举编辑" fixed="right" width="100">
                       <template slot-scope="scope">
                         <el-button v-if="scope.row.type === 'DICTIONARY'" type="primary" icon="el-icon-edit" circle @click="scope.row.dictionaryShow = !scope.row.dictionaryShow" />
-                        <el-dialog v-if="scope.row.type === 'DICTIONARY'" :title="scope.row.comment + '-枚举编辑'" :visible.sync="scope.row.dictionaryShow"
-                                   :append-to-body="true" :width="$store.state.app.device === 'mobile' ? '100%' : '60%'">
+                        <el-dialog
+                          v-if="scope.row.type === 'DICTIONARY'"
+                          :title="scope.row.comment + '-枚举编辑'"
+                          :visible.sync="scope.row.dictionaryShow"
+                          :append-to-body="true"
+                          :width="$store.state.app.device === 'mobile' ? '100%' : '60%'"
+                        >
                           <el-table border fit highlight-current-row stripe :data="scope.row.fieldEnums">
                             <el-table-column label="枚举名称" header-align="center" align="center" prop="name">
                               <template slot-scope="scopeEnum">
@@ -293,15 +311,15 @@
 
                             <el-table-column align="center">
                               <template slot="header">
-                                <el-button type="primary" icon="el-icon-plus" circle @click="handleFieldEnumAdd(moduleIndex, tableIndex, scope.$index, 0)"/>
+                                <el-button type="primary" icon="el-icon-plus" circle @click="handleFieldEnumAdd(moduleIndex, tableIndex, scope.$index, 0)" />
                               </template>
                               <template slot-scope="scopeEnum">
                                 <slot>
-                                    <el-button type="info" icon="el-icon-minus" circle @click="handleFieldEnumRemove(moduleIndex, tableIndex, scope.$index, scopeEnum.$index)"/>
+                                  <el-button type="info" icon="el-icon-minus" circle @click="handleFieldEnumRemove(moduleIndex, tableIndex, scope.$index, scopeEnum.$index)" />
                                 </slot>
                               </template>
                             </el-table-column>
-<!--                            影响字段-->
+                            <!--                            影响字段-->
                             <el-table-column type="expand" label="影响字段" header-align="center" align="center" prop="fieldEnumAffects">
                               <template slot="header">
                                 <el-tooltip class="item" effect="dark" content="影响表格中的字段值" placement="top">
@@ -373,10 +391,6 @@
                                     </el-table-column>
                                   </el-table>
 
-
-
-
-
                                 </slot>
                               </template>
                             </el-table-column>
@@ -401,8 +415,8 @@
       @click="handleSave()"
     >保存
     </el-button>
-    </div>
-  </span></template>
+  </div>
+</template>
 
 <script>
 import permission from '@/directive/permission' // 权限判断指令
@@ -414,14 +428,8 @@ export default {
     // eslint-disable-next-line vue/require-valid-default-prop
     project: {
       type: Object, default: () => {
-        return {"name":"keiskei-framework-parent","comment":"keiskei脚手架","version":"v1","favicon":"浏览器图标","logo":"项目LOGO","author":"right_way@foxmail.com","modules":[{"name":"keiskei-framework-system","comment":"系统管理","packageName":"top.keiskeiframework.system","tables":[{"name":"User","comment":"管理员","table":"table_name","type":"BASE","buildController":true,"fields":[{"name":"username","comment":"账号","tooltip":"登录用户名","type":"WORD","createRequire":true,"updateRequire":true,"manyToMany":"","queryAble":true,"jsonIgnore":false,"directShow":true,"editAble":false,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"password","comment":"密码","tooltip":"登录密码","type":"WORD","createRequire":false,"updateRequire":false,"manyToMany":"","queryAble":false,"jsonIgnore":true,"directShow":false,"editAble":false,"sortAble":true,"tableWidth":200,"dictionaryShow":false},{"name":"enabled","comment":"启用","tooltip":"","type":"ENABLE","createRequire":true,"updateRequire":true,"manyToMany":"","queryAble":true,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":"100","dictionaryShow":false},{"name":"avatar","comment":"头像","tooltip":"","type":"IMAGE","createRequire":false,"updateRequire":false,"manyToMany":"","queryAble":false,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"phone","comment":"手机号","tooltip":"","type":"WORD","createRequire":true,"updateRequire":false,"manyToMany":"","queryAble":true,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"email","comment":"邮箱","tooltip":"","type":"WORD","createRequire":true,"updateRequire":false,"manyToMany":"","queryAble":true,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"lastLoginTime","comment":"上次登录时间","tooltip":"","type":"DATE_TIME","createRequire":false,"updateRequire":false,"manyToMany":"","queryAble":false,"jsonIgnore":true,"directShow":false,"editAble":false,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"lastModifyPasswordTime","comment":"最后修改密码时间","tooltip":"","type":"DATE_TIME","createRequire":false,"updateRequire":false,"manyToMany":"","queryAble":false,"jsonIgnore":true,"directShow":false,"editAble":false,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"passwordErrorTimes","comment":"密码错误次数","tooltip":"","type":"NUMBER","createRequire":false,"updateRequire":false,"manyToMany":"","queryAble":false,"jsonIgnore":true,"directShow":false,"editAble":false,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"accountLockTime","comment":"锁定时间","tooltip":"","type":"DATE_TIME","createRequire":false,"updateRequire":false,"manyToMany":"","queryAble":false,"jsonIgnore":true,"directShow":false,"editAble":false,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"accountExpiredTime","comment":"账号过期时间","tooltip":"","type":"DATE_TIME","createRequire":true,"updateRequire":true,"manyToMany":"","queryAble":true,"jsonIgnore":false,"directShow":false,"editAble":true,"sortAble":true,"tableWidth":200,"dictionaryShow":false},{"name":"department","comment":"用户部门","tooltip":"","type":"MIDDLE_ID","createRequire":true,"updateRequire":true,"manyToMany":"","relation":"MANY_TO_ONE","relationEntity":"Department","queryAble":true,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"roles","comment":"用户角色","tooltip":"","type":"MIDDLE_ID","createRequire":true,"updateRequire":true,"manyToMany":"","relation":"MANY_TO_MANY","relationEntity":"Role","queryAble":false,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false}]},{"name":"Role","fields":[{"name":"name","type":"WORD","comment":"角色名称","editAble":true,"createRequire":true,"updateRequire":true,"queryAble":true,"directShow":true,"sortAble":true,"tableWidth":"200"},{"name":"permissions","comment":"角色权限","tooltip":"","type":"MIDDLE_ID","createRequire":false,"updateRequire":false,"manyToMany":"","relation":"MANY_TO_MANY","relationEntity":"Permission","queryAble":true,"jsonIgnore":false,"directShow":false,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false}],"comment":"角色管理","type":"BASE","buildController":true},{"name":"Permission","fields":[{"name":"name","type":"WORD","comment":"权限名称","editAble":true,"createRequire":true,"updateRequire":true,"queryAble":false,"tableWidth":"200","directShow":true},{"name":"permission","comment":"权限标识","tooltip":"限制操作按钮标识","type":"WORD","createRequire":true,"updateRequire":true,"manyToMany":"","queryAble":false,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"path","comment":"请求路径","tooltip":"","type":"WORD","createRequire":true,"updateRequire":true,"manyToMany":"","queryAble":false,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":"300","dictionaryShow":false},{"name":"method","comment":"请求方式","tooltip":"","type":"DICTIONARY","createRequire":true,"updateRequire":true,"manyToMany":"","queryAble":false,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false,"fieldEnums":[{"name":"GET","comment":"GET","type":"","effect":"dark","fieldEnumAffects":[]},{"name":"POST","comment":"POST","type":"success","effect":"dark","fieldEnumAffects":[]},{"name":"PUT","comment":"PUT","type":"warning","effect":"dark","fieldEnumAffects":[]},{"name":"PATCH","comment":"PATCH","type":"warning","effect":"light","fieldEnumAffects":[]},{"name":"DELETE","comment":"DELETE","type":"danger","effect":"dark","fieldEnumAffects":[]}]},{"name":"sortBy","comment":"排序","tooltip":"","type":"SORT","createRequire":false,"updateRequire":false,"manyToMany":"","queryAble":false,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false}],"comment":"权限管理","type":"TREE","buildController":true},{"name":"Department","fields":[{"name":"name","type":"WORD","comment":"部门名称","editAble":true,"createRequire":true,"updateRequire":true,"directShow":true,"tableWidth":"400"}],"comment":"部门管理","type":"TREE","buildController":true},{"name":"ScheduledTask","fields":[{"name":"name","type":"WORD","comment":"任务名称","editAble":true,"createRequire":true,"updateRequire":true,"directShow":true,"queryAble":true,"tableWidth":"200"},{"name":"cron","comment":"时间格式","tooltip":"","type":"WORD","createRequire":true,"updateRequire":true,"manyToMany":"","queryAble":false,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"cronKey","comment":"任务KEY","tooltip":"service_bean class全名","type":"WORD","createRequire":true,"updateRequire":true,"manyToMany":"","queryAble":false,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"param","comment":"任务参数","tooltip":"","type":"WORD","createRequire":true,"updateRequire":true,"manyToMany":"","queryAble":false,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"description","comment":"任务描述","tooltip":"","type":"WORD","createRequire":true,"updateRequire":true,"manyToMany":"","queryAble":false,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false},{"name":"enable","comment":"启用状态","tooltip":"","type":"ENABLE","createRequire":false,"updateRequire":false,"manyToMany":"","queryAble":true,"jsonIgnore":false,"directShow":true,"editAble":true,"sortAble":false,"tableWidth":200,"dictionaryShow":false}],"comment":"定时任务","type":"BASE","buildController":true}]}]}
+        return { 'name': 'keiskei-framework-parent', 'comment': 'keiskei脚手架', 'version': 'v1', 'favicon': '浏览器图标', 'logo': '项目LOGO', 'author': 'right_way@foxmail.com', 'modules': [{ 'name': 'keiskei-framework-system', 'comment': '系统管理', 'packageName': 'top.keiskeiframework.system', 'tables': [{ 'name': 'User', 'comment': '管理员', 'table': 'table_name', 'type': 'BASE', 'buildController': true, 'fields': [{ 'name': 'username', 'comment': '账号', 'tooltip': '登录用户名', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': false, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'password', 'comment': '密码', 'tooltip': '登录密码', 'type': 'WORD', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': true, 'directShow': false, 'editAble': false, 'sortAble': true, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'enabled', 'comment': '启用', 'tooltip': '', 'type': 'ENABLE', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': '100', 'dictionaryShow': false }, { 'name': 'avatar', 'comment': '头像', 'tooltip': '', 'type': 'IMAGE', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'phone', 'comment': '手机号', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': false, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'email', 'comment': '邮箱', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': false, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'lastLoginTime', 'comment': '上次登录时间', 'tooltip': '', 'type': 'DATE_TIME', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': true, 'directShow': false, 'editAble': false, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'lastModifyPasswordTime', 'comment': '最后修改密码时间', 'tooltip': '', 'type': 'DATE_TIME', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': true, 'directShow': false, 'editAble': false, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'passwordErrorTimes', 'comment': '密码错误次数', 'tooltip': '', 'type': 'NUMBER', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': true, 'directShow': false, 'editAble': false, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'accountLockTime', 'comment': '锁定时间', 'tooltip': '', 'type': 'DATE_TIME', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': true, 'directShow': false, 'editAble': false, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'accountExpiredTime', 'comment': '账号过期时间', 'tooltip': '', 'type': 'DATE_TIME', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': false, 'editAble': true, 'sortAble': true, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'department', 'comment': '用户部门', 'tooltip': '', 'type': 'MIDDLE_ID', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'relation': 'MANY_TO_ONE', 'relationEntity': 'Department', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'roles', 'comment': '用户角色', 'tooltip': '', 'type': 'MIDDLE_ID', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'relation': 'MANY_TO_MANY', 'relationEntity': 'Role', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }] }, { 'name': 'Role', 'fields': [{ 'name': 'name', 'type': 'WORD', 'comment': '角色名称', 'editAble': true, 'createRequire': true, 'updateRequire': true, 'queryAble': true, 'directShow': true, 'sortAble': true, 'tableWidth': '200' }, { 'name': 'permissions', 'comment': '角色权限', 'tooltip': '', 'type': 'MIDDLE_ID', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'relation': 'MANY_TO_MANY', 'relationEntity': 'Permission', 'queryAble': true, 'jsonIgnore': false, 'directShow': false, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }], 'comment': '角色管理', 'type': 'BASE', 'buildController': true }, { 'name': 'Permission', 'fields': [{ 'name': 'name', 'type': 'WORD', 'comment': '权限名称', 'editAble': true, 'createRequire': true, 'updateRequire': true, 'queryAble': false, 'tableWidth': '200', 'directShow': true }, { 'name': 'permission', 'comment': '权限标识', 'tooltip': '限制操作按钮标识', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'path', 'comment': '请求路径', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': '300', 'dictionaryShow': false }, { 'name': 'method', 'comment': '请求方式', 'tooltip': '', 'type': 'DICTIONARY', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false, 'fieldEnums': [{ 'name': 'GET', 'comment': 'GET', 'type': '', 'effect': 'dark', 'fieldEnumAffects': [] }, { 'name': 'POST', 'comment': 'POST', 'type': 'success', 'effect': 'dark', 'fieldEnumAffects': [] }, { 'name': 'PUT', 'comment': 'PUT', 'type': 'warning', 'effect': 'dark', 'fieldEnumAffects': [] }, { 'name': 'PATCH', 'comment': 'PATCH', 'type': 'warning', 'effect': 'light', 'fieldEnumAffects': [] }, { 'name': 'DELETE', 'comment': 'DELETE', 'type': 'danger', 'effect': 'dark', 'fieldEnumAffects': [] }] }, { 'name': 'sortBy', 'comment': '排序', 'tooltip': '', 'type': 'SORT', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }], 'comment': '权限管理', 'type': 'TREE', 'buildController': true }, { 'name': 'Department', 'fields': [{ 'name': 'name', 'type': 'WORD', 'comment': '部门名称', 'editAble': true, 'createRequire': true, 'updateRequire': true, 'directShow': true, 'tableWidth': '400' }], 'comment': '部门管理', 'type': 'TREE', 'buildController': true }, { 'name': 'ScheduledTask', 'fields': [{ 'name': 'name', 'type': 'WORD', 'comment': '任务名称', 'editAble': true, 'createRequire': true, 'updateRequire': true, 'directShow': true, 'queryAble': true, 'tableWidth': '200' }, { 'name': 'cron', 'comment': '时间格式', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'cronKey', 'comment': '任务KEY', 'tooltip': 'service_bean class全名', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'param', 'comment': '任务参数', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'description', 'comment': '任务描述', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'enable', 'comment': '启用状态', 'tooltip': '', 'type': 'ENABLE', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }], 'comment': '定时任务', 'type': 'BASE', 'buildController': true }] }] }
       }
-    }
-  },
-  created() {
-    const add_project = localStorage.getItem('add_project')
-    if (add_project) {
-      this.project = JSON.parse(add_project)
     }
   },
   data() {
@@ -473,6 +481,12 @@ export default {
       tableSelect: [
         '0_0'
       ]
+    }
+  },
+  created() {
+    const add_project = localStorage.getItem('add_project')
+    if (add_project) {
+      this.project = JSON.parse(add_project)
     }
   },
   methods: {
@@ -549,7 +563,8 @@ export default {
     },
     handleSave() {
       this.addLoading = true
-      localStorage.setItem("add_project", JSON.stringify(this.project))
+      console.log(this.project)
+      localStorage.setItem('add_project', JSON.stringify(this.project))
       this.addLoading = false
     }
   }
