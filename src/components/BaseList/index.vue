@@ -866,7 +866,7 @@ export default {
     if (listQuery) {
       this.listQuery = JSON.parse(listQuery)
     } else {
-      const listQuery = []
+      const listQuery = [undefined]
       this.columns.forEach(e => {
         let condition = 'EQ'
         if (e.type && e.type.concat('SELECT')) {
