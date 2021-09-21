@@ -54,10 +54,7 @@ export function deleteBase(url, id) {
   })
 }
 
-export function getDataDict() {
-  return request({
-    url: '/common/dictionary/options',
-    method: 'GET'
-  })
+export function requestBase(conf) {
+  return request(conf)
 }
 

@@ -23,6 +23,29 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 
+String.prototype.format = function(args) {
+  var result = this
+  if (arguments.length > 0) {
+    if (arguments.length == 1 && typeof (args) === 'object') {
+      for (var key in args) {
+        if (args[key] != undefined) {
+          var reg = new RegExp('({' + key + '})', 'g')
+          result = result.replace(reg, args[key])
+        }
+      }
+    } else {
+      for (var i = 0; i < arguments.length; i++) {
+        if (arguments[i] != undefined) {
+          // var reg = new RegExp("({[" + i + "]})", "g");//这个在索引大于9时会有问题
+          var reg = new RegExp('({)' + i + '(})', 'g')
+          result = result.replace(reg, arguments[i])
+        }
+      }
+    }
+  }
+  return result
+}
+
 Vue.use(VueQuillEditor /* { default global options } */)
 
 Vue.use(Element, {
@@ -32,7 +55,6 @@ Vue.use(Element, {
 
 Vue.config.productionTip = false
 Vue.prototype.$media = process.env.VUE_APP_BASE_API + '/common/file/show/'
-
 
 new Vue({
   el: '#app',

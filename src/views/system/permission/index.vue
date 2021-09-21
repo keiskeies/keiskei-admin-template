@@ -1,9 +1,18 @@
 <template>
   <div class="app-container">
     <div class="table-container">
-      <base-list ref="table" url="/system/permission"  :options="options" :columns="columns"
-                 :format="format" :rules="rules" permission="system:permission" @reloadOptions="handleGetOptions"
-                 :default-expand-all="true" :treeTable="true"></base-list>
+      <base-list
+        ref="table"
+        url="/system/permission"
+        :options="options"
+        :columns="columns"
+        :format="format"
+        :rules="rules"
+        permission="system:permission"
+        :default-expand-all="true"
+        :tree-table="true"
+        @reloadOptions="handleGetOptions"
+      />
     </div>
   </div>
 </template>
@@ -15,8 +24,8 @@ import BaseList from '@/components/BaseList'
 
 export default {
   name: 'SysPermission',
-  components: {BaseList},
-  directives: {permission, waves},
+  components: { BaseList },
+  directives: { permission, waves },
   data() {
     return {
       columns: [
@@ -51,7 +60,17 @@ export default {
           label: 'API',
           align: 'left'
         },
-        {show: true, edit: true, queryFlag: false, sortable: false, width: 100, key: 'method', label: 'Method', type: 'SELECT', optionKey: 'methodOptions'},
+        {
+          show: true,
+          edit: true,
+          queryFlag: false,
+          sortable: false,
+          width: 100,
+          key: 'method',
+          label: 'Method',
+          type: 'SELECT',
+          optionKey: 'methodOptions'
+        },
         {
           show: true,
           edit: true,
@@ -61,21 +80,25 @@ export default {
           key: 'sortBy',
           label: '排序',
           type: 'SORT'
-        },
+        }
       ],
       format: {},
       rules: {
         add: {
-          name: [{required: true, message: '权限名称!', trigger: 'blur'}],
-          permission: [{required: true, message: '权限标识!', trigger: 'change'}],
+          name: [{ required: true, message: '权限名称!', trigger: 'blur' }],
+          permission: [{ required: true, message: '权限标识!', trigger: 'change' }]
         },
         edit: {
-          name: [{required: true, message: '权限名称!', trigger: 'blur'}],
-          permission: [{required: true, message: '权限标识!', trigger: 'change'}],
+          name: [{ required: true, message: '权限名称!', trigger: 'blur' }],
+          permission: [{ required: true, message: '权限标识!', trigger: 'change' }]
         }
       },
       options: {
-        methodOptions: [{id: 'GET', name: 'GET'}, {id: 'POST', name: 'POST', type: 'success'}, {id: 'PUT', name: 'PUT', type: 'warning'}, {id: 'PATCH', name: 'PATCH', type: 'info'}, {id: 'DELETE', name: 'DELETE', type: 'danger'}]
+        methodOptions: [{ id: 'GET', name: 'GET' }, { id: 'POST', name: 'POST', type: 'success' }, {
+          id: 'PUT',
+          name: 'PUT',
+          type: 'warning'
+        }, { id: 'PATCH', name: 'PATCH', type: 'info' }, { id: 'DELETE', name: 'DELETE', type: 'danger' }]
       }
     }
   },

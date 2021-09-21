@@ -7,7 +7,7 @@ const generateRouter = {
   component: Layout,
   redirect: '/log/operateLog',
   name: '日志管理',
-  meta: { title: '日志管理', icon: 'example', role: 'generate' },
+  meta: { title: '日志管理', icon: 'example', role: 'log' },
   children: [
     {
       path: '/log/operateLog',
@@ -19,7 +19,7 @@ const generateRouter = {
       path: '/log/errorLog',
       name: '错误日志',
       component: () => import('@/views/error-log/index'),
-      meta: { title: '错误日志', icon: 'table'},
+      meta: { title: '错误日志', icon: 'table' }
     }
   ]
 }

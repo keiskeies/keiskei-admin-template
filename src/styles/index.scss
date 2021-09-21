@@ -96,7 +96,6 @@ div:focus {
     height: 0;
   }
 }
-
 // main-container global css
 .base-table-item-form {
   .el-form-item {
@@ -111,10 +110,10 @@ div:focus {
     margin-bottom: 10px;
     background-color: #f8f8fa;
     .el-input-group__prepend {
-      width: 100px !important;
+      width: 110px !important;
     }
     .el-cascader--mini {
-      margin-bottom: 3px !important;
+      margin-bottom: 5px !important;
     }
     .el-input-group__append {
       padding: 0;
@@ -130,7 +129,6 @@ div:focus {
   .base-table {
     padding: 5px;
     position: relative;
-    background-color: #f8f8fa;
     .base-table-content{
       width: calc(100% - 30px);
       display: inline-block;

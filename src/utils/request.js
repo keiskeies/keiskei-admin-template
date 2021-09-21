@@ -1,15 +1,20 @@
 import axios from 'axios'
-import {MessageBox, Message} from 'element-ui'
+import { MessageBox, Message } from 'element-ui'
+import { getToken } from '@/utils/auth'
 import store from '@/store'
 
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   timeout: 3600000 // request timeout
 })
-service.defaults.withCredentials = true
+// service.defaults.withCredentials = true
 // request interceptor
 service.interceptors.request.use(
   config => {
+    const token = getToken()
+    if (token) {
+      config.headers['Access-Token'] = getToken()
+    }
     if (config.method.toLowerCase() === 'get') {
       const params = config.params || {}
       params._ = new Date().getTime()

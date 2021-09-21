@@ -3,13 +3,13 @@
     <div class="table-container">
       <base-list
         ref="table"
-        url="/generate/project"
+        url="/content/tagInfo"
         :options="options"
         :columns="columns"
         :format="format"
         :rules="rules"
-        permission="generate:project"
-        edit-page
+        permission="content:tagInfo"
+        :tree-table="true"
         @reloadOptions="handleGetOptions"
       />
     </div>
@@ -17,23 +17,29 @@
 </template>
 
 <script>
-import { getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, deleteBase } from '@/api/common'
 import permission from '@/directive/permission/index.js' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 import BaseList from '@/components/BaseList'
 
 export default {
-  name: 'ProjectInfo',
+  name: 'PageTagInfo',
   components: { BaseList },
   directives: { permission, waves },
   data() {
     return {
       columns: [
-        { show: true, edit: false, queryFlag: false, sortable: false, minWidth: 300, key: 'name', label: '项目名称' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'version', label: '版本号' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'favicon', label: 'favicon', type: 'IMAGE' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'logo', label: 'LOGO', type: 'IMAGE' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'author', label: '作者' }
+        {
+          show: true,
+          edit: true,
+          queryFlag: false,
+          sortable: false,
+          minWidth: 300,
+          key: 'name',
+          label: '标签名称',
+          fixed: 'left',
+          align: 'left',
+          autofocus: true
+        }
       ],
       format: {
       },

@@ -1,30 +1,69 @@
 <template>
   <div class="app-container">
-    <el-card class="box-card">
+    <el-card class="box-card" shadow="hover">
       <div slot="header" class="clearfix">
         <el-form ref="form_project" label-width="auto" label-suffix=": " :rule="projectRules" inline>
-          <el-form-item label="项目名称" prop="name">
-            <el-input v-model="project.name" clearable />
-          </el-form-item>
-          <el-form-item label="项目注释" prop="comment">
-            <el-input v-model="project.comment" clearable />
-          </el-form-item>
-          <el-form-item label="版本号" prop="version">
-            <el-input v-model="project.version" clearable />
-          </el-form-item>
-          <el-form-item label="浏览器图标" prop="favicon">
-            <el-input v-model="project.favicon" clearable />
-          </el-form-item>
-          <el-form-item label="项目LOGO" prop="logo">
-            <el-input v-model="project.logo" clearable />
-          </el-form-item>
-          <el-form-item label="作者" prop="author">
-            <el-input v-model="project.author" clearable />
-          </el-form-item>
+          <el-row :gutter="10">
+            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
+              <el-form-item label="项目名称" prop="name">
+                <el-input v-model="project.name" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
+              <el-form-item label="项目注释" prop="comment">
+                <el-input v-model="project.comment" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
+              <el-form-item label="版本号" prop="version">
+                <el-input v-model="project.version" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
+              <el-form-item label="浏览器图标" prop="favicon">
+                <el-input v-model="project.favicon" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
+              <el-form-item label="LOGO" prop="logo">
+                <el-input v-model="project.logo" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
+              <el-form-item label="作者" prop="author">
+                <el-input v-model="project.author" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
+              <el-form-item label="文件管理" prop="fileJar">
+                <el-select v-model="project.fileJar" clearable>
+                  <el-option value="LOCAL" label="本地服务器存储" />
+                  <el-option value="ALI_OSS" label="阿里OSS" />
+                  <el-option value="JD_OSS" label="京东OSS" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
+              <el-form-item label="日志存储" prop="sqlLog">
+                <el-select v-model="project.sqlLog" clearable>
+                  <el-option :value="true" label="是" />
+                  <el-option :value="false" label="否" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
+              <el-form-item label="工作流" prop="workflow">
+                <el-select v-model="project.workflow" clearable>
+                  <el-option :value="true" label="是" />
+                  <el-option :value="false" label="否" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
       </div>
       <!--模块-->
-      <el-tabs ref="project-module" v-model="moduleSelect" tab-position="left" addable :closable="project.modules.length > 1" @tab-add="handleModuleAdd" @tab-remove="handleModuleRemove">
+      <el-tabs ref="project-module" v-model="moduleSelect" type="card" addable :closable="project.modules.length > 1" @tab-add="handleModuleAdd" @tab-remove="handleModuleRemove">
         <el-tab-pane v-for="(module, moduleIndex) in project.modules" :key="moduleIndex" :label="module.comment" :name="moduleIndex + ''">
           <el-card class="box-card" shadow="hover">
             <div slot="header" class="clearfix">
@@ -42,7 +81,7 @@
             </div>
             <el-tabs ref="module-table" v-model="tableSelect[moduleIndex]" tab-position="left" addable :closable="module.tables.length > 1" @tab-add="handleTableAdd(moduleIndex)" @tab-remove="handleTableRemove">
               <el-tab-pane v-for="(table, tableIndex) in module.tables" :key="tableIndex" :label="table.comment" :name="moduleIndex + '_' + tableIndex">
-                <el-card class="box-card">
+                <el-card class="box-card" shadow="hover">
                   <div slot="header" class="clearfix">
                     <el-form :ref="'form_module_' + moduleIndex + '_table_' + tableIndex" :model="table" label-width="auto" label-suffix=": " :rule="tableRules" inline>
                       <el-form-item label="表名称" prop="name">
@@ -53,7 +92,7 @@
                       </el-form-item>
                       <el-form-item label="表类型" prop="type">
                         <el-select v-model="table.type" clearable>
-                          <el-option value="BASE" label="列表结构" />
+                          <el-option value="LIST" label="列表结构" />
                           <el-option value="TREE" label="树形结构" />
                         </el-select>
                       </el-form-item>
@@ -71,21 +110,7 @@
                       </template>
                     </el-table-column>
                     <!--                    -->
-                    <el-table-column label="字段类型" header-align="center" align="left" prop="type" fixed width="120">
-                      <template slot-scope="scope">
-                        <slot>
-                          <el-select
-                            v-model="scope.row.type"
-                            :filterable="fieldTypeOptions.length > 5"
-                            @change="handleFieldTypeChange(moduleIndex, tableIndex, scope.$index, scope.row.type)"
-                          >
-                            <el-option v-for="item in fieldTypeOptions" :key="item.key" :value="item.key" :label="item.value" />
-                          </el-select>
-                        </slot>
-                      </template>
-                    </el-table-column>
-                    <!--                    -->
-                    <el-table-column label="字段注释" header-align="center" align="left" prop="comment" fixed width="220">
+                    <el-table-column label="字段注释" header-align="center" prop="comment" width="220">
                       <template slot-scope="scope">
                         <slot>
                           <el-tooltip class="item" effect="light" :content="scope.row.comment" placement="right">
@@ -95,30 +120,16 @@
                       </template>
                     </el-table-column>
                     <!--                    -->
-                    <el-table-column header-align="center" align="left" prop="validate" fixed width="350">
-                      <template slot="header">
-                        <el-tooltip class="item" effect="dark" content="输入正则表达式" placement="top">
-                          <span>字段校验</span>
-                        </el-tooltip>
-                      </template>
+                    <el-table-column label="字段类型" header-align="center" prop="type" width="120">
                       <template slot-scope="scope">
                         <slot>
-                          <el-input v-model="scope.row.validate" clearable />
-                        </slot>
-                      </template>
-                    </el-table-column>
-                    <!--                    -->
-                    <el-table-column header-align="center" align="left" prop="tooltip" min-width="200">
-                      <template slot="header">
-                        <el-tooltip class="item" effect="dark" content="可在表头显示如此的小弹窗" placement="top">
-                          <span>字段解释</span>
-                        </el-tooltip>
-                      </template>
-                      <template slot-scope="scope">
-                        <slot>
-                          <el-tooltip class="item" effect="light" :content="scope.row.tooltip" placement="right">
-                            <el-input v-model="scope.row.tooltip" clearable />
-                          </el-tooltip>
+                          <el-select
+                            v-model="scope.row.type"
+                            :filterable="fieldTypeOptions.length > 5"
+                            @change="handleFieldTypeChange(moduleIndex, tableIndex, scope.$index, scope.row.type)"
+                          >
+                            <el-option v-for="item in fieldTypeOptions" :key="item.key" :value="item.key" :label="item.value" />
+                          </el-select>
                         </slot>
                       </template>
                     </el-table-column>
@@ -149,6 +160,21 @@
                           <el-select v-model="scope.row.relationEntity" clearable :disabled="!scope.row.relation">
                             <el-option v-for="item in module.tables" v-if="item.name !== table.name" :key="item.name" :value="item.name" :label="item.comment || item.name" />
                           </el-select>
+                        </slot>
+                      </template>
+                    </el-table-column>
+                    <!--                    -->
+                    <el-table-column header-align="center" prop="tooltip" min-width="200">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="可在表头显示如此的小弹窗" placement="top">
+                          <span>字段解释</span>
+                        </el-tooltip>
+                      </template>
+                      <template slot-scope="scope">
+                        <slot>
+                          <el-tooltip class="item" effect="light" :content="scope.row.tooltip" placement="right">
+                            <el-input v-model="scope.row.tooltip" clearable />
+                          </el-tooltip>
                         </slot>
                       </template>
                     </el-table-column>
@@ -261,12 +287,25 @@
                         </slot>
                       </template>
                     </el-table-column>
-                    <!--                    枚举表格-->
-                    <el-table-column label="枚举编辑" fixed="right" width="100">
+                    <!--                    -->
+                    <el-table-column header-align="center" prop="validate" width="350">
+                      <template slot="header">
+                        <el-tooltip class="item" effect="dark" content="输入正则表达式" placement="top">
+                          <span>字段校验</span>
+                        </el-tooltip>
+                      </template>
                       <template slot-scope="scope">
-                        <el-button v-if="scope.row.type === 'DICTIONARY'" type="primary" icon="el-icon-edit" circle @click="scope.row.dictionaryShow = !scope.row.dictionaryShow" />
+                        <slot>
+                          <el-input v-model="scope.row.validate" clearable />
+                        </slot>
+                      </template>
+                    </el-table-column>
+                    <!--                    枚举表格-->
+                    <el-table-column label="枚举" fixed="right" width="50">
+                      <template slot-scope="scope">
+                        <el-button v-if="scope.row.type === 'SELECT'" type="primary" icon="el-icon-edit" circle @click="scope.row.dictionaryShow = !scope.row.dictionaryShow" />
                         <el-dialog
-                          v-if="scope.row.type === 'DICTIONARY'"
+                          v-if="scope.row.type === 'SELECT'"
                           :title="scope.row.comment + '-枚举编辑'"
                           :visible.sync="scope.row.dictionaryShow"
                           :append-to-body="true"
@@ -353,7 +392,6 @@
                                         <slot><el-input v-model="enumAffect.row.value" clearable /></slot>
                                       </template>
                                     </el-table-column>
-
                                     <el-table-column label="清除字段" header-align="center" align="center" prop="cleanValue">
                                       <template slot="header">
                                         <el-tooltip class="item" effect="dark" content="清空该字段值" placement="top">
@@ -390,7 +428,6 @@
                                       </template>
                                     </el-table-column>
                                   </el-table>
-
                                 </slot>
                               </template>
                             </el-table-column>
@@ -408,6 +445,16 @@
       </el-tabs>
     </el-card>
     <el-button
+      v-if="project.id"
+      v-waves
+      v-permission="[project+':edit']"
+      type="primary"
+      :loading="addLoading"
+      @click="handleUpdate()"
+    >保存
+    </el-button>
+    <el-button
+      v-else
       v-waves
       v-permission="[project+':add']"
       type="primary"
@@ -419,27 +466,25 @@
 </template>
 
 <script>
+import { getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, changeBaseSort, deleteBase } from '@/api/common'
 import permission from '@/directive/permission' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 export default {
   name: 'Project',
   directives: { permission, waves },
   props: {
-    // eslint-disable-next-line vue/require-valid-default-prop
-    project: {
-      type: Object, default: () => {
-        return { 'name': 'keiskei-framework-parent', 'comment': 'keiskei脚手架', 'version': 'v1', 'favicon': '浏览器图标', 'logo': '项目LOGO', 'author': 'right_way@foxmail.com', 'modules': [{ 'name': 'keiskei-framework-system', 'comment': '系统管理', 'packageName': 'top.keiskeiframework.system', 'tables': [{ 'name': 'User', 'comment': '管理员', 'table': 'table_name', 'type': 'BASE', 'buildController': true, 'fields': [{ 'name': 'username', 'comment': '账号', 'tooltip': '登录用户名', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': false, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'password', 'comment': '密码', 'tooltip': '登录密码', 'type': 'WORD', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': true, 'directShow': false, 'editAble': false, 'sortAble': true, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'enabled', 'comment': '启用', 'tooltip': '', 'type': 'ENABLE', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': '100', 'dictionaryShow': false }, { 'name': 'avatar', 'comment': '头像', 'tooltip': '', 'type': 'IMAGE', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'phone', 'comment': '手机号', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': false, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'email', 'comment': '邮箱', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': false, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'lastLoginTime', 'comment': '上次登录时间', 'tooltip': '', 'type': 'DATE_TIME', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': true, 'directShow': false, 'editAble': false, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'lastModifyPasswordTime', 'comment': '最后修改密码时间', 'tooltip': '', 'type': 'DATE_TIME', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': true, 'directShow': false, 'editAble': false, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'passwordErrorTimes', 'comment': '密码错误次数', 'tooltip': '', 'type': 'NUMBER', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': true, 'directShow': false, 'editAble': false, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'accountLockTime', 'comment': '锁定时间', 'tooltip': '', 'type': 'DATE_TIME', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': true, 'directShow': false, 'editAble': false, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'accountExpiredTime', 'comment': '账号过期时间', 'tooltip': '', 'type': 'DATE_TIME', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': false, 'editAble': true, 'sortAble': true, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'department', 'comment': '用户部门', 'tooltip': '', 'type': 'MIDDLE_ID', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'relation': 'MANY_TO_ONE', 'relationEntity': 'Department', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'roles', 'comment': '用户角色', 'tooltip': '', 'type': 'MIDDLE_ID', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'relation': 'MANY_TO_MANY', 'relationEntity': 'Role', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }] }, { 'name': 'Role', 'fields': [{ 'name': 'name', 'type': 'WORD', 'comment': '角色名称', 'editAble': true, 'createRequire': true, 'updateRequire': true, 'queryAble': true, 'directShow': true, 'sortAble': true, 'tableWidth': '200' }, { 'name': 'permissions', 'comment': '角色权限', 'tooltip': '', 'type': 'MIDDLE_ID', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'relation': 'MANY_TO_MANY', 'relationEntity': 'Permission', 'queryAble': true, 'jsonIgnore': false, 'directShow': false, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }], 'comment': '角色管理', 'type': 'BASE', 'buildController': true }, { 'name': 'Permission', 'fields': [{ 'name': 'name', 'type': 'WORD', 'comment': '权限名称', 'editAble': true, 'createRequire': true, 'updateRequire': true, 'queryAble': false, 'tableWidth': '200', 'directShow': true }, { 'name': 'permission', 'comment': '权限标识', 'tooltip': '限制操作按钮标识', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'path', 'comment': '请求路径', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': '300', 'dictionaryShow': false }, { 'name': 'method', 'comment': '请求方式', 'tooltip': '', 'type': 'DICTIONARY', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false, 'fieldEnums': [{ 'name': 'GET', 'comment': 'GET', 'type': '', 'effect': 'dark', 'fieldEnumAffects': [] }, { 'name': 'POST', 'comment': 'POST', 'type': 'success', 'effect': 'dark', 'fieldEnumAffects': [] }, { 'name': 'PUT', 'comment': 'PUT', 'type': 'warning', 'effect': 'dark', 'fieldEnumAffects': [] }, { 'name': 'PATCH', 'comment': 'PATCH', 'type': 'warning', 'effect': 'light', 'fieldEnumAffects': [] }, { 'name': 'DELETE', 'comment': 'DELETE', 'type': 'danger', 'effect': 'dark', 'fieldEnumAffects': [] }] }, { 'name': 'sortBy', 'comment': '排序', 'tooltip': '', 'type': 'SORT', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }], 'comment': '权限管理', 'type': 'TREE', 'buildController': true }, { 'name': 'Department', 'fields': [{ 'name': 'name', 'type': 'WORD', 'comment': '部门名称', 'editAble': true, 'createRequire': true, 'updateRequire': true, 'directShow': true, 'tableWidth': '400' }], 'comment': '部门管理', 'type': 'TREE', 'buildController': true }, { 'name': 'ScheduledTask', 'fields': [{ 'name': 'name', 'type': 'WORD', 'comment': '任务名称', 'editAble': true, 'createRequire': true, 'updateRequire': true, 'directShow': true, 'queryAble': true, 'tableWidth': '200' }, { 'name': 'cron', 'comment': '时间格式', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'cronKey', 'comment': '任务KEY', 'tooltip': 'service_bean class全名', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'param', 'comment': '任务参数', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'description', 'comment': '任务描述', 'tooltip': '', 'type': 'WORD', 'createRequire': true, 'updateRequire': true, 'manyToMany': '', 'queryAble': false, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }, { 'name': 'enable', 'comment': '启用状态', 'tooltip': '', 'type': 'ENABLE', 'createRequire': false, 'updateRequire': false, 'manyToMany': '', 'queryAble': true, 'jsonIgnore': false, 'directShow': true, 'editAble': true, 'sortAble': false, 'tableWidth': 200, 'dictionaryShow': false }], 'comment': '定时任务', 'type': 'BASE', 'buildController': true }] }] }
-      }
-    }
+
   },
   data() {
     return {
+      project: {},
       projectRules: [],
       moduleRules: [],
       tableRules: [],
       fieldRules: [],
       moduleSelect: '0',
       addLoading: false,
+      url: '/generate/project',
       fieldTypeOptions: [
         { key: 'NUMBER', value: '整数' },
         { key: 'DECIMAL', value: '小数' },
@@ -458,7 +503,8 @@ export default {
         { key: 'VISIT_TIMES', value: '访问次数' },
         { key: 'ENABLE', value: '启/禁用' },
         { key: 'SORT', value: '排序' },
-        { key: 'DICTIONARY', value: '枚举' }
+        { key: 'SELECT', value: '枚举' },
+        { key: 'TAG', value: '标签' }
       ],
       fieldRelationOptions: [
         { key: 'ONE_TO_ONE', value: '一对一' },
@@ -467,7 +513,7 @@ export default {
         { key: 'MANY_TO_ONE', value: '多对一' }
       ],
       fieldEnumTypeOptions: [
-        { name: '', comment: '默认' },
+        { name: 'none', comment: '默认' },
         { name: 'success', comment: '成功' },
         { name: 'info', comment: '信息' },
         { name: 'warning', comment: '警告' },
@@ -484,9 +530,11 @@ export default {
     }
   },
   created() {
-    const add_project = localStorage.getItem('add_project')
-    if (add_project) {
-      this.project = JSON.parse(add_project)
+    const id = this.$route.query.id
+    if (id) {
+      getBaseDetail(this.url, id).then(res => {
+        this.project = Object.assign(res.data)
+      })
     }
   },
   methods: {
@@ -494,9 +542,11 @@ export default {
       this.tableSelect.push(this.project.modules.length + '_0')
       this.project.modules.push({
         name: 'module' + this.project.modules.length,
+        comment: '______',
         tables: [
           {
             name: 'table0',
+            comment: '______',
             fields: [
               { name: 'field0' }
             ]
@@ -515,6 +565,7 @@ export default {
     handleTableAdd(moduleIndex) {
       this.project.modules[moduleIndex].tables.push({
         name: 'table' + this.project.modules[moduleIndex].tables.length,
+        comment: '______',
         fields: [
           { name: 'field1' }
         ]
@@ -535,7 +586,7 @@ export default {
       this.project.modules[moduleIndex].tables[tableIndex].fields.splice(fieldIndex, 1)
     },
     handleFieldTypeChange(moduleIndex, tableIndex, fieldIndex, val) {
-      if (val && val === 'DICTIONARY') {
+      if (val && val === 'SELECT') {
         this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex].fieldEnums = [
           { name: '', comment: '', type: 'info', effect: 'dark', fieldEnumAffects: [] }
         ]
@@ -563,8 +614,22 @@ export default {
     },
     handleSave() {
       this.addLoading = true
-      console.log(this.project)
-      localStorage.setItem('add_project', JSON.stringify(this.project))
+      addBase(this.url, this.project).then(() => {
+        this.$notify.success('创建成功!')
+        this.addLoading = false
+      }).catch(() => {
+        this.addLoading = false
+      })
+      this.addLoading = false
+    },
+    handleUpdate() {
+      this.addLoading = true
+      editBase(this.url, this.project).then(() => {
+        this.$notify.success('更新成功!')
+        this.addLoading = false
+      }).catch(() => {
+        this.addLoading = false
+      })
       this.addLoading = false
     }
   }
@@ -572,5 +637,7 @@ export default {
 </script>
 
 <style scoped>
-
+::v-deep .el-card__header{
+  background-color: #f8f8f8;
+}
 </style>

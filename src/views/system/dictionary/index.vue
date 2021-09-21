@@ -1,49 +1,58 @@
 <template>
   <div class="app-container">
     <div class="table-container">
-      <base-list ref="table" url="/system/dictionary" :options="options" :columns="columns" :format="format" :rules="rules"
-                 @reloadOptions="handleGetOptions" permission="system:dictionary" treeTable></base-list>
+      <base-list
+        ref="table"
+        url="/system/dictionary"
+        :options="options"
+        :columns="columns"
+        :format="format"
+        :rules="rules"
+        permission="system:dictionary"
+        tree-table
+        @reloadOptions="handleGetOptions"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import {getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, deleteBase} from '@/api/common'
+import { getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, deleteBase } from '@/api/common'
 import permission from '@/directive/permission/index.js' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 import BaseList from '@/components/BaseList'
 
 export default {
   name: 'Dictionary',
-  components: {BaseList},
-  directives: {permission, waves},
+  components: { BaseList },
+  directives: { permission, waves },
   data() {
     return {
       columns: [
-        {show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'name', label: '资源名称'},
-        {show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'code', label: '资源类型'},
-        {show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'type', label: '颜色类型', type: 'SELECT', optionKey: 'typeOptions'},
-        {show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'effect', label: '主题', type: 'SELECT', optionKey: 'effectOptions'},
+        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'name', label: '资源名称' },
+        { show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'code', label: '资源类型' },
+        { show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'type', label: '颜色类型', type: 'SELECT', optionKey: 'typeOptions' },
+        { show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'effect', label: '主题', type: 'SELECT', optionKey: 'effectOptions' }
       ],
       format: {
       },
       rules: {
         add: {
-          name: [{required: true, message: '资源名称不能为空!', trigger: 'blur'}],
-          code: [{required: true, message: '资源类型不能为空!', trigger: 'blur'}],
-          type: [{required: true, message: '颜色类型不能为空!', trigger: 'change'}],
-          effect: [{required: true, message: '主题不能为空!', trigger: 'change'}],
+          name: [{ required: true, message: '资源名称不能为空!', trigger: 'blur' }],
+          code: [{ required: true, message: '资源类型不能为空!', trigger: 'blur' }],
+          type: [{ required: true, message: '颜色类型不能为空!', trigger: 'change' }],
+          effect: [{ required: true, message: '主题不能为空!', trigger: 'change' }]
         },
         edit: {
-          name: [{required: true, message: '资源名称不能为空!', trigger: 'blur'}],
-          code: [{required: true, message: '资源类型不能为空!', trigger: 'blur'}],
-          type: [{required: true, message: '颜色类型不能为空!', trigger: 'change'}],
-          effect: [{required: true, message: '主题不能为空!', trigger: 'change'}],
+          name: [{ required: true, message: '资源名称不能为空!', trigger: 'blur' }],
+          code: [{ required: true, message: '资源类型不能为空!', trigger: 'blur' }],
+          type: [{ required: true, message: '颜色类型不能为空!', trigger: 'change' }],
+          effect: [{ required: true, message: '主题不能为空!', trigger: 'change' }]
         }
       },
       options: {
-        typeOptions: [{id: 'success'},{id: 'primary'},{id: 'danger'},{id: 'none'}],
-        effectOptions: [{id: 'dark'},{id: 'plain'}],
+        typeOptions: [{ id: 'success' }, { id: 'primary' }, { id: 'danger' }, { id: 'none' }],
+        effectOptions: [{ id: 'dark' }, { id: 'plain' }]
       }
     }
   },

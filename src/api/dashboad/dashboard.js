@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-const URL_SUFFIX = '/system/dashboard'
+const URL_SUFFIX = '/dashboard/charts'
 
 export function list(params) {
   return request({

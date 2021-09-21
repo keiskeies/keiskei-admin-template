@@ -1,10 +1,11 @@
 import { login, getInfo } from '@/api/user'
-import { getDataDict as getDataDictionaryOptions } from '@/api/common'
+// import { getDataDict as getDataDictionaryOptions } from '@/api/common'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const state = {
   id: undefined,
+  token: getToken(),
   username: '',
   name: '',
   avatar: '',
@@ -48,6 +49,8 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
+        const { data } = response
+        setToken(data.token)
         resolve()
       }).catch(error => {
         commit('SET_USERNAME', username.trim())
@@ -101,18 +104,18 @@ const actions = {
       const token = getToken()
       if (token) {
         axios.get(process.env.VUE_APP_BASE_API + '/security/self/token', {
-          headers: { 'Auth-Token': token }
+          headers: { 'Access-Token': token }
         }).then(response => {
           const res = response.data
           if (res.status !== 200) {
-            commit('SET_TOKEN', '')
             commit('SET_ID', '')
             commit('SET_NAME', null)
             removeToken()
             resetRouter()
           } else {
-            commit('SET_TOKEN', res.data)
-            setToken(res.data)
+            const { data } = response
+            commit('SET_TOKEN', data)
+            setToken(data)
             resolve()
           }
         })

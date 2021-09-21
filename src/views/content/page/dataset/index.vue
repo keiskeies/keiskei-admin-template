@@ -3,13 +3,12 @@
     <div class="table-container">
       <base-list
         ref="table"
-        url="/generate/project"
+        url="/content/page/dataset"
         :options="options"
         :columns="columns"
         :format="format"
         :rules="rules"
-        permission="generate:project"
-        edit-page
+        permission="content:page:dataset"
         @reloadOptions="handleGetOptions"
       />
     </div>
@@ -17,23 +16,23 @@
 </template>
 
 <script>
-import { getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, deleteBase } from '@/api/common'
 import permission from '@/directive/permission/index.js' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 import BaseList from '@/components/BaseList'
 
 export default {
-  name: 'ProjectInfo',
+  name: 'PageDataset',
   components: { BaseList },
   directives: { permission, waves },
   data() {
     return {
       columns: [
-        { show: true, edit: false, queryFlag: false, sortable: false, minWidth: 300, key: 'name', label: '项目名称' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'version', label: '版本号' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'favicon', label: 'favicon', type: 'IMAGE' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'logo', label: 'LOGO', type: 'IMAGE' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'author', label: '作者' }
+        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'url', label: '数据集URL' },
+        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'title', label: '标题' },
+        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'abstract_', label: '摘要' },
+        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'info', label: '简介' },
+        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'homePage', label: '主页' },
+        { show: true, edit: false, queryFlag: false, sortable: false, minWidth: 300, key: 'datasetId', label: '数据集ID' }
       ],
       format: {
       },

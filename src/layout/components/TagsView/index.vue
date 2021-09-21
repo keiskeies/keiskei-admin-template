@@ -96,7 +96,7 @@ export default {
     initTags() {
       const affixTags = this.affixTags = this.filterAffixTags(this.routes)
       for (const tag of affixTags) {
-        // Must have tag name
+        // Must have tagInfo name
         if (tag.name) {
           this.$store.dispatch('tagsView/addVisitedView', tag)
         }

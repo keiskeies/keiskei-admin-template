@@ -10,6 +10,8 @@ import Layout from '@/layout'
 import systemRouter from './modules/system.js'
 import generateRouter from './modules/generate'
 import logRouter from './modules/log'
+import emailRouter from './modules/email'
+import contentRouter from './modules/content'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -26,7 +28,7 @@ import logRouter from './modules/log'
     title: 'title'               the name show in sidebar and breadcrumb (recommend set)
     icon: 'svg-name'/'el-icon-x' the icon show in the sidebar
     noCache: true                if set true, the page will no be cached(default is false)
-    affix: true                  if set true, the tag will affix in the tags-view
+    affix: true                  if set true, the tagInfo will affix in the tags-view
     breadcrumb: false            if set false, the item will hidden in breadcrumb(default is true)
     activeMenu: '/example/list'  if set path, the sidebar will highlight the path you set
   }
@@ -98,10 +100,11 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
-
-  /** when your routing map is too long, you can split it into small modules **/
-  systemRouter, generateRouter, logRouter
-
+  contentRouter,
+  emailRouter,
+  systemRouter
+  // generateRouter,
+  // logRouter
 ]
 
 const createRouter = () => new Router({

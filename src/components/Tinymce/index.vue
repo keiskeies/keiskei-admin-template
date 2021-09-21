@@ -1,6 +1,6 @@
 <template>
   <div :class="{fullscreen:fullscreen}" class="tinymce-container" :style="{width:containerWidth}">
-    <textarea :id="tinymceId" class="tinymce-textarea" />
+    <textarea :id="tinymceId" v-model="value" class="tinymce-textarea" />
     <div class="editor-custom-btn-container">
       <editorImage color="#1890ff" class="editor-upload-btn" @successCBK="imageSuccessCBK" />
     </div>
@@ -24,7 +24,7 @@ export default {
   name: 'Tinymce',
   components: { editorImage },
   props: {
-    id: {
+    index: {
       type: Number,
       default: function() {
         return parseInt(Math.random() * 1000)
@@ -64,7 +64,7 @@ export default {
     return {
       hasChange: false,
       hasInit: false,
-      tinymceId: 'vue-tinymce-' + this.id,
+      tinymceId: 'vue-tinymce-' + this.index,
       fullscreen: false,
       languageTypeList: {
         'en': 'en',
@@ -144,7 +144,7 @@ export default {
           _this.hasInit = true
           editor.on('NodeChange Change KeyUp SetContent', () => {
             this.hasChange = true
-            this.$emit('input', this.id, this.columnName, editor.getContent())
+            this.$emit('columnValChange', editor.getContent(), this.index, this.columnName)
           })
         },
         setup(editor) {

@@ -2,8 +2,8 @@ import store from '@/store'
 
 export default {
   inserted(el, binding, vnode) {
-    if (store.getters.id !== -1) {
-      const {value} = binding
+    if (store.getters.id !== '248c4100db5a343808736a58') {
+      const { value } = binding
       const roles = store.getters && store.getters.permissions // 之前是根据role做判断,现在修改role字段为permissions,其他逻辑不变
 
       if (value && value instanceof Array && value.length > 0) {
@@ -22,6 +22,9 @@ export default {
     }
   },
   check(val) {
+    if (store.getters.id === '248c4100db5a343808736a58') {
+      return true
+    }
     const roles = store.getters && store.getters.permissions // 之前是根据role做判断,现在修改role字段为permissions,其他逻辑不变
     return roles.some(role => {
       return val.includes(role)

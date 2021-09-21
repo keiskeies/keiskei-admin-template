@@ -3,13 +3,12 @@
     <div class="table-container">
       <base-list
         ref="table"
-        url="/generate/project"
+        url="/email/pushRecord"
         :options="options"
         :columns="columns"
         :format="format"
         :rules="rules"
-        permission="generate:project"
-        edit-page
+        permission="email:pushRecord"
         @reloadOptions="handleGetOptions"
       />
     </div>
@@ -17,23 +16,21 @@
 </template>
 
 <script>
-import { getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, deleteBase } from '@/api/common'
 import permission from '@/directive/permission/index.js' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 import BaseList from '@/components/BaseList'
 
 export default {
-  name: 'ProjectInfo',
+  name: 'PushRecord',
   components: { BaseList },
   directives: { permission, waves },
   data() {
     return {
       columns: [
-        { show: true, edit: false, queryFlag: false, sortable: false, minWidth: 300, key: 'name', label: '项目名称' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'version', label: '版本号' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'favicon', label: 'favicon', type: 'IMAGE' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'logo', label: 'LOGO', type: 'IMAGE' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'author', label: '作者' }
+        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'subject', label: '邮件主题', type: 'WORD' },
+        { show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'toUser', label: '发送人账号', type: 'WORD' },
+        { show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'status', label: '状态', type: 'SELECT', optionKey: 'pushStatusOptions' },
+        { show: true, edit: true, queryFlag: false, sortable: true, width: 200, key: 'sentDate', label: '发送时间' }
       ],
       format: {
       },
@@ -44,6 +41,11 @@ export default {
         }
       },
       options: {
+        permissionOptions: [],
+        pushStatusOptions: [
+          { id: 'SUCCESS', name: '成功', type: 'success' },
+          { id: 'FAIL', name: '失败', type: 'danger' }
+        ]
       }
     }
   },
