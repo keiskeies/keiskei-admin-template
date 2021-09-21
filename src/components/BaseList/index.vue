@@ -869,18 +869,14 @@ export default {
       const listQuery = []
       this.columns.forEach(e => {
         let condition = 'EQ'
-        let value
         if (e.type && e.type.concat('SELECT')) {
           condition = 'IN'
-          value = []
         } else if (e.type && e.type.concat('TIME')) {
           condition = 'BT'
-          value = []
         } else if (e.type && e.type.concat('WORD')) {
           condition = 'LIKE'
         }
-        console.log(e, condition, value)
-        listQuery.push({ column: e.key, condition: condition, value: value })
+        listQuery.push({ column: e.key, condition: condition, value: [] })
       })
       this.listQuery = listQuery
       this.handleGetParentOptions()
