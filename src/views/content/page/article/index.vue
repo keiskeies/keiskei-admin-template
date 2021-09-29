@@ -27,24 +27,24 @@ export default {
   data() {
     return {
       columns: [
-        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'keywords', label: '关键词' },
-        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'title', label: '标题' },
-        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'author', label: '作者' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'image', label: '图片' },
-        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'isTop', label: '是否置顶' },
-        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'isDownload', label: '是否可下载' },
-        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'isDraft', label: '是否草稿' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'createTime', label: '创建时间' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'updateTime', label: '更新时间' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'view', label: '浏览次数' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'share', label: '分享次数' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'like', label: '修改次数' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'pdfname', label: 'pdf名称' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'wxlink', label: '微信链接' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'wxshow', label: '微信链接' },
-        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'classify', label: '分类' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'abstract_', label: '简介' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'raw', label: 'raw' }
+        { show: true, edit: true, minWidth: 300, key: 'title', label: '标题', type: 'WORD' },
+        { show: true, edit: true, minWidth: 100, key: 'author', label: '作者', type: 'WORD' },
+        { show: true, edit: true, minWidth: 200, key: 'image', label: '图片', type: 'IMAGE' },
+        { show: true, edit: true, minWidth: 100, key: 'classify', label: '分类', type: 'DICTIONARY', optionKey: 'classifyOptions' },
+        { show: true, edit: true, minWidth: 100, key: 'keywords', label: '关键词', type: 'TAGS' },
+        { show: true, edit: true, minWidth: 100, key: 'isTop', label: '置顶', type: 'BOOLEAN' },
+        { show: true, edit: true, minWidth: 100, key: 'isDownload', label: '可下载', type: 'BOOLEAN' },
+        { show: true, edit: true, minWidth: 100, key: 'isDraft', label: '草稿', type: 'BOOLEAN' },
+        { show: true, edit: false, minWidth: 100, key: 'view', label: '浏览次数', type: 'NUMBER' },
+        { show: true, edit: false, minWidth: 100, key: 'share', label: '分享次数', type: 'NUMBER' },
+        { show: true, edit: false, minWidth: 100, key: 'like', label: '修改次数', type: 'NUMBER' },
+        { show: true, edit: true, minWidth: 300, key: 'pdfname', label: 'pdf名称', type: 'LONG_WORD' },
+        { show: true, edit: true, minWidth: 300, key: 'wxlink', label: '微信链接', type: 'LONG_WORD' },
+        { show: true, edit: true, minWidth: 300, key: 'wxshow', label: '微信SHOW', type: 'LONG_WORD' },
+        { show: true, edit: true, minWidth: 300, key: 'abstract_', label: '简介', type: 'LONG_WORD' },
+        { show: true, edit: false, minWidth: 200, key: 'createdTime', label: '创建时间', type: 'DATE_TIME' },
+        { show: true, edit: false, minWidth: 200, key: 'updateTime', label: '更新时间', type: 'DATE_TIME' },
+        { show: false, edit: true, minWidth: 300, key: 'raw', label: 'raw', type: 'OBJECT' }
       ],
       format: {
       },
@@ -55,6 +55,12 @@ export default {
         }
       },
       options: {
+        classifyOptions: [
+          { id: '资讯', name: '资讯', type: 'success' },
+          { id: '问答', name: '问答', type: 'warning' },
+          { id: '解读', name: '解读', type: 'info' },
+          { id: '文章', name: '文章', type: 'primary' }
+        ]
       }
     }
   },

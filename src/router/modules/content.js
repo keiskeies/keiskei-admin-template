@@ -11,7 +11,7 @@ const contentRouter = {
   children: [
     {
       path: '/content/page',
-      component: () => import('@/views/content/page/article/index'),
+      component: () => import('@/views/content/page/index'),
       redirect: '/content/page/article',
       name: '页面内容',
       meta: { title: '页面内容', icon: 'table', role: 'content:page' },

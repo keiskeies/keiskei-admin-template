@@ -70,7 +70,12 @@ export default {
     },
     async logout() {
       await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      console.log('+++++++++', this.$route.fullPath)
+      if (this.$route.fullPath === '/401') {
+        this.$router.push(`/login`)
+      } else {
+        this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      }
     }
   }
 }

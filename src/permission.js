@@ -28,8 +28,8 @@ router.beforeEach(async(to, from, next) => {
       } else {
         try {
           const { code, data } = await store.dispatch('user/getInfo')
-          const {permissions, authorities} = data
-          const accessRoutes = await store.dispatch('permission/generateRoutes', {permissions, authorities})
+          const { permissions, authorities } = data
+          const accessRoutes = await store.dispatch('permission/generateRoutes', { permissions, authorities })
           router.options.routes = accessRoutes
           router.addRoutes(accessRoutes)
           gotoPermissionNext(to, next, false)
@@ -44,7 +44,11 @@ router.beforeEach(async(to, from, next) => {
     if (whiteList.includes(to.path)) {
       next()
     } else {
-      next(`/login?redirect=${to.path}`)
+      if (to.path === '/401') {
+        next(`/login`)
+      } else {
+        next(`/login?redirect=${to.path}`)
+      }
       NProgress.done()
     }
   }

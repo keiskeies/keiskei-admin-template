@@ -1,10 +1,18 @@
 <template>
   <div class="app-container">
     <div class="table-container">
-      <base-list ref="table" url="/system/department" :options="options" :columns="columns" :format="format"
-                 :rules="rules" permission="system:department" @reloadOptions="handleGetOptions"
-                 :default-expand-all="true" :treeTable="true"
-      ></base-list>
+      <base-list
+        ref="table"
+        url="/system/department"
+        :options="options"
+        :columns="columns"
+        :format="format"
+        :rules="rules"
+        permission="system:department"
+        :default-expand-all="true"
+        :tree-table="true"
+        @reloadOptions="handleGetOptions"
+      />
     </div>
   </div>
 </template>
@@ -16,16 +24,14 @@ import BaseList from '@/components/BaseList'
 
 export default {
   name: 'SysDepartment',
-  components: {BaseList},
-  directives: {permission, waves},
+  components: { BaseList },
+  directives: { permission, waves },
   data() {
     return {
       columns: [
         {
           show: true,
           edit: true,
-          queryFlag: false,
-          sortable: false,
           minWidth: 300,
           key: 'name',
           label: '部门名称',
@@ -36,23 +42,21 @@ export default {
         {
           show: false,
           edit: false,
-          queryFlag: false,
-          sortable: true,
           width: 200,
           type: 'DATE_TIME',
           key: 'createTime',
           label: '创建时间'
-        },
+        }
       ],
       format: {},
       rules: {
         add: {
-          name: [{required: true, message: '部门名称必填!', trigger: 'blur'}],
-          sign: [{required: true, message: '部门标识必填!', trigger: 'blur'}],
+          name: [{ required: true, message: '部门名称必填!', trigger: 'blur' }],
+          sign: [{ required: true, message: '部门标识必填!', trigger: 'blur' }]
         },
         edit: {
-          name: [{required: true, message: '部门名称必填!', trigger: 'blur'}],
-          sign: [{required: true, message: '部门标识必填!', trigger: 'blur'}],
+          name: [{ required: true, message: '部门名称必填!', trigger: 'blur' }],
+          sign: [{ required: true, message: '部门标识必填!', trigger: 'blur' }]
         }
       },
       options: {}

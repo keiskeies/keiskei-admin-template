@@ -47,7 +47,7 @@ export default {
             },
             restore: {
               show: true,
-              icon: 'M22,1.4L9.9,13.5l12.3,12.3 M10.3,13.5H54.9v44.6 H10.3v-26',
+              icon: 'M22,1.4L9.9,13.5l12.3,12.3 M10.3,13.5H54.9v44.6 H10.3v-26'
             },
             saveAsImage: {
               show: true,
@@ -65,7 +65,7 @@ export default {
               icon: 'M17.5,17.3H33 M17.5,17.3H33 M45.4,29.5h-28 M11.5,2v56H51V14.8L38.4,2H11.5z M38.4,2.2v12.7H51 M45.4,41.7h-28',
               onclick: this.edit
             }
-          },
+          }
         },
         tooltip: {
           trigger: 'axis',

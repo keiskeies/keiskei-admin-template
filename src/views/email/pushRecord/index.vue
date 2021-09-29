@@ -27,10 +27,10 @@ export default {
   data() {
     return {
       columns: [
-        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'subject', label: '邮件主题', type: 'WORD' },
-        { show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'toUser', label: '发送人账号', type: 'WORD' },
-        { show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'status', label: '状态', type: 'SELECT', optionKey: 'pushStatusOptions' },
-        { show: true, edit: true, queryFlag: false, sortable: true, width: 200, key: 'sentDate', label: '发送时间' }
+        { show: true, edit: true, minWidth: 300, key: 'subject', label: '邮件主题', type: 'WORD' },
+        { show: true, edit: true, width: 200, key: 'toUser', label: '发送人账号', type: 'WORD' },
+        { show: true, edit: true, width: 200, key: 'status', label: '状态', type: 'DICTIONARY', optionKey: 'pushStatusOptions' },
+        { show: true, edit: true, width: 200, key: 'sentDate', label: '发送时间' }
       ],
       format: {
       },

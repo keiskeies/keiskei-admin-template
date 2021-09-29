@@ -69,17 +69,17 @@ export default {
         headerToken: { 'Access-Token': getToken() }
       },
       columns: [
-        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'subject', label: '邮件主题' },
-        { show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'purpose', label: '推送目的' },
-        { show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'sentDate', label: '发送时间' },
-        { show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'type', label: '推送类型', type: 'SELECT', optionKey: 'pushTypeOptions' },
-        { show: false, edit: true, queryFlag: false, sortable: false, width: 200, key: 'template', label: '推送模版', type: 'REL_SELECT', optionKey: 'pushTemplateOptions' },
-        { show: true, edit: true, queryFlag: true, sortable: false, width: 200, key: 'status', label: '状态', type: 'SELECT', optionKey: 'pushStatusOptions' },
-        { show: true, edit: false, queryFlag: true, sortable: false, width: 200, key: 'expectation', label: '预期效果' },
-        { show: true, edit: false, queryFlag: true, sortable: false, width: 200, key: 'pushNum', label: '实际推送量' },
-        { show: true, edit: false, queryFlag: true, sortable: false, width: 200, key: 'clickNum', label: '实际点击率' },
-        { show: false, edit: true, queryFlag: false, sortable: false, width: 200, key: 'toUsers', label: '接收人', type: 'TAGS' },
-        { show: true, edit: false, queryFlag: true, sortable: false, width: 200, key: 'user', label: '操作者' }
+        { show: true, edit: true, minWidth: 300, key: 'subject', label: '邮件主题' },
+        { show: true, edit: true, width: 200, key: 'purpose', label: '推送目的' },
+        { show: true, edit: true, width: 200, key: 'sentDate', label: '发送时间' },
+        { show: true, edit: true, width: 200, key: 'type', label: '推送类型', type: 'DICTIONARY', optionKey: 'pushTypeOptions' },
+        { show: false, edit: true, width: 200, key: 'template', label: '推送模版', type: 'REL_SELECT', optionKey: 'pushTemplateOptions' },
+        { show: true, edit: true, width: 200, key: 'status', label: '状态', type: 'DICTIONARY', optionKey: 'pushStatusOptions' },
+        { show: true, edit: false, width: 200, key: 'expectation', label: '预期效果' },
+        { show: true, edit: false, width: 200, key: 'pushNum', label: '实际推送量' },
+        { show: true, edit: false, width: 200, key: 'clickNum', label: '实际点击率' },
+        { show: false, edit: true, width: 200, key: 'toUsers', label: '接收人', type: 'TAGS' },
+        { show: true, edit: false, width: 200, key: 'user', label: '操作者' }
       ],
       format: {
       },

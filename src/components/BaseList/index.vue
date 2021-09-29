@@ -3,7 +3,7 @@
     <el-card class="box-card" shadow="hover" :body-style="{padding: 0}">
       <div slot="header" class="clearfix filter-container">
         <el-row v-if="listQuery && listQuery.length > 0" :gutter="5">
-          <template v-for="(column, index) in columns" v-if="column.queryFlag || false">
+          <template v-for="(column, index) in columns" v-if="conditionRelOptions[column.type]">
             <el-col
               :xs="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 12}"
               :sm="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 8}"
@@ -21,9 +21,9 @@
                 collapse-tags
                 @change="fetchData(1)"
               />
-              <!--            SELECT-->
+              <!--            DICTIONARY-->
               <el-select
-                v-else-if="column.type && column.type.indexOf('SELECT') !== -1"
+                v-else-if="column.type && column.type.indexOf('DICTIONARY') !== -1"
                 v-model="listQuery[index].value"
                 clearable
                 multiple
@@ -41,14 +41,25 @@
               <!--            ENABLE-->
               <el-select
                 v-else-if="column.type && column.type === 'ENABLE'"
-                v-model="listQuery[index].value"
+                v-model="listQuery[index].value[0]"
                 clearable
                 class="filter-item"
                 :placeholder="column.label"
-                multiple
                 @change="fetchData(1)"
               >
                 <el-option v-for="item in statusOptions" :key="item.id" :label="item.name" :value="item.id" />
+              </el-select>
+              <!--            BOOLEAN-->
+              <el-select
+                v-else-if="column.type && column.type === 'BOOLEAN'"
+                v-model="listQuery[index].value[0]"
+                clearable
+                class="filter-item"
+                :placeholder="column.label"
+                @change="fetchData(1)"
+              >
+                <el-option label="是" :value="true" />
+                <el-option label="否" :value="false" />
               </el-select>
               <!--            DATE_TIME-->
               <el-date-picker
@@ -64,7 +75,7 @@
                 :end-placeholder="column.label + '结束'"
                 @change="fetchData(1)"
               />
-              <!--            WORD-->
+              <!--            OTHER-->
               <template v-else>
                 <template v-if="listQuery[index].condition === 'BT'">
                   <el-input
@@ -77,11 +88,10 @@
                       <el-tooltip effect="dark" :content="column.label" placement="top">
                         <el-select v-model="listQuery[index].condition">
                           <el-option
-                            v-for="(item, index_) in conditionOptions"
-                            v-if="item[column.type]"
+                            v-for="(item, index_) in conditionRelOptions[column.type || 'WORD']"
                             :key="index_"
-                            :label="column.label + item.value"
-                            :value="item.key"
+                            :label="column.label + conditionOptions[item]"
+                            :value="item"
                           />
                         </el-select>
                       </el-tooltip>
@@ -101,23 +111,20 @@
                       <el-tooltip effect="dark" :content="column.label" placement="top">
                         <el-select v-model="listQuery[index].condition">
                           <el-option
-                            v-for="(item, index_) in conditionOptions"
-                            v-if="item['WORD']"
+                            v-for="(item, index_) in conditionRelOptions[column.type || 'WORD']"
                             :key="index_"
-                            :label="column.label + item.value"
-                            :value="item.key"
+                            :label="column.label + conditionOptions[item]"
+                            :value="item"
                           />
                         </el-select>
                       </el-tooltip>
                     </template>
-
                   </el-input>
                 </template>
               </template>
             </el-col>
           </template>
         </el-row>
-
         <el-button v-waves type="primary" class="filter-button" icon="el-icon-search" @click="fetchData()">
           搜索
         </el-button>
@@ -135,11 +142,11 @@
       <!--    表格-->
       <div class="base-table">
         <el-table
+          v-loading="tableLoading"
           class="base-table-content"
+          element-loading-text="拼命加载中"
           :data="listData"
-          element-loading-text="加载中"
           border
-          height="500"
           fit
           highlight-current-row
           stripe
@@ -176,13 +183,13 @@
             :key="index"
             :prop="column.key"
             :label="column.label"
-            :sortable="column.sortable"
+            :sortable="column.sortable || (column.type && sortableOptions.includes(column.type))"
             header-align="center"
             :align="column.align || 'center'"
             :width="column.width"
             :min-width="column.minWidth"
             :max-width="column.maxWidth"
-            :show-overflow-tooltip="!column.type"
+            :show-overflow-tooltip="!column.type || column.type.indexOf('WORD') !== -1 || column.type.indexOf('TEXT') !== -1"
             :fixed="$store.state.app.device !== 'mobile' ? column.fixed : undefined"
           >
             <template slot="header" slot-scope="scope">
@@ -191,24 +198,30 @@
               </el-tooltip>
               <div v-else class="cell">{{ column.label }}</div>
             </template>
-            <template slot-scope="scope" :class="column.type">
+            <template slot-scope="scope">
+              <!--              format-->
+              <template v-if="format[column.key]">
+                {{ format[column.key](scope.row, scope.$index) }}
+              </template>
               <!--            排序-->
-              <template v-if="column.type === 'SORT'">
+              <template v-else-if="column.type && column.type === 'SORT'">
                 <el-button class="el-icon-top" @click="changeDataSort(scope.$index, scope.row,-1)" />
                 <el-button class="el-icon-bottom" @click="changeDataSort(scope.$index, scope.row, 1)" />
               </template>
               <!--            图片-->
-              <template v-else-if="column.type === 'IMAGE'">
+              <template v-else-if="column.type && column.type === 'IMAGE'">
                 <a v-if="!scope.row[column.key]">暂无图片</a>
                 <img
                   v-else
+                  style="width: 100px; height: 30px"
+                  referrerpolicy="no-referrer"
                   :src="$media + scope.row[column.key] +'?x-oss-process=image/resize,h_30'"
                   alt=""
                   @click="selectImg(scope.row[column.key],column.type)"
                 >
               </template>
               <!--            视频-->
-              <template v-else-if="column.type === 'VIDEO'">
+              <template v-else-if="column.type && column.type === 'VIDEO'">
                 <a v-if="!scope.row[column.key]">暂无视频</a>
                 <img
                   v-else
@@ -218,7 +231,7 @@
                 >
               </template>
               <!--            树形单选-->
-              <template v-else-if="column.type === 'TREE_SELECT'">
+              <template v-else-if="column.type && column.type === 'TREE_SELECT'">
                 <el-cascader
                   v-model="(scope.row[column.key]||{id: undefined}).id"
                   :options="options[column.optionKey]"
@@ -228,25 +241,26 @@
                 />
               </template>
               <!--            树形多选-->
-              <template v-else-if="column.type === 'TREE_MULTI_SELECT'">
+              <template v-else-if="column.type && column.type === 'TREE_MULTI_SELECT'">
                 <el-cascader
-                  v-model="(scope.row[column.key]||{id: undefined}).id"
+                  :value="scope.row[column.key].map(e => e.id)"
                   :options="options[column.optionKey]"
                   class="form-item"
                   :props="{value: 'id', label: 'name', leaf: 'name', emitPath: false, multiple: true, checkStrictly : true}"
                   disabled
+                  @change="handleChangeConsole"
                 />
               </template>
               <!--            多选-->
-              <template v-else-if="column.type === 'MULTI_SELECT'">
+              <template v-else-if="column.type && column.type === 'MULTI_SELECT'">
                 {{ (scope.row[column.key] || []).map(e => e.name).join(',') }}
               </template>
               <!--            关联单选-->
-              <template v-else-if="column.type === 'REL_SELECT'">
+              <template v-else-if="column.type && column.type === 'REL_SELECT'">
                 {{ (scope.row[column.key] || {}).name }}
               </template>
               <!--            单选-->
-              <template v-else-if="column.type === 'SELECT'">
+              <template v-else-if="column.type && column.type === 'DICTIONARY'">
                 <el-tag
                   v-for="(item, index__) in options[column.optionKey]"
                   v-if="item.id === scope.row[column.key]"
@@ -257,26 +271,27 @@
                 </el-tag>
               </template>
               <!--            文章-->
-              <template
-                v-else-if="column.type === 'LONG_WORD' || column.type === 'LONG_TEXT' || column.type === 'TO_LONG_TEXT'"
-              >
+              <template v-else-if="column.type && column.type === 'LONG_TEXT' || column.type === 'TO_LONG_TEXT'">
                 <div v-html="scope.row[column.key]" />
               </template>
               <!--            状态-->
-              <template v-else-if="column.type === 'ENABLE'">
+              <template v-else-if="column.type && column.type === 'ENABLE'">
                 <el-tag v-if="scope.row[column.key]" type="success">启用</el-tag>
                 <el-tag v-else type="danger">禁用</el-tag>
               </template>
-              <!--            其他-->
-              <template v-else :name="column.key" :index="scope.$index" :row="scope.row" :column="column">
-                <i v-if="column.type === 'DATE_TIME' && scope.row[column.key]" class="el-icon-time" />
-                {{
-                  scope.row[column.key]
-                    ?
-                      (format != null && typeof (format[column.key]) != 'undefined' ? format[column.key](scope.row, scope.$index) : scope.row[column.key])
-                    :
-                      ''
-                }}
+              <!--            是否-->
+              <template v-else-if="column.type && column.type === 'BOOLEAN'">
+                <el-tag v-if="scope.row[column.key]" type="success">是</el-tag>
+                <el-tag v-else type="danger">否</el-tag>
+              </template>
+              <!--              时间-->
+              <template v-else-if="column.type && (column.type.indexOf('DATE') !== -1 || column.type.indexOf('TIME') !== -1)">
+                <i v-if="scope.row[column.key]" class="el-icon-time" />
+                {{ scope.row[column.key] }}
+              </template>
+              <!--              WORD-->
+              <template v-else>
+                {{ scope.row[column.key] }}
               </template>
             </template>
           </el-table-column>
@@ -312,7 +327,7 @@
                 icon="el-icon-info"
                 icon-color="red"
                 confirm-button-type="danger"
-                @onConfirm="handleDelete(scope.$index, scope.row)"
+                @confirm="handleDelete(scope.$index, scope.row)"
               >
                 <el-button slot="reference" v-waves type="danger" style="margin-left: 10px">删除</el-button>
               </el-popconfirm>
@@ -335,14 +350,17 @@
         </div>
       </div>
 
-      <pagination
-        v-if="!treeTable"
-        v-show="total>0"
-        :total="total"
-        :page="limitQuery.page"
-        :limit="limitQuery.size"
-        @pagination="fetchData"
-      />
+      <div v-if="!treeTable" v-show="total>0" style="height: 55px;width: 100%;display: block" />
+      <el-card class="box-card" shadow="hover" :body-style="{padding: 0, margin: 0}" style="position: fixed; bottom: 20px; right: 46px; z-index: 5;">
+        <pagination
+          v-if="!treeTable"
+          v-show="total>0"
+          :total="total"
+          :page="limitQuery.page"
+          :limit="limitQuery.size"
+          @pagination="fetchData"
+        />
+      </el-card>
     </el-card>
     <!--编辑器-->
     <el-drawer
@@ -362,139 +380,146 @@
       >
         <el-form-item v-if="treeTable" label="上级" prop="parentId">
           <el-select v-model="temp.parentId" class="form-item">
-            <el-option
-              v-for="(item, index) in parentOptions"
-              :key="index"
-              :label="item.name"
-              :value="item.id"
-            />
+            <el-option v-for="(item, index) in parentOptions" :key="index" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item
-          v-for="(column, index) in columns"
-          v-if="column.edit"
-          :key="index"
-          :label="column.label"
-          :prop="column.key"
-        >
-
+        <el-form-item v-for="(column, index) in columns" v-if="column.edit" :key="index" :label="column.label" :prop="column.key">
           <!--     图片     -->
-          <upload-image
-            v-if="column.type === 'IMAGE'"
-            :ref="url + '_UploadImage_' + column.key"
-            class="form-item"
-            :file-url="temp[column.key]"
-            :column-name="column.key"
-            @uploadSuccess="columnValChange"
-          />
+          <template v-if="column.type === 'IMAGE'">
+            <upload-image
+              :ref="url + '_UploadImage_' + column.key"
+              class="form-item"
+              :file-url="temp[column.key]"
+              :column-name="column.key"
+              @uploadSuccess="columnValChange"
+            />
+          </template>
           <!--     视频     -->
-          <upload-video
-            v-else-if="column.type === 'VIDEO'"
-            :ref="url + '_UploadVideo_' + column.key"
-            class="form-item"
-            :file-url="temp[column.key]"
-            :column-name="column.key"
-            @uploadSuccess="columnValChange"
-          />
+          <template v-else-if="column.type === 'VIDEO'">
+            <upload-video
+              :ref="url + '_UploadVideo_' + column.key"
+              class="form-item"
+              :file-url="temp[column.key]"
+              :column-name="column.key"
+              @uploadSuccess="columnValChange"
+            />
+          </template>
           <!--     开关     -->
-          <el-switch
-            v-else-if="column.type === 'ENABLE'"
-            v-model="temp[column.key]"
-            active-color="#13ce66"
-            inactive-color="#ff0000"
-            active-text="启用"
-            inactive-text="禁用"
-          />
+          <template v-else-if="column.type === 'ENABLE'">
+            <el-switch
+              v-model="temp[column.key]"
+              active-color="#13ce66"
+              inactive-color="#ff0000"
+              active-text="启用"
+              inactive-text="禁用"
+            />
+          </template>
+          <!--     是否     -->
+          <template v-else-if="column.type === 'BOOLEAN'">
+            <el-switch
+              v-model="temp[column.key]"
+              active-color="#13ce66"
+              inactive-color="#ff0000"
+              active-text="是"
+              inactive-text="否"
+            />
+          </template>
           <!--     数字     -->
-          <el-input-number
-            v-else-if="column.type === 'NUMBER'"
-            v-model="temp[column.key]"
-            class="form-item"
-          />
+          <template v-else-if="column.type === 'NUMBER'">
+            <el-input-number
+              v-model="temp[column.key]"
+              class="form-item"
+            />
+          </template>
           <!--     多选     -->
-          <el-select
-            v-else-if="column.type === 'MULTI_SELECT'"
-            v-model="temp[column.key]"
-            class="form-item"
-            value-key="id"
-            multiple
-            clearable
-          >
-            <el-option
-              v-for="(item, index_) in options[column.optionKey]"
-              :key="index_"
-              :label="item.name"
-              :value="item"
-            />
-          </el-select>
+          <template v-else-if="column.type === 'MULTI_SELECT'">
+            <el-select
+              v-model="temp[column.key]"
+              class="form-item"
+              value-key="id"
+              multiple
+              clearable
+            >
+              <el-option
+                v-for="(item, index_) in options[column.optionKey]"
+                :key="index_"
+                :label="item.name"
+                :value="item"
+              />
+            </el-select>
+          </template>
           <!--     关联单选     -->
-          <el-select
-            v-else-if="column.type === 'REL_SELECT'"
-            v-model="temp[column.key]"
-            class="form-item"
-            value-key="id"
-            clearable
-          >
-            <el-option
-              v-for="(item, index_) in options[column.optionKey]"
-              :key="index_"
-              :label="item.name"
-              :value="item"
-            />
-          </el-select>
+          <template v-else-if="column.type === 'REL_SELECT'">
+            <el-select
+              v-model="temp[column.key]"
+              class="form-item"
+              value-key="id"
+              clearable
+            >
+              <el-option
+                v-for="(item, index_) in options[column.optionKey]"
+                :key="index_"
+                :label="item.name"
+                :value="item"
+              />
+            </el-select>
+          </template>
           <!--    单选      -->
-          <el-select
-            v-else-if="column.type === 'SELECT' || column.type === 'SELECT'"
-            v-model="temp[column.key]"
-            class="form-item"
-            clearable
-          >
-            <el-option
-              v-for="(item, index_) in options[column.optionKey]"
-              :key="index_"
-              :label="item.name"
-              :value="item.id"
-            />
-          </el-select>
+          <template v-else-if="column.type === 'DICTIONARY'">
+            <el-select
+              v-model="temp[column.key]"
+              class="form-item"
+              clearable
+            >
+              <el-option
+                v-for="(item, index_) in options[column.optionKey]"
+                :key="index_"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
+          </template>
           <!--     树形多选       -->
-          <tree-multi-select
-            v-else-if="column.type === 'TREE_MULTI_SELECT' && drawerVisible"
-            :ref="url + '_TreeForm_' + column.key"
-            :column-name="column.key"
-            :tree-data="options[column.optionKey]"
-            :show-checkbox="drawerStatus > 1"
-            :default-checked-keys="(temp[column.key]||[]).map(e => e.id)"
-            @columnValChange="columnValChange"
-          />
+          <template v-else-if="column.type === 'TREE_MULTI_SELECT' && drawerVisible">
+            <tree-multi-select
+              :ref="url + '_TreeForm_' + column.key"
+              :column-name="column.key"
+              :tree-data="options[column.optionKey]"
+              :show-checkbox="drawerStatus > 1"
+              :default-checked-keys="(temp[column.key]||[]).map(e => e.id)"
+              @columnValChange="columnValChange"
+            />
+          </template>
           <!--          富文本-->
-          <tinymce
-            v-else-if="column.type === 'HTML'"
-            :ref="url + '_Html_' + column.key"
-            :value="temp[column.key]"
-            :column-name="column.key"
-            @columnValChange="columnValChange"
-          />
+          <template v-else-if="column.type === 'HTML'">
+            <tinymce
+              :ref="url + '_Html_' + column.key"
+              :value="temp[column.key]"
+              :column-name="column.key"
+              @columnValChange="columnValChange"
+            />
+          </template>
           <!--     树形单选       -->
-          <tree-single-select
-            v-else-if="column.type === 'TREE_SELECT'"
-            :options="options[column.optionKey]"
-            :check-node="temp[column.key]"
-            :column-name="column.key"
-            @columnValChange="columnValChange"
-          />
+          <template v-else-if="column.type === 'TREE_SELECT'">
+            <tree-single-select
+              :options="options[column.optionKey]"
+              :check-node="temp[column.key]"
+              :column-name="column.key"
+              @columnValChange="columnValChange"
+            />
+          </template>
           <!--            时间日期-->
-          <el-date-picker
-            v-else-if="column.type === 'DATE_TIME'"
-            v-model="temp[column.key]"
-            clearable
-            format="yyyy-MM-dd HH:mm:ss"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            type="datetime"
-          />
+          <template v-else-if="column.type === 'DATE_TIME'">
+            <el-date-picker
+              v-model="temp[column.key]"
+              clearable
+              format="yyyy-MM-dd HH:mm:ss"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              type="datetime"
+            />
+          </template>
           <!--          标签-->
-          <template
-            v-else-if="column.type === 'TAGS'"
-          >
+          <template v-else-if="column.type === 'TAGS'">
             <el-tag
               v-for="(tag, index_) in temp[column.key]"
               :key="index_"
@@ -514,8 +539,18 @@
             />
             <el-button v-else class="button-new-tag" @click="showInput(column.key)">+ 添加</el-button>
           </template>
+          <!--          Object-->
+          <template v-else-if="column.type === 'OBJECT'">
+            <vue-json-editor
+              v-model="temp[column.key]"
+              :mode="'code'"
+              lang="zh"
+            />
+          </template>
           <!--    普通文本      -->
-          <el-input v-else v-model="temp[column.key]" clearable :autofocus="column.autofocus" />
+          <template v-else>
+            <el-input v-model="temp[column.key]" clearable :autofocus="column.autofocus" />
+          </template>
         </el-form-item>
         <el-form-item>
           <el-button v-waves @click="drawerVisible = false">取消</el-button>
@@ -544,10 +579,12 @@
       :visible.sync="dialogVisibleImg"
       :width="$store.state.app.device === 'mobile' ? '100%' : '60%'"
       destroy-on-close
+      center
     >
       <img :src="$media + fileUrl" width="100%" alt="">
     </el-dialog>
     <el-dialog
+      center
       :visible.sync="dialogVisibleVideo"
       :width="$store.state.app.device === 'mobile' ? '100%' : '60%'"
       destroy-on-close
@@ -570,10 +607,20 @@ import UploadFile from '@/components/UploadFile'
 import Tinymce from '@/components/Tinymce'
 import TreeMultiSelect from '@/components/TreeMultiSelect'
 import TreeSingleSelect from '@/components/TreeSingleSelect'
+import VueJsonEditor from 'vue-json-editor'
 
 export default {
   name: 'BaseList',
-  components: { Pagination, UploadImage, UploadVideo, UploadFile, Tinymce, TreeMultiSelect, TreeSingleSelect },
+  components: {
+    Pagination,
+    UploadImage,
+    UploadVideo,
+    UploadFile,
+    Tinymce,
+    TreeMultiSelect,
+    TreeSingleSelect,
+    VueJsonEditor
+  },
   directives: { permission, waves },
   props: {
     editPage: { type: Boolean, default: false },
@@ -602,6 +649,7 @@ export default {
   },
   data: () => {
     return {
+      tableLoading: true,
       limitQuery: { page: 1, size: 20, asc: undefined, desc: undefined },
       total: 0,
       listData: [],
@@ -624,268 +672,77 @@ export default {
       }, { value: 'add', title: '新建' }],
       parentOptions: [],
       addLoading: false,
-      conditionOptions: [
-        {
-          key: 'EQ',
-          value: '等于',
-          NUMBER: true,
-          DECIMAL: true,
-          MONEY: true,
-          DATE: false,
-          TIME: false,
-          DATE_TIME: false,
-          WORD: true,
-          LONG_WORD: true,
-          LONG_TEXT: true,
-          TO_LONG_TEXT: true,
-          IMAGE: false,
-          VIDEO: false,
-          FILE: false,
-          VISIT_TIMES: true,
-          SORT: false,
-          SELECT: true
-        },
-        {
-          key: 'NE',
-          value: '不等',
-          NUMBER: true,
-          DECIMAL: true,
-          MONEY: true,
-          DATE: false,
-          TIME: false,
-          DATE_TIME: false,
-          WORD: true,
-          LONG_WORD: true,
-          LONG_TEXT: true,
-          TO_LONG_TEXT: true,
-          IMAGE: false,
-          VIDEO: false,
-          FILE: false,
-          VISIT_TIMES: true,
-          SORT: false,
-          SELECT: true
-        },
-        {
-          key: 'GE',
-          value: '大/等',
-          NUMBER: true,
-          DECIMAL: true,
-          MONEY: true,
-          DATE: false,
-          TIME: false,
-          DATE_TIME: false,
-          WORD: false,
-          LONG_WORD: false,
-          LONG_TEXT: false,
-          TO_LONG_TEXT: false,
-          IMAGE: false,
-          VIDEO: false,
-          FILE: false,
-          VISIT_TIMES: true,
-          SORT: false,
-          SELECT: false
-        },
-        {
-          key: 'GT',
-          value: '大于',
-          NUMBER: true,
-          DECIMAL: true,
-          MONEY: true,
-          DATE: false,
-          TIME: false,
-          DATE_TIME: false,
-          WORD: false,
-          LONG_WORD: false,
-          LONG_TEXT: false,
-          TO_LONG_TEXT: false,
-          IMAGE: false,
-          VIDEO: false,
-          FILE: false,
-          VISIT_TIMES: true,
-          SORT: false,
-          SELECT: false
-        },
-        {
-          key: 'LE',
-          value: '小/等',
-          NUMBER: true,
-          DECIMAL: true,
-          MONEY: true,
-          DATE: false,
-          TIME: false,
-          DATE_TIME: false,
-          WORD: false,
-          LONG_WORD: false,
-          LONG_TEXT: false,
-          TO_LONG_TEXT: false,
-          IMAGE: false,
-          VIDEO: false,
-          FILE: false,
-          VISIT_TIMES: true,
-          SORT: false,
-          SELECT: false
-        },
-        {
-          key: 'LT',
-          value: '小于',
-          NUMBER: true,
-          DECIMAL: true,
-          MONEY: true,
-          DATE: false,
-          TIME: false,
-          DATE_TIME: false,
-          WORD: false,
-          LONG_WORD: false,
-          LONG_TEXT: false,
-          TO_LONG_TEXT: false,
-          IMAGE: false,
-          VIDEO: false,
-          FILE: false,
-          VISIT_TIMES: true,
-          SORT: false,
-          SELECT: false
-        },
-        {
-          key: 'BT',
-          value: '区间',
-          NUMBER: true,
-          DECIMAL: true,
-          MONEY: true,
-          DATE: true,
-          TIME: true,
-          DATE_TIME: true,
-          WORD: false,
-          LONG_WORD: false,
-          LONG_TEXT: false,
-          TO_LONG_TEXT: false,
-          IMAGE: false,
-          VIDEO: false,
-          FILE: false,
-          VISIT_TIMES: true,
-          SORT: false,
-          SELECT: false
-        },
-        {
-          key: 'LIKE',
-          value: '包含',
-          NUMBER: false,
-          DECIMAL: false,
-          MONEY: false,
-          DATE: false,
-          TIME: false,
-          DATE_TIME: false,
-          WORD: true,
-          LONG_WORD: true,
-          LONG_TEXT: true,
-          TO_LONG_TEXT: true,
-          IMAGE: false,
-          VIDEO: false,
-          FILE: false,
-          VISIT_TIMES: false,
-          SORT: false,
-          SELECT: false
-        },
-        {
-          key: 'LL',
-          value: '前缀',
-          NUMBER: false,
-          DECIMAL: false,
-          MONEY: false,
-          DATE: true,
-          TIME: true,
-          DATE_TIME: true,
-          WORD: true,
-          LONG_WORD: true,
-          LONG_TEXT: true,
-          TO_LONG_TEXT: true,
-          IMAGE: false,
-          VIDEO: false,
-          FILE: false,
-          VISIT_TIMES: false,
-          SORT: false,
-          SELECT: false
-        },
-        {
-          key: 'LR',
-          value: '后缀',
-          NUMBER: false,
-          DECIMAL: false,
-          MONEY: false,
-          DATE: true,
-          TIME: true,
-          DATE_TIME: true,
-          WORD: true,
-          LONG_WORD: true,
-          LONG_TEXT: true,
-          TO_LONG_TEXT: true,
-          IMAGE: false,
-          VIDEO: false,
-          FILE: false,
-          VISIT_TIMES: false,
-          SORT: false,
-          SELECT: false
-        },
-        {
-          key: 'IN',
-          value: '属于',
-          NUMBER: true,
-          DECIMAL: true,
-          MONEY: true,
-          DATE: false,
-          TIME: false,
-          DATE_TIME: false,
-          WORD: false,
-          LONG_WORD: false,
-          LONG_TEXT: false,
-          TO_LONG_TEXT: false,
-          IMAGE: false,
-          VIDEO: false,
-          FILE: false,
-          VISIT_TIMES: false,
-          SORT: false,
-          SELECT: true
-        }
-      ]
+      conditionRelOptions: {
+        DICTIONARY: ['EQ', 'IN'],
+        TREE_SELECT: ['EQ', 'IN'],
+        TREE_MULTI_SELECT: ['IN'],
+        MULTI_SELECT: ['IN'],
+        ENABLE: ['EQ'],
+        BOOLEAN: ['EQ'],
+        NUMBER: ['EQ', 'NE', 'BT', 'GE', 'GT', 'LE', 'LT'],
+        TAGS: ['IN'],
+        WORD: ['LIKE', 'EQ', 'LL', 'LR'],
+        TIME: ['BT'],
+        DATE: ['BT'],
+        DATE_TIME: ['BT']
+      },
+      sortableOptions: ['TIME', 'DATE', 'DATE_TIME', 'NUMBER', 'BOOLEAN', 'ENABLE'],
+      conditionOptions: {
+        EQ: '等于',
+        NE: '不等',
+        GE: '大/等',
+        GT: '大于',
+        LE: '小/等',
+        LT: '小于',
+        BT: '区间',
+        LIKE: '包含',
+        LL: '前缀',
+        LR: '后缀',
+        IN: '属于'
+      }
     }
   },
   watch: {
-    // columns: {
-    //   immediate: true,
-    //   handler(newVal, oldVal) {
-    //     // this.spanColumns = newVal.map(e => e.spanFlag)
-    //
-    //   }
-    // }
+    columns: {
+      deep: true,
+      immediate: true,
+      handler(newVal, oldVal) {
+        // this.spanColumns = newVal.map(e => e.spanFlag)
+        const limitQuery = localStorage.getItem(this.url + '_limitQuery')
+        if (limitQuery) {
+          this.limitQuery = JSON.parse(limitQuery)
+        }
+        const listQuery = localStorage.getItem(this.url + '_listQuery')
+        if (listQuery) {
+          this.listQuery = JSON.parse(listQuery)
+        } else {
+          const listQuery = []
+          this.columns.forEach(e => {
+            let condition = 'EQ'
+            if (e.type) {
+              const conditions = this.conditionRelOptions[e.type]
+              if (conditions) {
+                condition = conditions[0]
+              }
+            }
+            listQuery.push({ column: e.key, condition: condition, value: [undefined] })
+          })
+          this.listQuery = listQuery
+        }
+        this.fetchData()
+      }
+    }
   },
   created() {
-    const limitQuery = localStorage.getItem(this.url + '_limitQuery')
-    if (limitQuery) {
-      this.limitQuery = JSON.parse(limitQuery)
-    }
-    const listQuery = localStorage.getItem(this.url + '_listQuery')
-    if (listQuery) {
-      this.listQuery = JSON.parse(listQuery)
-    } else {
-      const listQuery = [undefined]
-      this.columns.forEach(e => {
-        let condition = 'EQ'
-        if (e.type && e.type.concat('SELECT')) {
-          condition = 'IN'
-        } else if (e.type && e.type.concat('TIME')) {
-          condition = 'BT'
-        } else if (e.type && e.type.concat('WORD')) {
-          condition = 'LIKE'
-        }
-        listQuery.push({ column: e.key, condition: condition, value: [] })
-      })
-      this.listQuery = listQuery
-      this.handleGetParentOptions()
-    }
+    this.handleGetParentOptions()
   },
-  mounted() {
-    this.fetchData()
-  },
+  // mounted() {
+  //   this.fetchData()
+  // },
   methods: {
+    handleChangeConsole(val) {
+      console.log('==========', val)
+    },
     handleClose(key, tag, index) {
       this.temp[key].splice(index, 1)
     },
@@ -898,7 +755,7 @@ export default {
     handleInputConfirm(key) {
       if (this.inputValue) {
         if (!this.temp[key]) {
-          this.$set(this.temp, key, [])
+          this.$set(this.temp, key, [undefined])
         }
         this.temp[key].push(this.inputValue)
       }
@@ -942,10 +799,15 @@ export default {
       })
     },
     fetchData(page, size) {
+      this.tableLoading = true
       if (this.treeTable) {
         getBaseList(this.url, {}).then(response => {
           this.listData = response.data
+          this.$nextTick(() => {
+            this.tableLoading = false
+          })
         }).catch(() => {
+          this.tableLoading = false
         })
       } else {
         page && typeof (page) === 'number' && (this.limitQuery.page = page)
@@ -989,7 +851,11 @@ export default {
           }
           this.limitQuery.page = number + 1
           this.limitQuery.size = size
+          this.$nextTick(() => {
+            this.tableLoading = false
+          })
         }).catch(err => {
+          this.tableLoading = false
         })
       }
     },
@@ -997,12 +863,13 @@ export default {
       if (column.property === 'actions') {
         return
       }
-      this.$nextTick(() => {
-        this.$refs[this.url + '_DataForm'].clearValidate()
-      })
+
       this.drawerStatus = 1
       this.temp = Object.assign(row)
       this.drawerVisible = true
+      this.$nextTick(() => {
+        this.$refs[this.url + '_DataForm'].clearValidate()
+      })
     },
     handleRow(row, column, event) {
     },
@@ -1047,7 +914,6 @@ export default {
         }
         this.$set(this.temp, e.key, value)
       })
-      console.log('=========', this.temp)
       this.treeTable && this.$set(this.temp, 'parentId', parentId)
     },
     handleAdd(index = 0, row = { id: undefined }) {

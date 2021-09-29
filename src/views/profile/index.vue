@@ -16,35 +16,35 @@
               <el-tab-pane label="基本资料" name="first">
                 <el-form ref="infoDataForm" :rules="infoRule" :model="userInfo" label-width="120px" label-suffix=": ">
                   <el-form-item label="头像">
-                    <upload-image class="form-item" :ref="'avatar'" @uploadSuccess="mediaChange" :fileUrl="userInfo.avatar" columnName="avatar"></upload-image>
+                    <upload-image :ref="'avatar'" class="form-item" :file-url="userInfo.avatar" column-name="avatar" @uploadSuccess="mediaChange" />
                   </el-form-item>
                   <el-form-item label="姓名" prop="name">
-                    <el-input clearable class="form-item" v-model="userInfo.name" placeholder="真实姓名"></el-input>
+                    <el-input v-model="userInfo.name" clearable class="form-item" placeholder="真实姓名" />
                   </el-form-item>
                   <el-form-item label="手机号" prop="phone">
-                    <el-input clearable class="form-item" v-model="userInfo.phone" placeholder="手机号"></el-input>
+                    <el-input v-model="userInfo.phone" clearable class="form-item" placeholder="手机号" />
                   </el-form-item>
                   <el-form-item label="邮箱" prop="email">
-                    <el-input clearable class="form-item" v-model="userInfo.email" placeholder="邮箱"></el-input>
+                    <el-input v-model="userInfo.email" clearable class="form-item" placeholder="邮箱" />
                   </el-form-item>
                   <el-form-item>
-                    <el-button  type="primary" @click="handleUpdateSelfInfo">确定</el-button>
+                    <el-button type="primary" @click="handleUpdateSelfInfo">确定</el-button>
                   </el-form-item>
                 </el-form>
               </el-tab-pane>
               <el-tab-pane label="修改密码" name="second">
                 <el-form ref="passwordDataForm" :rules="passwordRule" :model="user" label-width="120px" label-suffix=": ">
                   <el-form-item label="原始密码" prop="password">
-                    <el-input v-model="user.password"  class="form-item" type="password" />
+                    <el-input v-model="user.password" class="form-item" type="password" />
                   </el-form-item>
                   <el-form-item label="新密码" prop="newPassword">
-                    <el-input v-model="user.newPassword"  class="form-item" type="password" />
+                    <el-input v-model="user.newPassword" class="form-item" type="password" />
                   </el-form-item>
                   <el-form-item label="确认密码" prop="confirmPassword">
-                    <el-input v-model="user.confirmPassword"  class="form-item" type="password" />
+                    <el-input v-model="user.confirmPassword" class="form-item" type="password" />
                   </el-form-item>
                   <el-form-item>
-                    <el-button  type="primary" @click="resetSelfPassword">确定</el-button>
+                    <el-button type="primary" @click="resetSelfPassword">确定</el-button>
                   </el-form-item>
                 </el-form>
               </el-tab-pane>
@@ -71,7 +71,7 @@ export default {
       infoRule: {
         name: [{ required: true, message: '请输入姓名!', trigger: 'blur' }],
         phone: [{ required: true, message: '请输入手机号!', trigger: 'blur' }],
-        email: [{ required: true, message: '请输入邮箱!', trigger: 'blur' }],
+        email: [{ required: true, message: '请输入邮箱!', trigger: 'blur' }]
       },
       passwordRule: {
         password: [{ required: true, message: '旧密码不能为空!', trigger: 'blur' }],
@@ -92,7 +92,7 @@ export default {
         password: undefined, // 原始密码
         newPassword: undefined, // 新密码
         confirmPassword: undefined // 确定密码
-      },
+      }
     }
   },
   computed: {
@@ -141,11 +141,14 @@ export default {
       })
     },
     mediaChange(val, index, column) {
-      this.userInfo[column] = val;
+      this.userInfo[column] = val
     },
     async dispatchLogout() {
-      await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      if (this.$route.fullPath === '/401') {
+        this.$router.push(`/login`)
+      } else {
+        this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      }
     }
   }
 }

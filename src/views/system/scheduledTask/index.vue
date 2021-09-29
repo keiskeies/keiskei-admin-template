@@ -16,7 +16,6 @@
 </template>
 
 <script>
-import { getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, deleteBase } from '@/api/common'
 import permission from '@/directive/permission/index.js' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 import BaseList from '@/components/BaseList'
@@ -28,11 +27,11 @@ export default {
   data() {
     return {
       columns: [
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'cron', label: '表达式' },
-        { show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'cronKey', label: '任务KEY' },
-        { show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'param', label: '任务参数' },
-        { show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'description', label: '任务描述' },
-        { show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'enable', label: '是否启用', type: 'STATUS' }
+        { show: true, edit: true, minWidth: 300, key: 'cron', label: '表达式' },
+        { show: true, edit: true, width: 200, key: 'cronKey', label: '任务KEY' },
+        { show: true, edit: true, width: 200, key: 'param', label: '任务参数' },
+        { show: true, edit: true, width: 200, key: 'description', label: '任务描述' },
+        { show: true, edit: true, width: 200, key: 'enable', label: '是否启用', type: 'STATUS' }
       ],
       format: {
       },

@@ -32,8 +32,6 @@ export default {
         {
           show: true,
           edit: true,
-          queryFlag: false,
-          sortable: false,
           minWidth: 200,
           key: 'name',
           label: '权限名称',
@@ -43,8 +41,6 @@ export default {
         {
           show: true,
           edit: true,
-          queryFlag: false,
-          sortable: false,
           minWidth: 200,
           key: 'permission',
           label: '权限标识',
@@ -53,8 +49,6 @@ export default {
         {
           show: true,
           edit: true,
-          queryFlag: false,
-          sortable: false,
           minWidth: 200,
           key: 'path',
           label: 'API',
@@ -63,19 +57,15 @@ export default {
         {
           show: true,
           edit: true,
-          queryFlag: false,
-          sortable: false,
           width: 100,
           key: 'method',
           label: 'Method',
-          type: 'SELECT',
+          type: 'DICTIONARY',
           optionKey: 'methodOptions'
         },
         {
           show: true,
           edit: true,
-          queryFlag: false,
-          sortable: false,
           width: 140,
           key: 'sortBy',
           label: '排序',

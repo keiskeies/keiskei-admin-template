@@ -7,7 +7,7 @@ import store from '@/store'
  * @param route
  */
 function hasPermission(roles, route) {
-  if (store.getters.id === '248c4100db5a343808736a58') {
+  if (store.getters.id === -1) {
     return true
   }
   if (route.meta && route.meta.role) {

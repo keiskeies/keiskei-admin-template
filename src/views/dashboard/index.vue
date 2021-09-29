@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
-    <!--    <user-corner class="user-corner" />-->
+    <!--    <todo-list />-->
     <!---->
-    <!--    <panel-group @handleSetLineChartData="handleSetLineChartData" />-->
+    <panel-group @handleSetLineChartData="handleSetLineChartData" />
 
     <!--    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">-->
     <!--      <line-chart :chart-data="lineChartData" />-->
@@ -24,21 +24,21 @@
         </div>
       </el-col>
     </el-row>
-<!--    图表列表-->
+    <!--    图表列表-->
     <el-row :gutter="10">
       <template v-for="item in charts">
         <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: item.span * 8}" :xl="{span: item.span * 8}">
           <el-card class="box-card" shadow="hover" style="margin-top: 10px" :body-style="{padding: 0}">
             <div class="chart-wrapper">
-              <pie-chart v-if="item.type === 'PIE'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard"/>
-              <line-chart v-if="item.type === 'LINE_BAR'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard"/>
-              <raddar-chart v-if="item.type === 'RADAR'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard"/>
+              <pie-chart v-if="item.type === 'PIE'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard" />
+              <line-chart v-if="item.type === 'LINE_BAR'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard" />
+              <raddar-chart v-if="item.type === 'RADAR'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard" />
             </div>
           </el-card>
         </el-col>
       </template>
     </el-row>
-<!--    图表编辑-->
+    <!--    图表编辑-->
     <el-dialog :title="(temp.id ? '新增图表 - ' : '编辑图表 - ') + (temp.name || '')" :visible.sync="dialogVisible" :width="$store.state.app.device === 'mobile' ? '100%' : '60%'">
       <el-form ref="dashboard" :model="temp" label-width="auto" label-suffix=": " style="margin: 0 15px">
         <el-form-item label="图表名称" prop="name">
@@ -49,6 +49,9 @@
         </el-form-item>
         <el-form-item v-if="temp.timeType === 'NORMAL'" label="时间起点" prop="start">
           <el-date-picker v-model="temp.start" type="datetime" placeholder="选择日期时间" value-format="yyyy-MM-dd HH:mm:ss" />
+        </el-form-item>
+        <el-form-item label="时间字段" prop="timeField">
+          <el-input v-model="temp.timeField" clearable />
         </el-form-item>
         <el-form-item v-if="temp.timeType === 'NORMAL'" label="时间结点" prop="end">
           <el-date-picker v-model="temp.end" type="datetime" placeholder="选择日期时间" value-format="yyyy-MM-dd HH:mm:ss" />
@@ -99,7 +102,7 @@
               </el-col>
               <el-col v-if="index" :span="1">
                 <div style="text-align: center">
-                  <el-button type="info" icon="el-icon-delete" circle @click="temp.directions.splice(index, 1)"/>
+                  <el-button type="info" icon="el-icon-delete" circle @click="temp.directions.splice(index, 1)" />
                 </div>
               </el-col>
             </el-row>
@@ -130,22 +133,22 @@
 <script>
 import permission from '@/directive/permission' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
-// import UserCorner from '@/components/UserCorner/index'
-// import PanelGroup from './components/PanelGroup'
+import PanelGroup from './components/PanelGroup'
 import LineChart from './components/LineChart'
 import RaddarChart from './components/RaddarChart'
 import PieChart from './components/PieChart'
+import TodoList from './components/TodoList'
 // import BarChart from './components/BarChart'
 import { list as getDashboardList, create as createDashboard, update as updateDashboard, deleteById as deleteDashboard, tables as getTables, tableFields as getTableField } from '@/api/dashboad/dashboard.js'
 export default {
   name: 'DashboardAdmin',
-  directives: {permission, waves},
+  directives: { permission, waves },
   components: {
-    // UserCorner,
-    // PanelGroup,
+    PanelGroup,
     LineChart,
     RaddarChart,
     PieChart,
+    TodoList
     // BarChart
   },
   data() {
@@ -154,6 +157,7 @@ export default {
       windowsSize: 0,
       temp: {
         type: undefined,
+        timeField: undefined,
         timeType: undefined,
         fieldName: undefined,
         fieldType: undefined,
@@ -229,7 +233,7 @@ export default {
       this.dialogVisible = true
     },
     handleSetDashboard(id) {
-      this.temp = Object.assign({},this.charts.find(e => e.id === id))
+      this.temp = Object.assign({}, this.charts.find(e => e.id === id))
       this.temp.directions.forEach(e => {
         this.handleGetTableFields(e.entityClass)
       })

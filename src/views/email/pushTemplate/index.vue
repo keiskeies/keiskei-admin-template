@@ -27,8 +27,8 @@ export default {
   data() {
     return {
       columns: [
-        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'name', label: '模版名称' },
-        { show: false, edit: true, queryFlag: true, sortable: false, width: 200, key: 'content', label: '模版内容', type: 'HTML' }
+        { show: true, edit: true, minWidth: 300, key: 'name', label: '模版名称' },
+        { show: false, edit: true, width: 200, key: 'content', label: '模版内容', type: 'HTML' }
       ],
       format: {
       },

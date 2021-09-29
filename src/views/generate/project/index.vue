@@ -29,11 +29,11 @@ export default {
   data() {
     return {
       columns: [
-        { show: true, edit: false, queryFlag: false, sortable: false, minWidth: 300, key: 'name', label: '项目名称' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'version', label: '版本号' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'favicon', label: 'favicon', type: 'IMAGE' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'logo', label: 'LOGO', type: 'IMAGE' },
-        { show: true, edit: false, queryFlag: false, sortable: false, width: 200, key: 'author', label: '作者' }
+        { show: true, edit: false, minWidth: 300, key: 'name', label: '项目名称' },
+        { show: true, edit: false, width: 200, key: 'version', label: '版本号' },
+        { show: true, edit: false, width: 200, key: 'favicon', label: 'favicon', type: 'IMAGE' },
+        { show: true, edit: false, width: 200, key: 'logo', label: 'LOGO', type: 'IMAGE' },
+        { show: true, edit: false, width: 200, key: 'author', label: '作者' }
       ],
       format: {
       },

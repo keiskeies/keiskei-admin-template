@@ -54,7 +54,7 @@ Vue.use(Element, {
 })
 
 Vue.config.productionTip = false
-Vue.prototype.$media = process.env.VUE_APP_BASE_API + '/common/file/show/'
+Vue.prototype.$media = ''// process.env.VUE_APP_BASE_API + '/common/file/show/'
 
 new Vue({
   el: '#app',

@@ -27,12 +27,15 @@ export default {
   data() {
     return {
       columns: [
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'url', label: '数据集URL' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'title', label: '标题' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'abstract_', label: '摘要' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'info', label: '简介' },
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'homePage', label: '主页' },
-        { show: true, edit: false, queryFlag: false, sortable: false, minWidth: 300, key: 'datasetId', label: '数据集ID' }
+        { show: true, edit: true, minWidth: 300, key: 'url', label: '数据集URL' },
+        { show: true, edit: true, minWidth: 300, key: 'title', label: '标题' },
+        { show: true, edit: true, minWidth: 300, key: 'abstract_', label: '摘要' },
+        { show: true, edit: true, minWidth: 300, key: 'info', label: '简介' },
+        { show: true, edit: true, minWidth: 300, key: 'homePage', label: '主页' },
+        { show: false, edit: false, minWidth: 300, key: 'datasetId', label: '数据集ID' },
+        { show: false, edit: true, minWidth: 300, key: 'benchmarks', label: 'benchmark', type: 'OBJECT' },
+        { show: false, edit: true, minWidth: 300, key: 'loaders', label: 'loader', type: 'OBJECT' },
+        { show: false, edit: true, minWidth: 300, key: 'papers', label: 'paper', type: 'OBJECT' }
       ],
       format: {
       },

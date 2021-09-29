@@ -31,8 +31,7 @@ export default {
         {
           show: true,
           edit: true,
-          queryFlag: false,
-          sortable: false,
+
           minWidth: 300,
           key: 'name',
           label: '标签名称',

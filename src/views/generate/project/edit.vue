@@ -2,72 +2,52 @@
   <div class="app-container">
     <el-card class="box-card" shadow="hover">
       <div slot="header" class="clearfix">
-        <el-form ref="form_project" label-width="auto" label-suffix=": " :rule="projectRules" inline>
-          <el-row :gutter="10">
-            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
-              <el-form-item label="项目名称" prop="name">
-                <el-input v-model="project.name" clearable />
-              </el-form-item>
-            </el-col>
-            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
-              <el-form-item label="项目注释" prop="comment">
-                <el-input v-model="project.comment" clearable />
-              </el-form-item>
-            </el-col>
-            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
-              <el-form-item label="版本号" prop="version">
-                <el-input v-model="project.version" clearable />
-              </el-form-item>
-            </el-col>
-            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
-              <el-form-item label="浏览器图标" prop="favicon">
-                <el-input v-model="project.favicon" clearable />
-              </el-form-item>
-            </el-col>
-            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
-              <el-form-item label="LOGO" prop="logo">
-                <el-input v-model="project.logo" clearable />
-              </el-form-item>
-            </el-col>
-            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
-              <el-form-item label="作者" prop="author">
-                <el-input v-model="project.author" clearable />
-              </el-form-item>
-            </el-col>
-            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
-              <el-form-item label="文件管理" prop="fileJar">
-                <el-select v-model="project.fileJar" clearable>
-                  <el-option value="LOCAL" label="本地服务器存储" />
-                  <el-option value="ALI_OSS" label="阿里OSS" />
-                  <el-option value="JD_OSS" label="京东OSS" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
-              <el-form-item label="日志存储" prop="sqlLog">
-                <el-select v-model="project.sqlLog" clearable>
-                  <el-option :value="true" label="是" />
-                  <el-option :value="false" label="否" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3">
-              <el-form-item label="工作流" prop="workflow">
-                <el-select v-model="project.workflow" clearable>
-                  <el-option :value="true" label="是" />
-                  <el-option :value="false" label="否" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
+        <el-form ref="form_project" label-width="100px" label-suffix=": " :rule="projectRules" inline>
+          <el-form-item label="项目名称" prop="name">
+            <el-input v-model="project.name" clearable />
+          </el-form-item>
+          <el-form-item label="项目注释" prop="comment">
+            <el-input v-model="project.comment" clearable />
+          </el-form-item>
+          <el-form-item label="版本号" prop="version">
+            <el-input v-model="project.version" clearable />
+          </el-form-item>
+          <el-form-item label="浏览器图标" prop="favicon">
+            <el-input v-model="project.favicon" clearable />
+          </el-form-item>
+          <el-form-item label="LOGO" prop="logo">
+            <el-input v-model="project.logo" clearable />
+          </el-form-item>
+          <el-form-item label="作者" prop="author">
+            <el-input v-model="project.author" clearable />
+          </el-form-item>
+          <el-form-item label="文件管理" prop="fileJar">
+            <el-select v-model="project.fileJar" clearable>
+              <el-option value="LOCAL" label="本地服务器存储" />
+              <el-option value="ALI_OSS" label="阿里OSS" />
+              <el-option value="JD_OSS" label="京东OSS" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="日志存储" prop="sqlLog">
+            <el-select v-model="project.sqlLog" clearable>
+              <el-option :value="true" label="是" />
+              <el-option :value="false" label="否" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="工作流" prop="workflow">
+            <el-select v-model="project.workflow" clearable>
+              <el-option :value="true" label="是" />
+              <el-option :value="false" label="否" />
+            </el-select>
+          </el-form-item>
         </el-form>
       </div>
       <!--模块-->
-      <el-tabs ref="project-module" v-model="moduleSelect" type="card" addable :closable="project.modules.length > 1" @tab-add="handleModuleAdd" @tab-remove="handleModuleRemove">
-        <el-tab-pane v-for="(module, moduleIndex) in project.modules" :key="moduleIndex" :label="module.comment" :name="moduleIndex + ''">
+      <el-tabs v-model="moduleSelect" type="card" addable :closable="project.modules && project.modules.length > 1" @tab-add="handleModuleAdd" @tab-remove="handleModuleRemove">
+        <el-tab-pane v-for="(module, moduleIndex) in project.modules" :key="moduleIndex" :ref="'tab_module_' + moduleIndex" :label="module.comment" :name="moduleIndex + ''">
           <el-card class="box-card" shadow="hover">
             <div slot="header" class="clearfix">
-              <el-form :ref="'form_module_' + moduleIndex" :model="module" label-width="auto" label-suffix=": " :rule="moduleRules" inline>
+              <el-form :ref="'form_module_' + moduleIndex" :model="module" label-width="100px" label-suffix=": " :rule="moduleRules" inline>
                 <el-form-item label="模块名称" prop="name">
                   <el-input v-model="module.name" clearable />
                 </el-form-item>
@@ -80,7 +60,7 @@
               </el-form>
             </div>
             <el-tabs ref="module-table" v-model="tableSelect[moduleIndex]" tab-position="left" addable :closable="module.tables.length > 1" @tab-add="handleTableAdd(moduleIndex)" @tab-remove="handleTableRemove">
-              <el-tab-pane v-for="(table, tableIndex) in module.tables" :key="tableIndex" :label="table.comment" :name="moduleIndex + '_' + tableIndex">
+              <el-tab-pane v-for="(table, tableIndex) in module.tables" :key="tableIndex" :ref="'tab_module_' + moduleIndex + '_table_' + tableIndex" :label="table.comment" :name="moduleIndex + '_' + tableIndex">
                 <el-card class="box-card" shadow="hover">
                   <div slot="header" class="clearfix">
                     <el-form :ref="'form_module_' + moduleIndex + '_table_' + tableIndex" :model="table" label-width="auto" label-suffix=": " :rule="tableRules" inline>
@@ -102,7 +82,7 @@
                     </el-form>
                   </div>
 
-                  <el-table border fit highlight-current-row stripe :data="table.fields">
+                  <el-table :ref="'table_module_' + moduleIndex + '_table_' + tableIndex" border fit highlight-current-row stripe :data="table.fields">
                     <!--                    -->
                     <el-table-column label="字段名称" header-align="center" align="left" prop="name" fixed width="200">
                       <template slot-scope="scope">
@@ -230,7 +210,6 @@
                         </slot>
                       </template>
                     </el-table-column>
-
                     <!--                    -->
                     <el-table-column header-align="center" align="center" prop="directShow" width="100">
                       <template slot="header">
@@ -245,7 +224,6 @@
                       </template>
                     </el-table-column>
                     <!--                    -->
-
                     <el-table-column header-align="center" align="center" prop="jsonIgnore" width="100">
                       <template slot="header">
                         <el-tooltip class="item" effect="dark" content="后端将不返回该数据" placement="top">
@@ -302,137 +280,8 @@
                     </el-table-column>
                     <!--                    枚举表格-->
                     <el-table-column label="枚举" fixed="right" width="50">
-                      <template slot-scope="scope">
-                        <el-button v-if="scope.row.type === 'SELECT'" type="primary" icon="el-icon-edit" circle @click="scope.row.dictionaryShow = !scope.row.dictionaryShow" />
-                        <el-dialog
-                          v-if="scope.row.type === 'SELECT'"
-                          :title="scope.row.comment + '-枚举编辑'"
-                          :visible.sync="scope.row.dictionaryShow"
-                          :append-to-body="true"
-                          :width="$store.state.app.device === 'mobile' ? '100%' : '60%'"
-                        >
-                          <el-table border fit highlight-current-row stripe :data="scope.row.fieldEnums">
-                            <el-table-column label="枚举名称" header-align="center" align="center" prop="name">
-                              <template slot-scope="scopeEnum">
-                                <slot><el-input v-model="scopeEnum.row.name" clearable /></slot>
-                              </template>
-                            </el-table-column>
-                            <el-table-column label="枚举注释" header-align="center" align="center" prop="comment">
-                              <template slot-scope="scopeEnum">
-                                <slot><el-input v-model="scopeEnum.row.comment" clearable /></slot>
-                              </template>
-                            </el-table-column>
-                            <el-table-column label="显示类型" header-align="center" align="center" prop="type">
-                              <template slot-scope="scopeEnum">
-                                <slot>
-                                  <el-select v-model="scopeEnum.row.type" clearable>
-                                    <el-option v-for="item in fieldEnumTypeOptions" :key="item.name" :value="item.name" :label="item.comment" />
-                                  </el-select>
-                                </slot>
-                              </template>
-                            </el-table-column>
-                            <el-table-column label="显示主题" header-align="center" align="center" prop="effect">
-                              <template slot-scope="scopeEnum">
-                                <slot>
-                                  <el-select v-model="scopeEnum.row.effect" clearable>
-                                    <el-option v-for="item in fieldEnumEffectOptions" :key="item.name" :value="item.name" :label="item.comment" />
-                                  </el-select>
-                                </slot>
-                              </template>
-                            </el-table-column>
-                            <el-table-column label="预览展示" header-align="center" align="center" prop="name">
-                              <template slot-scope="scopeEnum">
-                                <slot>
-                                  <el-tag :type="scopeEnum.row.type" :effect="scopeEnum.row.effect">{{ scopeEnum.row.comment }}</el-tag>
-                                </slot>
-                              </template>
-                            </el-table-column>
-
-                            <el-table-column align="center">
-                              <template slot="header">
-                                <el-button type="primary" icon="el-icon-plus" circle @click="handleFieldEnumAdd(moduleIndex, tableIndex, scope.$index, 0)" />
-                              </template>
-                              <template slot-scope="scopeEnum">
-                                <slot>
-                                  <el-button type="info" icon="el-icon-minus" circle @click="handleFieldEnumRemove(moduleIndex, tableIndex, scope.$index, scopeEnum.$index)" />
-                                </slot>
-                              </template>
-                            </el-table-column>
-                            <!--                            影响字段-->
-                            <el-table-column type="expand" label="影响字段" header-align="center" align="center" prop="fieldEnumAffects">
-                              <template slot="header">
-                                <el-tooltip class="item" effect="dark" content="影响表格中的字段值" placement="top">
-                                  <span>影响字段</span>
-                                </el-tooltip>
-                              </template>
-                              <template slot-scope="scopeEnum">
-                                <slot>
-                                  <el-table border fit highlight-current-row stripe :data="scopeEnum.row.fieldEnumAffects">
-                                    <el-table-column label="字段名称" header-align="center" align="center" prop="name">
-                                      <template slot="header">
-                                        <el-tooltip class="item" effect="dark" content="当前表中字段" placement="top">
-                                          <span>字段名称</span>
-                                        </el-tooltip>
-                                      </template>
-                                      <template slot-scope="enumAffect">
-                                        <slot>
-                                          <el-select v-model="enumAffect.row.name" clearable>
-                                            <el-option v-for="item in table.fields" :key="item.name" :value="item.name" :label="item.comment" />
-                                          </el-select>
-                                        </slot>
-                                      </template>
-                                    </el-table-column>
-                                    <el-table-column label="设定值" header-align="center" align="center" prop="value">
-                                      <template slot="header">
-                                        <el-tooltip class="item" effect="dark" content="为该字段设置默认值" placement="top">
-                                          <span>设定值</span>
-                                        </el-tooltip>
-                                      </template>
-                                      <template slot-scope="enumAffect">
-                                        <slot><el-input v-model="enumAffect.row.value" clearable /></slot>
-                                      </template>
-                                    </el-table-column>
-                                    <el-table-column label="清除字段" header-align="center" align="center" prop="cleanValue">
-                                      <template slot="header">
-                                        <el-tooltip class="item" effect="dark" content="清空该字段值" placement="top">
-                                          <span>清除字段</span>
-                                        </el-tooltip>
-                                      </template>
-                                      <template slot-scope="enumAffect">
-                                        <slot>
-                                          <el-switch v-model="scope.row.cleanValue" active-color="#13ce66" inactive-color="#ff0000" />
-                                        </slot>
-                                      </template>
-                                    </el-table-column>
-                                    <el-table-column label="禁止编辑" header-align="center" align="center" prop="disableEdit">
-                                      <template slot="header">
-                                        <el-tooltip class="item" effect="dark" content="将该字段输入框disable" placement="top">
-                                          <span>禁止编辑</span>
-                                        </el-tooltip>
-                                      </template>
-                                      <template slot-scope="enumAffect">
-                                        <slot>
-                                          <el-switch v-model="scope.row.disableEdit" active-color="#13ce66" inactive-color="#ff0000" />
-                                        </slot>
-                                      </template>
-                                    </el-table-column>
-
-                                    <el-table-column align="center">
-                                      <template slot="header">
-                                        <el-button type="primary" icon="el-icon-plus" circle @click="handleFieldEnumAffectAdd(moduleIndex, tableIndex, scope.$index, scopeEnum.$index, 0)" />
-                                      </template>
-                                      <template slot-scope="enumAffect">
-                                        <slot>
-                                          <el-button type="info" icon="el-icon-minus" circle @click="handleFieldEnumAffectRemove(moduleIndex, tableIndex, scope.$index, scopeEnum.$index, enumAffect.$index)" />
-                                        </slot>
-                                      </template>
-                                    </el-table-column>
-                                  </el-table>
-                                </slot>
-                              </template>
-                            </el-table-column>
-                          </el-table>
-                        </el-dialog>
+                      <template v-if="scope.row.type === 'DICTIONARY'" slot-scope="scope">
+                        <el-button type="primary" icon="el-icon-edit" circle @click="handleEditFieldEnum(moduleIndex, tableIndex, scope.$index)" />
                       </template>
                     </el-table-column>
                   </el-table>
@@ -440,7 +289,6 @@
               </el-tab-pane>
             </el-tabs>
           </el-card>
-
         </el-tab-pane>
       </el-tabs>
     </el-card>
@@ -462,6 +310,135 @@
       @click="handleSave()"
     >保存
     </el-button>
+    <el-dialog
+      :title="fieldDialogRow.comment + '-枚举编辑'"
+      :visible.sync="enumDialog"
+      append-to-body
+      destroy-on-close
+      :width="$store.state.app.device === 'mobile' ? '100%' : '60%'"
+    >
+      <el-table :ref="'table_module_' + moduleDialogIndex + '_table_' + tableDialogIndex + '_field_' + fieldDialogIndex" border fit highlight-current-row stripe :data="fieldDialogRow.fieldEnums">
+        <el-table-column label="枚举名称" header-align="center" align="center" prop="name">
+          <template slot-scope="scopeEnum">
+            <slot><el-input v-model="scopeEnum.row.name" clearable /></slot>
+          </template>
+        </el-table-column>
+        <el-table-column label="枚举注释" header-align="center" align="center" prop="comment">
+          <template slot-scope="scopeEnum">
+            <slot><el-input v-model="scopeEnum.row.comment" clearable /></slot>
+          </template>
+        </el-table-column>
+        <el-table-column label="显示类型" header-align="center" align="center" prop="type">
+          <template slot-scope="scopeEnum">
+            <slot>
+              <el-select v-model="scopeEnum.row.type" clearable>
+                <el-option v-for="item in fieldEnumTypeOptions" :key="item.name" :value="item.name" :label="item.comment" />
+              </el-select>
+            </slot>
+          </template>
+        </el-table-column>
+        <el-table-column label="显示主题" header-align="center" align="center" prop="effect">
+          <template slot-scope="scopeEnum">
+            <slot>
+              <el-select v-model="scopeEnum.row.effect" clearable>
+                <el-option v-for="item in fieldEnumEffectOptions" :key="item.name" :value="item.name" :label="item.comment" />
+              </el-select>
+            </slot>
+          </template>
+        </el-table-column>
+        <el-table-column label="预览展示" header-align="center" align="center" prop="name">
+          <template slot-scope="scopeEnum">
+            <slot>
+              <el-tag :type="scopeEnum.row.type" :effect="scopeEnum.row.effect">{{ scopeEnum.row.comment }}</el-tag>
+            </slot>
+          </template>
+        </el-table-column>
+
+        <el-table-column align="center">
+          <template slot="header">
+            <el-button type="primary" icon="el-icon-plus" circle @click="handleFieldEnumAdd(moduleDialogIndex, tableDialogIndex, fieldDialogIndex, 0)" />
+          </template>
+          <template slot-scope="scopeEnum">
+            <slot>
+              <el-button type="info" icon="el-icon-minus" circle @click="handleFieldEnumRemove(moduleIndex, tableIndex, scope.$index, scopeEnum.$index)" />
+            </slot>
+          </template>
+        </el-table-column>
+        <!--                            影响字段-->
+        <el-table-column type="expand" label="影响字段" header-align="center" align="center" prop="fieldEnumAffects">
+          <template slot="header">
+            <el-tooltip class="item" effect="dark" content="影响表格中的字段值" placement="top">
+              <span>影响字段</span>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scopeEnum">
+            <slot>
+              <el-table border fit highlight-current-row stripe :data="scopeEnum.row.fieldEnumAffects">
+                <el-table-column label="字段名称" header-align="center" align="center" prop="name">
+                  <template slot="header">
+                    <el-tooltip class="item" effect="dark" content="当前表中字段" placement="top">
+                      <span>字段名称</span>
+                    </el-tooltip>
+                  </template>
+                  <template slot-scope="enumAffect">
+                    <slot>
+                      <el-select v-model="enumAffect.row.name" clearable>
+                        <el-option v-for="item in table.fields" :key="item.name" :value="item.name" :label="item.comment" />
+                      </el-select>
+                    </slot>
+                  </template>
+                </el-table-column>
+                <el-table-column label="设定值" header-align="center" align="center" prop="value">
+                  <template slot="header">
+                    <el-tooltip class="item" effect="dark" content="为该字段设置默认值" placement="top">
+                      <span>设定值</span>
+                    </el-tooltip>
+                  </template>
+                  <template slot-scope="enumAffect">
+                    <slot><el-input v-model="enumAffect.row.value" clearable /></slot>
+                  </template>
+                </el-table-column>
+                <el-table-column label="清除字段" header-align="center" align="center" prop="cleanValue">
+                  <template slot="header">
+                    <el-tooltip class="item" effect="dark" content="清空该字段值" placement="top">
+                      <span>清除字段</span>
+                    </el-tooltip>
+                  </template>
+                  <template slot-scope="enumAffect">
+                    <slot>
+                      <el-switch v-model="enumAffect.row.cleanValue" active-color="#13ce66" inactive-color="#ff0000" />
+                    </slot>
+                  </template>
+                </el-table-column>
+                <el-table-column label="禁止编辑" header-align="center" align="center" prop="disableEdit">
+                  <template slot="header">
+                    <el-tooltip class="item" effect="dark" content="将该字段输入框disable" placement="top">
+                      <span>禁止编辑</span>
+                    </el-tooltip>
+                  </template>
+                  <template slot-scope="enumAffect">
+                    <slot>
+                      <el-switch v-model="enumAffect.row.disableEdit" active-color="#13ce66" inactive-color="#ff0000" />
+                    </slot>
+                  </template>
+                </el-table-column>
+
+                <el-table-column align="center">
+                  <template slot="header">
+                    <el-button type="primary" icon="el-icon-plus" circle @click="handleFieldEnumAffectAdd(moduleDialogIndex, tableDialogIndex, fieldDialogIndex, scopeEnum.$index, 0)" />
+                  </template>
+                  <template slot-scope="enumAffect">
+                    <slot>
+                      <el-button type="info" icon="el-icon-minus" circle @click="handleFieldEnumAffectRemove(moduleDialogIndex, tableDialogIndex, fieldDialogIndex, enumAffect.$index)" />
+                    </slot>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </slot>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -503,7 +480,7 @@ export default {
         { key: 'VISIT_TIMES', value: '访问次数' },
         { key: 'ENABLE', value: '启/禁用' },
         { key: 'SORT', value: '排序' },
-        { key: 'SELECT', value: '枚举' },
+        { key: 'DICTIONARY', value: '枚举' },
         { key: 'TAG', value: '标签' }
       ],
       fieldRelationOptions: [
@@ -524,9 +501,12 @@ export default {
         { name: 'dark', comment: '填充' },
         { name: 'plain', comment: '镂空' }
       ],
-      tableSelect: [
-        '0_0'
-      ]
+      tableSelect: ['0_0'],
+      moduleDialogIndex: 0,
+      tableDialogIndex: 0,
+      fieldDialogIndex: 0,
+      fieldDialogRow: {},
+      enumDialog: false
     }
   },
   created() {
@@ -538,6 +518,16 @@ export default {
     }
   },
   methods: {
+    handleEditFieldEnum(moduleIndex, tableIndex, fieldIndex) {
+      const self = this
+      self.$nextTick(() => {
+        self.moduleDialogIndex = moduleIndex
+        self.tableDialogIndex = tableIndex
+        self.fieldDialogIndex = fieldIndex
+        self.fieldDialogRow = self.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex]
+        self.enumDialog = true
+      })
+    },
     handleModuleAdd() {
       this.tableSelect.push(this.project.modules.length + '_0')
       this.project.modules.push({
@@ -579,14 +569,16 @@ export default {
     },
     handleFieldAdd(moduleIndex, tableIndex, fieldIndex) {
       this.project.modules[moduleIndex].tables[tableIndex].fields.push(
-        { name: '', comment: '', tooltip: '', type: '', createRequire: true, updateRequire: true, manyToMany: '', relation: undefined, relationEntity: '', queryAble: true, jsonIgnore: false, directShow: true, editAble: true, sortAble: false, tableWidth: 200, dictionaryShow: false }
+        { name: '', comment: '', tooltip: '', type: '', createRequire: true, updateRequire: true, manyToMany: '',
+          relation: undefined, relationEntity: '', queryAble: true, jsonIgnore: false, directShow: true,
+          editAble: true, tableWidth: 200, dictionaryShow: false, fieldEnums: undefined }
       )
     },
     handleFieldRemove(moduleIndex, tableIndex, fieldIndex) {
       this.project.modules[moduleIndex].tables[tableIndex].fields.splice(fieldIndex, 1)
     },
     handleFieldTypeChange(moduleIndex, tableIndex, fieldIndex, val) {
-      if (val && val === 'SELECT') {
+      if (val && val === 'DICTIONARY') {
         this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex].fieldEnums = [
           { name: '', comment: '', type: 'info', effect: 'dark', fieldEnumAffects: [] }
         ]
@@ -614,8 +606,9 @@ export default {
     },
     handleSave() {
       this.addLoading = true
-      addBase(this.url, this.project).then(() => {
+      addBase(this.url, this.project).then(res => {
         this.$notify.success('创建成功!')
+        this.project = res.data
         this.addLoading = false
       }).catch(() => {
         this.addLoading = false
@@ -624,7 +617,8 @@ export default {
     },
     handleUpdate() {
       this.addLoading = true
-      editBase(this.url, this.project).then(() => {
+      editBase(this.url, this.project).then(res => {
+        this.project = res.data
         this.$notify.success('更新成功!')
         this.addLoading = false
       }).catch(() => {

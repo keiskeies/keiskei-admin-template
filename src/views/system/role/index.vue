@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, deleteBase } from '@/api/common'
+import { requestBase } from '@/api/common'
 import permission from '@/directive/permission/index.js' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 import BaseList from '@/components/BaseList'
@@ -28,13 +28,11 @@ export default {
   data() {
     return {
       columns: [
-        { show: true, edit: true, queryFlag: true, sortable: false, minWidth: 300, key: 'name', label: '角色名称' },
+        { show: true, edit: true, minWidth: 300, key: 'name', label: '角色名称' },
         {
-          show: false,
+          show: true,
           edit: true,
-          queryFlag: false,
-          sortable: false,
-          width: 200,
+          minWidth: 600,
           type: 'TREE_MULTI_SELECT',
           optionKey: 'permissionOptions',
           key: 'permissions',
@@ -42,9 +40,9 @@ export default {
         }
       ],
       format: {
-        permissions: (data, index) => {
-          return (data.permissions.map(e => e.name) || []).join(',')
-        }
+        // permissions: (data, index) => {
+        //   return (data.permissions || []).map(e => e.name).join(',')
+        // }
       },
       rules: {
         add: {
@@ -70,7 +68,7 @@ export default {
   methods: {
     handleGetOptions() {
       this.options = JSON.parse(localStorage.getItem('allOptions')) || this.options
-      getBaseList('/system/permission', {}).then(res => {
+      requestBase({ url: '/system/permission', method: 'GET', params: {}}).then(res => {
         this.options.permissionOptions = res.data
       })
     }

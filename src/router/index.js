@@ -102,9 +102,9 @@ export const constantRoutes = [
 export const asyncRoutes = [
   contentRouter,
   emailRouter,
-  systemRouter
-  // generateRouter,
-  // logRouter
+  systemRouter,
+  generateRouter,
+  logRouter
 ]
 
 const createRouter = () => new Router({

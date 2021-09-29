@@ -81,7 +81,7 @@ export default {
       }
     },
     handleCurrentChange(val) {
-      this.$emit('pagination', val, this.pageSize )
+      this.$emit('pagination', val, this.pageSize)
       if (this.autoScroll) {
         scrollTo(0, 800)
       }
@@ -94,7 +94,7 @@ export default {
 .pagination-container {
   background: #fff;
   text-align: center;
-  margin: 15px 0;
+  margin: 5px;
   overflow: auto;
 }
 .pagination-container.hidden {

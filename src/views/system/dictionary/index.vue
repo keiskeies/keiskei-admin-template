@@ -17,7 +17,6 @@
 </template>
 
 <script>
-import { getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, deleteBase } from '@/api/common'
 import permission from '@/directive/permission/index.js' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 import BaseList from '@/components/BaseList'
@@ -29,10 +28,10 @@ export default {
   data() {
     return {
       columns: [
-        { show: true, edit: true, queryFlag: false, sortable: false, minWidth: 300, key: 'name', label: '资源名称' },
-        { show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'code', label: '资源类型' },
-        { show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'type', label: '颜色类型', type: 'SELECT', optionKey: 'typeOptions' },
-        { show: true, edit: true, queryFlag: false, sortable: false, width: 200, key: 'effect', label: '主题', type: 'SELECT', optionKey: 'effectOptions' }
+        { show: true, edit: true, minWidth: 300, key: 'name', label: '资源名称' },
+        { show: true, edit: true, width: 200, key: 'code', label: '资源类型' },
+        { show: true, edit: true, width: 200, key: 'type', label: '颜色类型', type: 'DICTIONARY', optionKey: 'typeOptions' },
+        { show: true, edit: true, width: 200, key: 'effect', label: '主题', type: 'DICTIONARY', optionKey: 'effectOptions' }
       ],
       format: {
       },

@@ -112,7 +112,7 @@
             {{ (scope.row[column.key] || []).map(e => e.name).join(',') }}
           </slot>
           <!--            单选-->
-          <slot v-else-if="column.type === 'SELECT'">
+          <slot v-else-if="column.type === 'DICTIONARY'">
             <el-tag
               v-for="(item, index) in options[column.optionKey]"
               v-if="item.id === scope.row[column.key]"
