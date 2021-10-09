@@ -12,7 +12,7 @@
     >
       <img
         v-if="fileUrl && !imageUploadFlag"
-        :src="$media + fileUrl + '?x-oss-process=image/resize,w_315'"
+        :src="fileUrl + '?x-oss-process=image/resize,w_315'"
         class="avatar"
         style="max-width: 100%;background-color: #000000"
       >
@@ -31,7 +31,7 @@
     <el-dialog :visible.sync="dialogVisible" destroy-on-close :modal="false">
       <img
         v-if="fileUrl"
-        :src="$media + fileUrl"
+        :src="fileUrl"
         width="100%"
         style="background-color: #000000"
       >
@@ -40,6 +40,7 @@
 </template>
 <script>
 import { getToken } from '@/utils/auth'
+import { tokenKey } from '@/settings'
 
 export default {
   name: 'UploadImage',
@@ -55,7 +56,7 @@ export default {
     return {
       requestData: {
         requestUrl: process.env.VUE_APP_BASE_API + '/common/file/upload',
-        headerToken: { 'Auth-Token': getToken() }
+        headerToken: { }
       },
       dialogVisible: false,
       fullscreenLoading: false,
@@ -63,6 +64,9 @@ export default {
       imageUploadFlag: false,
       fileUrlTemp: undefined
     }
+  },
+  created() {
+    this.requestData.headerToken[tokenKey] = getToken()
   },
   methods: {
     // 验证图片格式以及图片大小

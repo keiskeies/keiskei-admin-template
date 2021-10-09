@@ -63,7 +63,7 @@ export default {
   },
   methods: {
     handleGetOptions() {
-      // this.options = JSON.parse(localStorage.getItem('allOptions')) || this.options
+      //
     }
   }
 }

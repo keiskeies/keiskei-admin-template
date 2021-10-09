@@ -112,8 +112,7 @@ export default {
   },
   methods: {
     handleGetOptions() {
-      this.options = JSON.parse(localStorage.getItem('allOptions')) || this.options
-      getBaseOptions('/email/pushTemplate', { conditions: JSON.stringify({}), show: 'id,name' }).then(res => {
+      requestBase({ url: '/email/pushTemplate', show: 'id,name' }).then(res => {
         this.options.pushTemplateOptions = res.data
       })
     },

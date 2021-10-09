@@ -67,7 +67,6 @@ export default {
   },
   methods: {
     handleGetOptions() {
-      this.options = JSON.parse(localStorage.getItem('allOptions')) || this.options
       requestBase({ url: '/system/permission', method: 'GET', params: {}}).then(res => {
         this.options.permissionOptions = res.data
       })

@@ -5,11 +5,11 @@
         <el-row v-if="listQuery && listQuery.length > 0" :gutter="5">
           <template v-for="(column, index) in columns" v-if="conditionRelOptions[column.type]">
             <el-col
-              :xs="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 12}"
-              :sm="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 8}"
-              :md="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 6}"
-              :lg="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 4}"
-              :xl="{span: (listQuery[index].condition === 'BT' ? 2 : 1) * 3}"
+              :xs="{span: (listQuery[index].condition === 'BT' ? 4 : ((column.type === 'ENABLE' || column.type === 'BOOLEAN' || column.type === 'DICTIONARY') ? 1 : 2)) * 6}"
+              :sm="{span: (listQuery[index].condition === 'BT' ? 4 : ((column.type === 'ENABLE' || column.type === 'BOOLEAN' || column.type === 'DICTIONARY') ? 1 : 2)) * 4}"
+              :md="{span: (listQuery[index].condition === 'BT' ? 4 : ((column.type === 'ENABLE' || column.type === 'BOOLEAN' || column.type === 'DICTIONARY') ? 1 : 2)) * 3}"
+              :lg="{span: (listQuery[index].condition === 'BT' ? 4 : ((column.type === 'ENABLE' || column.type === 'BOOLEAN' || column.type === 'DICTIONARY') ? 1 : 2)) * 2}"
+              :xl="{span: (listQuery[index].condition === 'BT' ? 4 : ((column.type === 'ENABLE' || column.type === 'BOOLEAN' || column.type === 'DICTIONARY') ? 1 : 2)) * 2}"
             >
               <!--            TREE_SELECT-->
               <el-cascader
@@ -23,7 +23,7 @@
               />
               <!--            DICTIONARY-->
               <el-select
-                v-else-if="column.type && column.type.indexOf('DICTIONARY') !== -1"
+                v-else-if="column.type && column.type === 'DICTIONARY'"
                 v-model="listQuery[index].value"
                 clearable
                 multiple
@@ -150,7 +150,6 @@
           fit
           highlight-current-row
           stripe
-          :span-method="objectSpanMethod"
           row-key="id"
           :default-expand-all="defaultExpandAll"
           :indent="32"
@@ -215,7 +214,7 @@
                   v-else
                   style="width: 100px; height: 30px"
                   referrerpolicy="no-referrer"
-                  :src="$media + scope.row[column.key] +'?x-oss-process=image/resize,h_30'"
+                  :src="scope.row[column.key] +'?x-oss-process=image/resize,h_30'"
                   alt=""
                   @click="selectImg(scope.row[column.key],column.type)"
                 >
@@ -226,7 +225,7 @@
                 <img
                   v-else
                   alt=""
-                  :src="$media + scope.row[column.key] + '?x-oss-process=video/snapshot,t_1000,h_30,m_fast,f_jpg'"
+                  :src="scope.row[column.key] + '?x-oss-process=video/snapshot,t_1000,h_30,m_fast,f_jpg'"
                   @click="selectImg(scope.row[column.key],column.type)"
                 >
               </template>
@@ -253,11 +252,14 @@
               </template>
               <!--            多选-->
               <template v-else-if="column.type && column.type === 'MULTI_SELECT'">
-                {{ (scope.row[column.key] || []).map(e => e.name).join(',') }}
+                {{ scope.row[column.key] ?
+                  (options[column.optionKey]||[]).filter(e => scope.row[column.key].includes(e.id)).map(e => e[column.optionKeyLabel || 'name']).join(',')
+                  : ''
+                }}
               </template>
               <!--            关联单选-->
               <template v-else-if="column.type && column.type === 'REL_SELECT'">
-                {{ (scope.row[column.key] || {}).name }}
+                {{ (scope.row[column.key] || {})[column.optionKeyLabel || 'name'] }}
               </template>
               <!--            单选-->
               <template v-else-if="column.type && column.type === 'DICTIONARY'">
@@ -443,7 +445,7 @@
               <el-option
                 v-for="(item, index_) in options[column.optionKey]"
                 :key="index_"
-                :label="item.name"
+                :label="item[column.optionKeyLabel || 'name']"
                 :value="item"
               />
             </el-select>
@@ -459,7 +461,7 @@
               <el-option
                 v-for="(item, index_) in options[column.optionKey]"
                 :key="index_"
-                :label="item.name"
+                :label="item[column.optionKeyLabel || 'name']"
                 :value="item"
               />
             </el-select>
@@ -547,6 +549,16 @@
               lang="zh"
             />
           </template>
+          <!--          Array-->
+          <template v-else-if="column.type === 'ARRAY'">
+            <template v-for="arrayItem in temp[column.key]">
+              <vue-json-editor
+                :value="arrayItem"
+                :mode="'code'"
+                lang="zh"
+              />
+            </template>
+          </template>
           <!--    普通文本      -->
           <template v-else>
             <el-input v-model="temp[column.key]" clearable :autofocus="column.autofocus" />
@@ -559,7 +571,7 @@
             v-waves
             v-permission="[permission+':add']"
             type="primary"
-            :loading="addLoading"
+            :loading="addOrEditLoading"
             @click="handleSave()"
           >保存
           </el-button>
@@ -568,6 +580,7 @@
             v-waves
             v-permission="[permission+':edit']"
             type="primary"
+            :loading="addOrEditLoading"
             @click="handleUpdate()"
           >提交
           </el-button>
@@ -581,7 +594,7 @@
       destroy-on-close
       center
     >
-      <img :src="$media + fileUrl" width="100%" alt="">
+      <img :src="fileUrl" width="100%" alt="">
     </el-dialog>
     <el-dialog
       center
@@ -589,7 +602,7 @@
       :width="$store.state.app.device === 'mobile' ? '100%' : '60%'"
       destroy-on-close
     >
-      <video preload="auto" :src="$media + fileUrl" width="100%" controls="controls" />
+      <video preload="auto" :src="fileUrl" width="100%" controls="controls" />
     </el-dialog>
     <el-backtop target=".page-component__scroll .el-scrollbar__wrap" :bottom="100" />
   </div>
@@ -603,7 +616,6 @@ import { treeFind } from '@/utils/treeFind'
 import Pagination from '@/components/Pagination'
 import UploadImage from '@/components/UploadImage'
 import UploadVideo from '@/components/UploadVideo'
-import UploadFile from '@/components/UploadFile'
 import Tinymce from '@/components/Tinymce'
 import TreeMultiSelect from '@/components/TreeMultiSelect'
 import TreeSingleSelect from '@/components/TreeSingleSelect'
@@ -615,7 +627,6 @@ export default {
     Pagination,
     UploadImage,
     UploadVideo,
-    UploadFile,
     Tinymce,
     TreeMultiSelect,
     TreeSingleSelect,
@@ -623,6 +634,7 @@ export default {
   },
   directives: { permission, waves },
   props: {
+    idColumn: { type: String, default: 'id' },
     editPage: { type: Boolean, default: false },
     actionsWidth: { type: Number },
     actionsAlign: { type: String, default: 'center' },
@@ -643,7 +655,6 @@ export default {
     },
     showSelect: { type: Boolean, default: false },
     showActions: { type: Boolean, default: true },
-    spanColumn: { type: String, default: '' },
     defaultExpandAll: { type: Boolean, default: false },
     treeTable: { type: Boolean, default: false }
   },
@@ -660,8 +671,6 @@ export default {
       dialogVisibleVideo: false,
       inputVisible: {},
       inputValue: '',
-      spanArr: [],
-      spanColumns: [],
       statusOptions: [{ id: true, name: '启用' }, { id: false, name: '禁用' }],
       fileUrl: '',
       drawerVisible: false,
@@ -671,7 +680,7 @@ export default {
         title: '编辑'
       }, { value: 'add', title: '新建' }],
       parentOptions: [],
-      addLoading: false,
+      addOrEditLoading: false,
       conditionRelOptions: {
         DICTIONARY: ['EQ', 'IN'],
         TREE_SELECT: ['EQ', 'IN'],
@@ -707,28 +716,18 @@ export default {
       deep: true,
       immediate: true,
       handler(newVal, oldVal) {
-        // this.spanColumns = newVal.map(e => e.spanFlag)
-        const limitQuery = localStorage.getItem(this.url + '_limitQuery')
-        if (limitQuery) {
-          this.limitQuery = JSON.parse(limitQuery)
-        }
-        const listQuery = localStorage.getItem(this.url + '_listQuery')
-        if (listQuery) {
-          this.listQuery = JSON.parse(listQuery)
-        } else {
-          const listQuery = []
-          this.columns.forEach(e => {
-            let condition = 'EQ'
-            if (e.type) {
-              const conditions = this.conditionRelOptions[e.type]
-              if (conditions) {
-                condition = conditions[0]
-              }
+        const listQuery = []
+        this.columns.forEach(e => {
+          let condition = 'EQ'
+          if (e.type) {
+            const conditions = this.conditionRelOptions[e.type]
+            if (conditions) {
+              condition = conditions[0]
             }
-            listQuery.push({ column: e.key, condition: condition, value: [undefined] })
-          })
-          this.listQuery = listQuery
-        }
+          }
+          listQuery.push({ column: e.key, condition: condition, value: [undefined] })
+        })
+        this.listQuery = listQuery
         this.fetchData()
       }
     }
@@ -763,22 +762,22 @@ export default {
       this.inputValue = ''
     },
     handleSelectionChange(val) {
-      this.$emit('selectChange', val.map(e => e.id))
+      this.$emit('selectChange', val.map(e => e[this.idColumn]))
     },
     changeDataSort(rowIndex, row, next) {
       if (this.treeTable) {
         let rowGroupIndex
         treeFind(this.listData, row.parentId).then(res => {
           res.forEach((e, index) => {
-            if (e.id === row.id) {
+            if (e[this.idColumn] === row[this.idColumn]) {
               rowGroupIndex = index
             }
           })
           const nextGroupIndex = rowGroupIndex + next
           if (nextGroupIndex > -1 && nextGroupIndex < res.length) {
             this.handleChangeSort(
-              res[rowGroupIndex].id, res[rowGroupIndex].sortBy,
-              res[nextGroupIndex].id, res[nextGroupIndex].sortBy
+              res[rowGroupIndex][this.idColumn], res[rowGroupIndex].sortBy,
+              res[nextGroupIndex][this.idColumn], res[nextGroupIndex].sortBy
             )
           }
         })
@@ -786,8 +785,8 @@ export default {
         const nextIndex = rowIndex + next
         if (nextIndex > -1 && nextIndex < this.listData.length) {
           this.handleChangeSort(
-            this.listData[rowIndex].id, this.listData[rowIndex].sortBy,
-            this.listData[nextIndex].id, this.listData[nextIndex].sortBy
+            this.listData[rowIndex][this.idColumn], this.listData[rowIndex].sortBy,
+            this.listData[nextIndex][this.idColumn], this.listData[nextIndex].sortBy
           )
         }
       }
@@ -830,31 +829,17 @@ export default {
           conditions: JSON.stringify(conditions),
           show: this.columns.filter(e => e.show).map(e => e.key).join(',')
         }
-        localStorage.setItem(this.url + '_listQuery', JSON.stringify(this.listQuery))
-        localStorage.setItem(this.url + '_limitQuery', JSON.stringify(this.limitQuery))
         getBaseList(this.url, request).then(response => {
           const { content, totalElements, number, size } = response.data || { content: [], totalElements: 0 }
           this.listData = content
           this.total = totalElements
-          if (this.spanColumn) {
-            const spanArr = []
-            let sid = -1
-            this.listData.forEach(e => {
-              if (e[this.spanColumn] !== sid) {
-                spanArr.push(e.row)
-                sid = e[this.spanColumn]
-              } else {
-                spanArr.push(0)
-              }
-            })
-            this.spanArr = spanArr
-          }
           this.limitQuery.page = number + 1
           this.limitQuery.size = size
           this.$nextTick(() => {
             this.tableLoading = false
           })
         }).catch(err => {
+          console.error(err)
           this.tableLoading = false
         })
       }
@@ -875,10 +860,10 @@ export default {
     },
     handleEdit(index, row) {
       if (this.editPage) {
-        this.$router.push({ path: this.$route.path + '/edit?id=' + row.id })
+        this.$router.push({ path: this.$route.path + '/edit?id=' + row[this.idColumn] })
       } else {
         const self = this
-        getBaseDetail(self.url, row.id).then(res => {
+        getBaseDetail(self.url, row[this.idColumn]).then(res => {
           self.temp = Object.assign(res.data)
           self.tempBefore = Object.assign(res.data)
           self.$nextTick(() => {
@@ -890,6 +875,7 @@ export default {
       }
     },
     handleUpdate() {
+      this.addOrEditLoading = true
       this.$refs[this.url + '_DataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
@@ -898,7 +884,12 @@ export default {
             this.handleGetParentOptions()
             this.drawerVisible = false
             this.$notify.success('修改成功!')
+            this.addOrEditLoading = false
+          }).catch(() => {
+            this.addOrEditLoading = false
           })
+        } else {
+          this.addOrEditLoading = false
         }
       })
     },
@@ -921,7 +912,7 @@ export default {
         this.$router.push({ path: this.$route.path + '/add' })
       } else {
         const self = this
-        self.restTemp(row.id)
+        self.restTemp(row[this.idColumn])
         self.$nextTick(() => {
           self.$refs[self.url + '_DataForm'].clearValidate()
         })
@@ -930,7 +921,7 @@ export default {
       }
     },
     handleSave() {
-      this.addLoading = true
+      this.addOrEditLoading = true
       this.$refs[this.url + '_DataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
@@ -939,18 +930,18 @@ export default {
             this.handleGetParentOptions()
             this.drawerVisible = false
             this.$notify.success('创建成功!')
-            this.addLoading = false
+            this.addOrEditLoading = false
           }).catch(() => {
-            this.addLoading = false
+            this.addOrEditLoading = false
           })
         } else {
-          this.addLoading = false
+          this.addOrEditLoading = false
         }
       })
     },
     handleDelete(index, row) {
       const self = this
-      deleteBase(self.url, row.id).then(() => {
+      deleteBase(self.url, row[this.idColumn]).then(() => {
         self.$notify.success('删除成功!')
         self.fetchData(self.limitQuery.page)
         self.handleGetParentOptions()
@@ -993,17 +984,6 @@ export default {
         this.dialogVisibleVideo = true
       }
       this.fileUrl = val
-    },
-    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-      if (this.spanColumn && this.spanColumns[columnIndex]) {
-        const _row = this.spanArr[rowIndex]
-        const _col = _row > 0 ? 1 : 0
-
-        return {
-          rowspan: _row,
-          colspan: _col
-        }
-      }
     },
     handleGetParentOptions() {
       this.treeTable && getBaseOptions(this.url, {}).then(res => {

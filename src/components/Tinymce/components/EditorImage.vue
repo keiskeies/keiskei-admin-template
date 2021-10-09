@@ -31,7 +31,8 @@
 </template>
 
 <script>
-import {getToken} from "@/utils/auth";
+import { getToken } from '@/utils/auth'
+import { tokenKey } from '@/settings'
 
 export default {
   name: 'EditorSlideUpload',
@@ -46,9 +47,12 @@ export default {
       dialogVisible: false,
       listObj: {},
       fileList: [],
-      action: process.env.VUE_APP_BASE_API + "/common/file/upload",
-      headers: {"Auth-Token": getToken()}
+      action: process.env.VUE_APP_BASE_API + '/common/file/upload',
+      headers: {}
     }
+  },
+  created() {
+    this.headers[tokenKey] = getToken()
   },
   methods: {
     checkAllSuccess() {

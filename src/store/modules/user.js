@@ -1,6 +1,5 @@
 import { login, getInfo } from '@/api/user'
-import { getDataDict as getDataDictionaryOptions } from '@/api/common'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const state = {
@@ -48,6 +47,8 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
+        const { data } = response
+        setToken(data.token)
         resolve()
       }).catch(error => {
         commit('SET_USERNAME', username.trim())
@@ -72,9 +73,6 @@ const actions = {
         commit('SET_USERNAME', username)
         commit('SET_ROLES', authorities)
         commit('SET_PERMISSIONS', permissions)
-        // getDataDictionaryOptions().then(res => {
-        //   localStorage.setItem('allOptions', JSON.stringify(res.data))
-        // })
         resolve(response)
       }).catch(error => {
         reject(error)
@@ -94,35 +92,6 @@ const actions = {
       removeToken()
       resetRouter()
       resolve()
-    })
-  },
-  refuseToken({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      const token = getToken()
-      if (token) {
-        axios.get(process.env.VUE_APP_BASE_API + '/security/self/token', {
-          headers: { 'Auth-Token': token }
-        }).then(response => {
-          const res = response.data
-          if (res.status !== 200) {
-            commit('SET_TOKEN', '')
-            commit('SET_ID', '')
-            commit('SET_NAME', null)
-            removeToken()
-            resetRouter()
-          } else {
-            commit('SET_TOKEN', res.data)
-            setToken(res.data)
-            resolve()
-          }
-        })
-      } else {
-        commit('SET_ID', '')
-        commit('SET_NAME', null)
-        removeToken()
-        resetRouter()
-        resolve()
-      }
     })
   }
 }
