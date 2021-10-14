@@ -6,7 +6,7 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 
-import { detail as getDashboardDetail } from '@/api/dashboad/dashboard'
+import { detail as getDashboardDetail, refresh as refreshDashBoard } from '@/api/dashboad/dashboard'
 
 const animationDuration = 2000
 
@@ -57,7 +57,7 @@ export default {
               show: true,
               title: '刷新',
               icon: 'M3.8,33.4 M47,18.9h9.8V8.7 M56.3,20.1 C52.1,9,40.5,0.6,26.8,2.1C12.6,3.7,1.6,16.2,2.1,30.6 M13,41.1H3.1v10.2 M3.7,39.9c4.2,11.1,15.8,19.5,29.5,18 c14.2-1.6,25.2-14.1,24.7-28.5',
-              onclick: this.handleGetDetail
+              onclick: this.handleRefreshDetail
             },
             mySetting: {
               show: true,
@@ -82,6 +82,8 @@ export default {
           containLabel: true
         },
         xAxis: {
+          type: 'category',
+          boundaryGap: false,
           data: [],
           axisTick: {
             alignWithLabel: true,
@@ -89,10 +91,7 @@ export default {
           }
         },
         yAxis: [{
-          type: 'value',
-          axisTick: {
-            show: false
-          }
+          type: 'value'
         }],
         legend: {
           data: []
@@ -128,36 +127,38 @@ export default {
     this.chart = null
   },
   methods: {
-    async handleGetDetail(init = false) {
+    async handleGetDetail() {
       getDashboardDetail(this.dashboardId).then(res => {
-        const series = []
+        const series = res.data.series
         res.data.series.forEach(e => {
-          const serie = Object.assign({}, this.serie)
-          serie.data = e.data
-          serie.type = e.type.toLowerCase()
-          serie.name = e.name
-          series.push(serie)
+          e.type = e.type.toLowerCase()
         })
-        if (init) {
-          const optionTemp = Object.assign(this.optionTemp)
-          optionTemp.legend.data = res.data.legend.data
-          optionTemp.xAxis.data = res.data.axis.data
-          optionTemp.title = res.data.title
-          optionTemp.series = series
+        const optionTemp = Object.assign(this.optionTemp)
+        optionTemp.legend.data = res.data.legend.data
+        optionTemp.xAxis.data = res.data.axis.data
+        optionTemp.title = res.data.title
+        optionTemp.series = series
 
-          if (res.data.horizontal) {
-            const xAxis = Object.assign(optionTemp.xAxis)
-            optionTemp.xAxis = Object.assign(optionTemp.yAxis)
-            optionTemp.yAxis = Object.assign(xAxis)
-          }
-          this.chart.resize()
-          this.chart.setOption(optionTemp)
-        } else {
-          this.chart.resize()
-          this.chart.setOption({
-            series: series
-          })
+        if (res.data.horizontal) {
+          const xAxis = Object.assign(optionTemp.xAxis)
+          optionTemp.xAxis = Object.assign(optionTemp.yAxis)
+          optionTemp.yAxis = Object.assign(xAxis)
         }
+        this.chart.resize()
+        console.log(optionTemp)
+        this.chart.setOption(optionTemp)
+      })
+    },
+    handleRefreshDetail() {
+      refreshDashBoard(this.dashboardId).then(res => {
+        const series = res.data.series
+        res.data.series.forEach(e => {
+          e.type = e.type.toLowerCase()
+        })
+        this.chart.resize()
+        this.chart.setOption({
+          series: series
+        })
       })
     },
     initChart() {
@@ -166,7 +167,7 @@ export default {
         this.chart = null
       }
       this.chart = echarts.init(this.$el, 'macarons')
-      this.handleGetDetail(true)
+      this.handleGetDetail()
     },
     edit() {
       this.$emit('handleSetDashboard', this.dashboardId)

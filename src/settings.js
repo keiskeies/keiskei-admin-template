@@ -32,11 +32,5 @@ module.exports = {
    * The default is only used in the production env
    * If you want to also use it in dev, you can pass ['production', 'development']
    */
-  errorLog: 'production',
-
-  /**
-   * @type {String}
-   * @description 验证请求头
-   */
-  tokenKey: 'Access-Token'
+  errorLog: 'production'
 }

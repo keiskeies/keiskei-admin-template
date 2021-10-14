@@ -17,12 +17,6 @@ import '@/icons' // icon
 import '@/permission' // permission control
 import './utils/error-log' // error log
 
-/** 文本编辑器 */
-import VueQuillEditor from 'vue-quill-editor'
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
-
 // eslint-disable-next-line no-extend-native
 String.prototype.format = function(args) {
   let result = this
@@ -45,8 +39,6 @@ String.prototype.format = function(args) {
   }
   return result
 }
-
-Vue.use(VueQuillEditor /* { default global options } */)
 
 Vue.use(Element, {
   size: Cookies.get('size') || 'mini' // set element-ui default size

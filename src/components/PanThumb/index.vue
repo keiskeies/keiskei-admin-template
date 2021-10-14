@@ -6,7 +6,7 @@
       </div>
     </div>
     <!-- eslint-disable-next-line -->
-    <div :style="image ? {backgroundImage: `url(${(image.indexOf('//')<0 ? $media : '') + image})`} : ''" class="pan-thumb"></div>
+    <div :style="image ? {backgroundImage: `url(${image})`} : ''" class="pan-thumb"></div>
   </div>
 </template>
 

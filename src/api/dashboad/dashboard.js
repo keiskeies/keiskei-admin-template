@@ -23,6 +23,12 @@ export function detail(id) {
     method: 'GET'
   })
 }
+export function refresh(id) {
+  return request({
+    url: URL_SUFFIX + '/' + id + '/refresh',
+    method: 'GET'
+  })
+}
 
 export function update(data) {
   return request({

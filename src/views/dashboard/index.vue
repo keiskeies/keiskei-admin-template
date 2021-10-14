@@ -2,7 +2,7 @@
   <div class="app-container">
     <!--    <todo-list />-->
     <!---->
-    <panel-group @handleSetLineChartData="handleSetLineChartData" />
+    <!--    <panel-group @handleSetLineChartData="handleSetLineChartData" />-->
 
     <!--    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">-->
     <!--      <line-chart :chart-data="lineChartData" />-->
@@ -26,20 +26,18 @@
     </el-row>
     <!--    图表列表-->
     <el-row :gutter="10">
-      <template v-for="item in charts">
-        <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: item.span * 8}" :xl="{span: item.span * 8}">
-          <el-card class="box-card" shadow="hover" style="margin-top: 10px" :body-style="{padding: 0}">
-            <div class="chart-wrapper">
-              <pie-chart v-if="item.type === 'PIE'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard" />
-              <line-chart v-if="item.type === 'LINE_BAR'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard" />
-              <raddar-chart v-if="item.type === 'RADAR'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard" />
-            </div>
-          </el-card>
-        </el-col>
-      </template>
+      <el-col v-for="item in charts" :key="item.id" :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: item.span * 8}" :xl="{span: item.span * 8}">
+        <el-card class="box-card" shadow="hover" style="margin-top: 10px" :body-style="{padding: 0}">
+          <div class="chart-wrapper">
+            <pie-chart v-if="item.type === 'PIE'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard" />
+            <line-chart v-if="item.type === 'LINE_BAR'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard" />
+            <raddar-chart v-if="item.type === 'RADAR'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard" />
+          </div>
+        </el-card>
+      </el-col>
     </el-row>
     <!--    图表编辑-->
-    <el-dialog :title="(temp.id ? '新增图表 - ' : '编辑图表 - ') + (temp.name || '')" :visible.sync="dialogVisible" :width="$store.state.app.device === 'mobile' ? '100%' : '60%'">
+    <el-dialog :title="(temp.id ? '新增图表 - ' : '编辑图表 - ') + (temp.name || '')" :visible.sync="dialogVisible" :width="$store.state.app.device === 'mobile' ? '100%' : '80%'">
       <el-form ref="dashboard" :model="temp" label-width="auto" label-suffix=": " style="margin: 0 15px">
         <el-form-item label="图表名称" prop="name">
           <el-input v-model="temp.name" clearable />
@@ -85,14 +83,26 @@
                         <el-option v-for="item in tableOptions" :key="item.key" :label="item.value" :value="item.key" />
                       </el-select>
                     </el-form-item>
-                    <el-form-item label="数据名称" prop="name">
-                      <el-input v-model="direction.entityName" clearable />
-                    </el-form-item>
                     <el-form-item v-if="direction.entityClass" label="数据字段" prop="field">
                       <el-select v-model="direction.field" clearable>
                         <el-option v-for="item in fieldOptions[direction.entityClass.split('.').join('_')]" :key="item.key" :label="item.value" :value="item.key" />
                       </el-select>
                     </el-form-item>
+                    <el-form-item label="展示名称" prop="entityName">
+                      <el-input v-model="direction.entityName" clearable />
+                    </el-form-item>
+
+                    <el-form-item label="查询条件" prop="conditions">
+                      <div v-for="(condition, conditionIndex) in direction.conditions" :key="index + '_' + conditionIndex">
+                        <el-select v-model="condition.field" placeholder="请选择字段">
+                          <el-option v-for="item in fieldOptions[direction.entityClass.split('.').join('_')]" :key="item.key" :label="item.value" :value="item.key" />
+                        </el-select>
+                        <el-select v-model="condition.rangeValue" placeholder="请输入范围" multiple filterable allow-create />
+                        <el-button type="info" icon="el-icon-delete" circle @click="temp.directions[index].conditions.splice(conditionIndex, 1)" />
+                      </div>
+                      <el-button type="primary" icon="el-icon-plus" circle @click="handleAddCondition(index)" />
+                    </el-form-item>
+
                     <el-form-item v-if="!temp.type || temp.type === 'LINE_BAR'" label="图表类型" prop="type">
                       <el-radio v-model="direction.type" label="LINE" value="line">折线图</el-radio>
                       <el-radio v-model="direction.type" label="BAR" value="bar">柱状图</el-radio>
@@ -133,23 +143,17 @@
 <script>
 import permission from '@/directive/permission' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
-import PanelGroup from './components/PanelGroup'
 import LineChart from './components/LineChart'
 import RaddarChart from './components/RaddarChart'
 import PieChart from './components/PieChart'
-import TodoList from './components/TodoList'
-// import BarChart from './components/BarChart'
 import { list as getDashboardList, create as createDashboard, update as updateDashboard, deleteById as deleteDashboard, tables as getTables, tableFields as getTableField } from '@/api/dashboad/dashboard.js'
 export default {
   name: 'DashboardAdmin',
   directives: { permission, waves },
   components: {
-    PanelGroup,
     LineChart,
     RaddarChart,
-    PieChart,
-    TodoList
-    // BarChart
+    PieChart
   },
   data() {
     return {
@@ -165,11 +169,14 @@ export default {
         directions: [
           {
             entityClass: undefined,
-            entityName: undefined
+            entityName: undefined,
+            conditions: []
           }
         ]
       },
       dialogVisible: false,
+      inputVisibleCondition: [],
+      inputValueCondition: [],
       tableOptions: [],
       fieldOptions: {},
       timeTypeOptions: [
@@ -224,10 +231,19 @@ export default {
         }
       })
     },
+    handleAddCondition(index) {
+      console.log(index)
+      if (!this.temp.directions[index].conditions) {
+        this.$set(this.temp.directions[index], 'conditions', [])
+      }
+      this.temp.directions[index].conditions.push({ field: undefined, rangeValue: [] })
+    },
     handleAddDashboard() {
       this.temp = {
         directions: [
-          {}
+          {
+            conditions: []
+          }
         ]
       }
       this.dialogVisible = true

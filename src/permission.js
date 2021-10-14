@@ -17,7 +17,7 @@ router.beforeEach(async(to, from, next) => {
 
   if (hasToken) {
     if (to.path === '/login') {
-      next({ path: '/' })
+      next()
       NProgress.done()
     } else if (to.path === '/404' || to.path === '/401') {
       next()

@@ -1,21 +1,15 @@
 import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
-import { tokenKey } from '@/settings'
 
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   timeout: 3600000 // request timeout
 })
-// service.defaults.withCredentials = true
+service.defaults.withCredentials = true
 // request interceptor
 service.interceptors.request.use(
   config => {
-    const token = getToken()
-    if (token) {
-      config.headers[tokenKey.trim()] = token
-    }
     if (config.method.toLowerCase() === 'get') {
       const params = config.params || {}
       params._ = new Date().getTime()
@@ -36,14 +30,13 @@ service.interceptors.response.use(
     }
     if (res.code) {
       if (res.code === 400201) {
-        store.dispatch('user/logout')
         MessageBox.confirm(res.msg, '会话超时', {
           confirmButtonText: '重新登录',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           store.dispatch('user/logout').then(res => {
-            location.reload()
+            window.location.href = '#/login'
           })
         })
       } else if (res.code === 400207) {

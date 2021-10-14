@@ -9,15 +9,27 @@
         :format="format"
         :rules="rules"
         permission="generate:project"
+        :actions-width="360"
+        actions-align="left"
         edit-page
         @reloadOptions="handleGetOptions"
-      />
+      >
+        <template slot="raw_actions" slot-scope="scope">
+          <el-button
+            v-waves
+            style="margin-left: 10px"
+            type="success"
+            @click="handleBuildProject(scope.row.id)"
+          >构建
+          </el-button>
+        </template>
+      </base-list>
     </div>
   </div>
 </template>
 
 <script>
-import { getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, deleteBase } from '@/api/common'
+import { requestBase } from '@/api/common'
 import permission from '@/directive/permission/index.js' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 import BaseList from '@/components/BaseList'
@@ -56,6 +68,14 @@ export default {
   methods: {
     handleGetOptions() {
 
+    },
+    handleBuildProject(id) {
+      requestBase({
+        url: '/generate/project/' + id + '/build',
+        method: 'POST'
+      }).then(res => {
+        this.$notify.success(res.msg || '正在构建')
+      })
     }
   }
 }

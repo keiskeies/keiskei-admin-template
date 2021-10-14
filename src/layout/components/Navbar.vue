@@ -20,7 +20,7 @@
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="(avatar && avatar.indexOf('//')<0 ? $media : '') + avatar + '?x-oss-process=image/resize,w_100,h_100'" class="user-avatar">
+          <img :src="avatar + '?x-oss-process=image/resize,w_100,h_100'" class="user-avatar">
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">

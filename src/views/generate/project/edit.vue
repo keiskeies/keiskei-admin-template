@@ -57,6 +57,9 @@
                 <el-form-item label="模块包名" prop="packageName">
                   <el-input v-model="module.packageName" clearable />
                 </el-form-item>
+                <el-form-item label="模块路径" prop="path">
+                  <el-input v-model="module.path" clearable />
+                </el-form-item>
               </el-form>
             </div>
             <el-tabs ref="module-table" v-model="tableSelect[moduleIndex]" tab-position="left" addable :closable="module.tables.length > 1" @tab-add="handleTableAdd(moduleIndex)" @tab-remove="handleTableRemove">
@@ -72,7 +75,7 @@
                       </el-form-item>
                       <el-form-item label="表类型" prop="type">
                         <el-select v-model="table.type" clearable>
-                          <el-option value="LIST" label="列表结构" />
+                          <el-option value="BASE" label="列表结构" />
                           <el-option value="TREE" label="树形结构" />
                         </el-select>
                       </el-form-item>
@@ -360,7 +363,7 @@
           </template>
           <template slot-scope="scopeEnum">
             <slot>
-              <el-button type="info" icon="el-icon-minus" circle @click="handleFieldEnumRemove(moduleIndex, tableIndex, scope.$index, scopeEnum.$index)" />
+              <el-button type="info" icon="el-icon-minus" circle @click="handleFieldEnumRemove(moduleDialogIndex, tableDialogIndex, fieldDialogIndex, scopeEnum.$index)" />
             </slot>
           </template>
         </el-table-column>
