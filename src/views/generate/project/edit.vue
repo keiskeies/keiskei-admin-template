@@ -75,7 +75,7 @@
                       </el-form-item>
                       <el-form-item label="表类型" prop="type">
                         <el-select v-model="table.type" clearable>
-                          <el-option value="BASE" label="列表结构" />
+                          <el-option value="LIST" label="列表结构" />
                           <el-option value="TREE" label="树形结构" />
                         </el-select>
                       </el-form-item>
@@ -457,7 +457,18 @@ export default {
   },
   data() {
     return {
-      project: {},
+      project: {
+        name: '',
+        comment: '',
+        version: '',
+        favicon: '',
+        logo: '',
+        author: '',
+        fileJar: '',
+        sqlLog: false,
+        workflow: false,
+        modules: [],
+      },
       projectRules: [],
       moduleRules: [],
       tableRules: [],
@@ -475,7 +486,7 @@ export default {
         { key: 'WORD', value: '文字' },
         { key: 'LONG_WORD', value: '段落' },
         { key: 'LONG_TEXT', value: '文章' },
-        { key: 'TO_LONG_TEXT', value: '大型文章' },
+        { key: 'HTML', value: '大型文章' },
         { key: 'MIDDLE_ID', value: '关联ID' },
         { key: 'IMAGE', value: '图片' },
         { key: 'VIDEO', value: '视频' },
@@ -532,6 +543,9 @@ export default {
       })
     },
     handleModuleAdd() {
+      if (!this.project.modules) {
+        this.project.modules = []
+      }
       this.tableSelect.push(this.project.modules.length + '_0')
       this.project.modules.push({
         name: 'module' + this.project.modules.length,

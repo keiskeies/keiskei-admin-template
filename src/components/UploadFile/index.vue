@@ -37,7 +37,7 @@ export default {
       //   );
     },
     handleRemove(file, fileList) {
-      if (file.status == 'success') {
+      if (file.status === 'success') {
         this.$emit('deleteSuccess', fileList)
       }
     },

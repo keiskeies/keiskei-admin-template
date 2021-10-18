@@ -124,7 +124,7 @@
           </slot>
           <!--            文章-->
           <slot
-            v-else-if="column.type === 'LONG_WORD' || column.type === 'LONG_TEXT' || column.type === 'TO_LONG_TEXT'"
+            v-else-if="column.type === 'LONG_WORD' || column.type === 'LONG_TEXT' || column.type === 'HTML'"
           >
             <div v-html="scope.row[column.key]" />
           </slot>

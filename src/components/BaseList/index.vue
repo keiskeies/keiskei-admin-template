@@ -273,7 +273,7 @@
                 </el-tag>
               </template>
               <!--            文章-->
-              <template v-else-if="column.type && column.type === 'LONG_TEXT' || column.type === 'TO_LONG_TEXT'">
+              <template v-else-if="column.type && column.type === 'LONG_TEXT' || column.type === 'HTML'">
                 <div v-html="scope.row[column.key]" />
               </template>
               <!--            状态-->
@@ -393,7 +393,7 @@
               class="form-item"
               :file-url="temp[column.key]"
               :column-name="column.key"
-              @uploadSuccess="columnValChange"
+              @columnValChange="columnValChange"
             />
           </template>
           <!--     视频     -->
@@ -403,7 +403,7 @@
               class="form-item"
               :file-url="temp[column.key]"
               :column-name="column.key"
-              @uploadSuccess="columnValChange"
+              @columnValChange="columnValChange"
             />
           </template>
           <!--     开关     -->
@@ -493,13 +493,22 @@
             />
           </template>
           <!--          富文本-->
-          <template v-else-if="column.type === 'HTML'">
+          <template v-else-if="column.type === 'HTML' || column.type === 'LONG_TEXT'">
             <tinymce
               :ref="url + '_Html_' + column.key"
               :value="temp[column.key]"
               :column-name="column.key"
               @columnValChange="columnValChange"
             />
+          </template>
+          <!--          LONG_WORD-->
+          <template v-else-if="column.type === 'LONG_WORD'">
+            <el-input
+              v-model="temp[column.key]"
+              type="textarea"
+              :rows="3"
+              :placeholder="'请输入' + column.label">
+            </el-input>
           </template>
           <!--     树形单选       -->
           <template v-else-if="column.type === 'TREE_SELECT'">
@@ -518,6 +527,26 @@
               format="yyyy-MM-dd HH:mm:ss"
               value-format="yyyy-MM-dd HH:mm:ss"
               type="datetime"
+            />
+          </template>
+          <!--            时间日期-->
+          <template v-else-if="column.type === 'DATE'">
+            <el-date-picker
+              v-model="temp[column.key]"
+              clearable
+              format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd"
+              type="date"
+            />
+          </template>
+          <!--            时间日期-->
+          <template v-else-if="column.type === 'TIME'">
+            <el-time-picker
+              v-model="temp[column.key]"
+              clearable
+              format="HH:mm:ss"
+              value-format="HH:mm:ss"
+              type="time"
             />
           </template>
           <!--          标签-->
@@ -991,6 +1020,7 @@ export default {
       })
     },
     columnValChange(val, index, column) {
+      console.log('=========', val, index, column)
       this.$set(this.temp, column, val)
     }
   }
