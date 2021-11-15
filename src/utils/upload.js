@@ -35,7 +35,9 @@ export function uploadByPieces({ file, progress, success, error }) {
           token = guid()
           chunkCount = Math.ceil(fileSize / chunkSize) // 总片数
           AllChunk = AllChunk + chunkCount // 计算全局chunk数
-          uploadChunk(0)// 针对单个文件进行chunk上传
+          for (let i = 0; i < chunkCount; i++) {
+            uploadChunk(i)// 针对单个文件进行chunk上传
+          }
         }
         const uploadChunk = (index) => {
           const { chunk } = getChunkInfo(file, index, chunkSize)
@@ -54,7 +56,10 @@ export function uploadByPieces({ file, progress, success, error }) {
               successAllCount++
               progressFun()
               // 当总数大于等于分片个数的时候合并文件
-              successAllCount >= chunkCount ? mergingFile() : uploadChunk(successAllCount)
+              if (successAllCount >= chunkCount) {
+                mergingFile()
+              }
+              // successAllCount >= chunkCount ? mergingFile() : uploadChunk(successAllCount)
             }).catch((e) => {
               error && error(e)
             })

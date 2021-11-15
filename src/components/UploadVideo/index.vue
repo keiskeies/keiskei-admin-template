@@ -12,9 +12,14 @@
       <video
         v-if="fileUrl && !videoUploadFlag"
         style="max-height:180px;max-width: 367px;"
-        :src="fileUrl"
         controls="controls"
-      />
+        autoplay="autoplay"
+        controlslist="nodownload"
+      >
+        <source :src="fileUrl" type="video/ogg">
+        <source :src="fileUrl" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
       <el-progress
         v-if="videoUploadFlag"
         type="circle"
@@ -27,7 +32,11 @@
     <i v-if="fileUrl" class="el-icon-zoom-in  icon-btn" @click="dialogVisible=true">预览</i>
     <i v-if="fileUrl" class="el-icon-delete icon-btn" @click="handleVideoRemove">删除</i>
     <el-dialog :visible.sync="dialogVisible" destroy-on-close :modal="false">
-      <video v-if="dialogVisible" :src="fileUrl" width="100%" controls="controls" />
+      <video width="100%" v-if="dialogVisible" controls="controls" autoplay="autoplay" controlslist="nodownload">
+        <source :src="fileUrl" type="video/ogg">
+        <source :src="fileUrl" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
     </el-dialog>
   </div>
 

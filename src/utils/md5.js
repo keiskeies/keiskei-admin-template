@@ -16,7 +16,7 @@ export function md5(file) {
   const spark = new SparkMD5.ArrayBuffer()
   return new Promise(function(resolve, reject) {
     fileReader.onload = function(e) {
-      spark.append(e.target.data)
+      spark.append(e.target.result)
       currentChunk++
       if (currentChunk < chunks) {
         loadNext()

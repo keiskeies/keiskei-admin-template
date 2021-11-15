@@ -1,9 +1,9 @@
 <template>
   <div class="upload-container">
     <el-button :style="{background:color,borderColor:color}" icon="el-icon-upload" size="mini" type="primary" @click=" dialogVisible=true">
-      upload
+      图片上传
     </el-button>
-    <el-dialog :visible.sync="dialogVisible">
+    <el-dialog :visible.sync="dialogVisible" :modal="false">
       <el-upload
         :multiple="true"
         :file-list="fileList"
@@ -17,21 +17,22 @@
         list-type="picture-card"
       >
         <el-button size="small" type="primary">
-          Click upload
+          点击上传
         </el-button>
       </el-upload>
       <el-button @click="dialogVisible = false">
-        Cancel
+        取消
       </el-button>
       <el-button type="primary" @click="handleSubmit">
-        Confirm
+        确定
       </el-button>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import {getToken} from "@/utils/auth";
+import { getToken } from '@/utils/auth'
+import { tokenKey } from '@/settings'
 
 export default {
   name: 'EditorSlideUpload',
@@ -46,9 +47,12 @@ export default {
       dialogVisible: false,
       listObj: {},
       fileList: [],
-      action: process.env.VUE_APP_BASE_API + "/common/file/upload",
-      headers: {"Auth-Token": getToken()}
+      action: process.env.VUE_APP_BASE_API + '/common/file/upload',
+      headers: {}
     }
+  },
+  created() {
+    this.headers[tokenKey] = getToken()
   },
   methods: {
     checkAllSuccess() {

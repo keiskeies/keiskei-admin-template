@@ -7,23 +7,26 @@
   </div>
 </template>
 <script>
-import { getToken } from "@/utils/auth";
-import request from "@/utils/request";
+import { getToken } from '@/utils/auth'
+import { tokenKey } from '@/settings'
 export default {
-  name: "UploadFile",
-  data() {
-    return {
-      requestData: {
-        requestUrl: process.env.VUE_APP_BASE_API + "/common/file/upload",
-        headerToken: { "Auth-Token": getToken() }
-      }
-    };
-  },
+  name: 'UploadFile',
   props: {
     fileList: {
       type: Array, default: () => [
       ]
     }
+  },
+  data() {
+    return {
+      requestData: {
+        requestUrl: process.env.VUE_APP_BASE_API + '/common/file/upload',
+        headerToken: {}
+      }
+    }
+  },
+  created() {
+    this.headerToken[tokenKey] = getToken()
   },
   methods: {
     handleExceed(files, fileList) {
@@ -34,20 +37,20 @@ export default {
       //   );
     },
     handleRemove(file, fileList) {
-      if(file.status=="success"){
-        this.$emit("deleteSuccess",fileList);
+      if (file.status == 'success') {
+        this.$emit('deleteSuccess', fileList)
       }
     },
-    //文件上传成功
+    // 文件上传成功
     handleFileSuccess(res, file) {
       if (!res.code) {
-        this.$emit("uploadSuccess", { url: res.data.url, fileName: file.name });
+        this.$emit('uploadSuccess', { url: res.data.url, fileName: file.name })
       } else {
-        console.log(res.message);
+        console.log(res.message)
       }
-    },
+    }
   }
-};
+}
 </script>
 <style lang="scss">
 .upload-file-content {
@@ -78,5 +81,4 @@ export default {
   }
 }
 </style>
-
 

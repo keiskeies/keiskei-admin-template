@@ -12,7 +12,7 @@
     >
       <img
         v-if="fileUrl && !imageUploadFlag"
-        :src="$media + fileUrl + '?x-oss-process=image/resize,w_315'"
+        :src="fileUrl + '?x-oss-process=image/resize,w_315'"
         class="avatar"
         style="max-width: 100%;background-color: #000000"
       >
@@ -31,7 +31,7 @@
     <el-dialog :visible.sync="dialogVisible" destroy-on-close :modal="false">
       <img
         v-if="fileUrl"
-        :src="$media + fileUrl"
+        :src="fileUrl"
         width="100%"
         style="background-color: #000000"
       >

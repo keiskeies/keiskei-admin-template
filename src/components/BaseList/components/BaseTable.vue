@@ -68,7 +68,7 @@
             <a v-if="!scope.row[column.key]">暂无图片</a>
             <img
               v-else
-              :src="$media + scope.row[column.key] +'?x-oss-process=image/resize,h_30'"
+              :src="scope.row[column.key] +'?x-oss-process=image/resize,h_30'"
               alt=""
               @click="selectImg(scope.row[column.key],column.type)"
             >
@@ -79,7 +79,7 @@
             <img
               v-else
               alt=""
-              :src="$media + scope.row[column.key] + '?x-oss-process=video/snapshot,t_1000,h_30,m_fast,f_jpg'"
+              :src="scope.row[column.key] + '?x-oss-process=video/snapshot,t_1000,h_30,m_fast,f_jpg'"
               @click="selectImg(scope.row[column.key],column.type)"
             >
           </slot>

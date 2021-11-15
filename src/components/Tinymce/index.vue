@@ -1,9 +1,9 @@
 <template>
   <div :class="{fullscreen:fullscreen}" class="tinymce-container" :style="{width:containerWidth}">
     <textarea :id="tinymceId" v-model="value" class="tinymce-textarea" />
-    <div class="editor-custom-btn-container">
-      <editorImage color="#1890ff" class="editor-upload-btn" @successCBK="imageSuccessCBK" />
-    </div>
+<!--    <div class="editor-custom-btn-container">-->
+<!--      <editorImage color="#1890ff" class="editor-upload-btn" @successCBK="imageSuccessCBK" />-->
+<!--    </div>-->
   </div>
 </template>
 
@@ -12,17 +12,19 @@
  * docs:
  * https://panjiachen.user.io/vue-element-admin-site/feature/component/rich-editor.html#tinymce
  */
-import editorImage from './components/EditorImage'
+// import editorImage from './components/EditorImage'
 import plugins from './plugins'
 import toolbar from './toolbar'
 import load from './dynamicLoadScript'
+import { requestBase } from '@/api/common'
+import { uploadByPieces } from '@/utils/upload'
 
 // why use this cdn, detail see https://user.com/PanJiaChen/tinymce-all-in-one
 const tinymceCDN = 'https://cdn.jsdelivr.net/npm/tinymce-all-in-one@4.9.3/tinymce.min.js'
 
 export default {
   name: 'Tinymce',
-  components: { editorImage },
+  // components: { editorImage },
   props: {
     index: {
       type: Number,
@@ -65,6 +67,8 @@ export default {
       hasChange: false,
       hasInit: false,
       tinymceId: 'vue-tinymce-' + this.index,
+      uploadUrl: process.env.VUE_APP_BASE_API + '/common/file/upload',
+      videoUploadPercent: 0,
       fullscreen: false,
       languageTypeList: {
         'en': 'en',
@@ -128,7 +132,10 @@ export default {
         menubar: this.menubar,
         plugins: plugins,
         end_container_on_empty_block: true,
-        powerpaste_word_import: 'clean',
+        powerpaste_word_import: 'propmt',
+        powerpaste_html_import: 'propmt',
+        powerpaste_allow_local_images: true,
+        paste_data_images: true,
         code_dialog_height: 450,
         code_dialog_width: 1000,
         advlist_bullet_styles: 'square',
@@ -155,40 +162,83 @@ export default {
         // it will try to keep these URLs intact
         // https://www.tiny.cloud/docs-3x/reference/configuration/Configuration3x@convert_urls/
         // https://stackoverflow.com/questions/5196205/disable-tinymce-absolute-to-relative-url-conversions
-        convert_urls: false
+        convert_urls: false,
         // 整合七牛上传
-        // images_dataimg_filter(img) {
-        //   setTimeout(() => {
-        //     const $image = $(img);
-        //     $image.removeAttr('width');
-        //     $image.removeAttr('height');
-        //     if ($image[0].height && $image[0].width) {
-        //       $image.attr('data-wscntype', 'image');
-        //       $image.attr('data-wscnh', $image[0].height);
-        //       $image.attr('data-wscnw', $image[0].width);
-        //       $image.addClass('wscnph');
-        //     }
-        //   }, 0);
-        //   return img
-        // },
-        // images_upload_handler(blobInfo, success, failure, progress) {
-        //   progress(0);
-        //   const token = _this.$store.getters.token;
-        //   getToken(token).then(response => {
-        //     const url = response.data.qiniu_url;
-        //     const formData = new FormData();
-        //     formData.append('token', response.data.qiniu_token);
-        //     formData.append('key', response.data.qiniu_key);
-        //     formData.append('file', blobInfo.blob(), url);
-        //     upload(formData).then(() => {
-        //       success(url);
-        //       progress(100);
-        //     })
-        //   }).catch(err => {
-        //     failure('出现未知问题，刷新页面，或者联系程序员')
-        //     console.log(err);
-        //   });
-        // },
+        images_dataimg_filter(img) {
+          setTimeout(() => {
+            const $image = $(img)
+            $image.removeAttr('width')
+            $image.removeAttr('height')
+            if ($image[0].height && $image[0].width) {
+              $image.attr('data-wscntype', 'image')
+              $image.attr('data-wscnh', $image[0].height)
+              $image.attr('data-wscnw', $image[0].width)
+              $image.addClass('wscnph')
+            }
+          }, 0)
+          return img
+        },
+        images_upload_handler(blobInfo, success, failure, progress) {
+          progress(0)
+          const formData = new FormData()
+          formData.append('file', blobInfo.blob())
+          requestBase({
+            url: '/common/file/upload',
+            method: 'POST',
+            data: formData
+          }).then(res => {
+            success(res.data.url)
+            progress(100)
+          })
+        },
+        file_picker_types: 'media',
+        file_picker_callback: (callback, value, meta) => {
+          if (meta.filetype === 'media') {
+            const input = document.createElement('input')
+            input.setAttribute('type', 'file')
+            input.onchange = function() {
+              this.videoUploadPercent = 0
+              const file = input.files[0]
+              console.log(file)
+              uploadByPieces({
+                file: file,
+                progress: (num) => {
+                  this.videoUploadPercent = num
+                },
+                success: (data) => {
+                  callback(data.data.url, { title: file.name })
+                },
+                error: (e) => {
+                  console.error(e)
+                }
+              })
+            }
+            input.click()
+          }
+        },
+        // media_url_resolver: function(data, resolve) {
+        //   console.log('---------', data, resolve)
+        //   try {
+        //     const videoUri = encodeURI(data.url)
+        //     const embedHtml =
+        //       `<p>
+        //          <span
+        //             data-mce-selected="1"
+        //             data-mce-object="video"
+        //             data-mce-p-controls="controls"
+        //             data-mce-p-controlslist="nodownload"
+        //             data-mce-p-allowfullscreen="true"
+        //             data-mce-p-src=${videoUri} >
+        //             <video src=${data.url} width="100%" height="100%" controls="controls" autoplay="true" loop="loop" controlslist="nodownload">
+        //             </video>
+        //           </span>
+        //         </p>
+        //         <p style="text-align: left;"></p>`
+        //     resolve({ html: embedHtml })
+        //   } catch (e) {
+        //     resolve({ html: '' })
+        //   }
+        // }
       })
     },
     destroyTinymce() {
@@ -208,12 +258,26 @@ export default {
       window.tinymce.get(this.tinymceId).getContent()
     },
     imageSuccessCBK(arr) {
+      console.log('==========', arr)
       arr.forEach(v => {
-        let type
         if (v.url.toLowerCase().endsWith('.mp4')) {
-          arr.forEach(v => window.tinymce.get(this.tinymceId).insertContent(`<video src="${v.url}" autoplay="true" loop="loop"/>`))
+          window.tinymce.get(this.tinymceId).insertContent(
+            `<p>
+              <span
+                data-mce-selected="1"
+                data-mce-object="video"
+                data-mce-p-controls="controls"
+                data-mce-p-controlslist="nodownload"
+                data-mce-p-allowfullscreen="true"
+                data-mce-p-src=${v.url} >
+                  <video src=${v.url} width="100%" height="100%" controls="controls"  autoplay="true" loop="loop" controlslist="nodownload">
+                  </video>
+                </span>
+              </p>
+              <p style="text-align: left;"></p>`
+          )
         } else {
-          arr.forEach(v => window.tinymce.get(this.tinymceId).insertContent(`<img class="wscnph" src="${v.url}" >`))
+          window.tinymce.get(this.tinymceId).insertContent(`<img class="wscnph" src="${v.url}" >`)
         }
       })
 
@@ -251,7 +315,7 @@ export default {
   position: absolute;
   right: 4px;
   top: 4px;
-  /*z-index: 2005;*/
+  /*z-commen: 2005;*/
 }
 
 .fullscreen .editor-custom-btn-container {

@@ -49,7 +49,7 @@ export default {
   },
   methods: {
     handleTreeNodeClick(val) {
-      // console.log(this.$refs[this.columnName + '_' + this.index].getCheckedNodes()[0].data)
+      // console.log(this.$refs[this.columnName + '_' + this.commen].getCheckedNodes()[0].data)
       this.$emit('columnValChange', { id: val }, this.index, this.columnName)
     }
   }
