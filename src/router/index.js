@@ -10,7 +10,6 @@ import Layout from '@/layout'
 import systemRouter from './modules/system.js'
 import generateRouter from './modules/generate'
 import logRouter from './modules/log'
-import demoRouter from './modules/demo'
 import workflowRouter from './modules/workflow'
 
 /**
@@ -102,7 +101,6 @@ export const constantRoutes = [
 export const asyncRoutes = [
   // contentRouter,
   // emailRouter,
-  demoRouter,
   systemRouter,
   generateRouter,
   logRouter,

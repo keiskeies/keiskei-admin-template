@@ -9,18 +9,18 @@
         :format="format"
         :rules="rules"
         permission="generate:project"
-        :actions-width="360"
-        actions-align="left"
         edit-page
         @reloadOptions="handleGetOptions"
       >
         <template slot="raw_actions" slot-scope="scope">
           <el-button
+            v-if="!scope.row.status || scope.row.status === 'NONE'"
             v-waves
+            :loading="buildLoading"
             style="margin-left: 10px"
             type="success"
-            @click="handleBuildProject(scope.row.id)"
-          >构建
+            @click="handleBuildStart(scope.row.id)"
+          >创建
           </el-button>
         </template>
       </base-list>
@@ -40,6 +40,7 @@ export default {
   directives: { permission, waves },
   data() {
     return {
+      buildLoading: false,
       columns: [
         { show: true, edit: false, minWidth: 300, key: 'name', label: '项目名称' },
         { show: true, edit: false, width: 200, key: 'version', label: '版本号' },
@@ -67,14 +68,17 @@ export default {
   },
   methods: {
     handleGetOptions() {
-
+      this.options = JSON.parse(localStorage.getItem('allOptions')) || this.options
     },
-    handleBuildProject(id) {
+    handleBuildStart(id) {
+      this.buildLoading = true
       requestBase({
         url: '/generate/project/' + id + '/build',
         method: 'POST'
       }).then(res => {
-        this.$notify.success(res.msg || '正在构建')
+        this.buildLoading = false
+      }).catch(() => {
+        this.buildLoading = false
       })
     }
   }

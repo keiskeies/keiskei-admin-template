@@ -26,6 +26,7 @@
               <el-option value="LOCAL" label="本地服务器存储" />
               <el-option value="ALI_OSS" label="阿里OSS" />
               <el-option value="JD_OSS" label="京东OSS" />
+              <el-option value="MINIO" label="MINIO" />
             </el-select>
           </el-form-item>
           <el-form-item label="日志存储" prop="sqlLog">
@@ -43,7 +44,7 @@
         </el-form>
       </div>
       <!--模块-->
-      <el-tabs v-model="moduleSelect" type="card" addable :closable="project.modules && project.modules.length > 1" @tab-add="handleModuleAdd" @tab-remove="handleModuleRemove">
+      <el-tabs v-model="moduleSelect" type="card" addable :closable="project.modules && project.modules.length && project.modules.length > 1" @tab-add="handleModuleAdd" @tab-remove="handleModuleRemove">
         <el-tab-pane v-for="(module, moduleIndex) in project.modules" :key="moduleIndex" :ref="'tab_module_' + moduleIndex" :label="module.comment" :name="moduleIndex + ''">
           <el-card class="box-card" shadow="hover">
             <div slot="header" class="clearfix">
@@ -140,7 +141,7 @@
                       </template>
                       <template slot-scope="scope">
                         <slot>
-                          <el-select v-model="scope.row.relationEntity" clearable :disabled="!scope.row.relation">
+                          <el-select v-model="scope.row.relationEntity" clearable :disabled="scope.row.type !== 'MIDDLE_ID'">
                             <el-option v-for="item in module.tables" v-if="item.name !== table.name" :key="item.name" :value="item.name" :label="item.comment || item.name" />
                           </el-select>
                         </slot>
@@ -363,7 +364,7 @@
           </template>
           <template slot-scope="scopeEnum">
             <slot>
-              <el-button type="info" icon="el-icon-minus" circle @click="handleFieldEnumRemove(moduleDialogIndex, tableDialogIndex, fieldDialogIndex, scopeEnum.$index)" />
+              <el-button type="info" icon="el-icon-minus" circle @click="handleFieldEnumRemove(moduleIndex, tableIndex, scope.$index, scopeEnum.$index)" />
             </slot>
           </template>
         </el-table-column>
@@ -457,18 +458,7 @@ export default {
   },
   data() {
     return {
-      project: {
-        name: '',
-        comment: '',
-        version: '',
-        favicon: '',
-        logo: '',
-        author: '',
-        fileJar: '',
-        sqlLog: false,
-        workflow: false,
-        modules: [],
-      },
+      project: {modules: [{tables: [{fields: [{}]}]}]},
       projectRules: [],
       moduleRules: [],
       tableRules: [],
@@ -528,6 +518,7 @@ export default {
     if (id) {
       getBaseDetail(this.url, id).then(res => {
         this.project = Object.assign(res.data)
+        console.log(JSON.stringify(this.project))
       })
     }
   },
@@ -543,12 +534,9 @@ export default {
       })
     },
     handleModuleAdd() {
-      if (!this.project.modules) {
-        this.project.modules = []
-      }
-      this.tableSelect.push(this.project.modules.length + '_0')
+      this.tableSelect.push(this.project.modules.length || 0 + '_0')
       this.project.modules.push({
-        name: 'module' + this.project.modules.length,
+        name: 'module' + this.project.modules.length || 0,
         comment: '______',
         tables: [
           {
@@ -571,7 +559,7 @@ export default {
     },
     handleTableAdd(moduleIndex) {
       this.project.modules[moduleIndex].tables.push({
-        name: 'table' + this.project.modules[moduleIndex].tables.length,
+        name: 'table' + this.project.modules[moduleIndex].tables.length || 0,
         comment: '______',
         fields: [
           { name: 'field1' }
