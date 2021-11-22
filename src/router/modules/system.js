@@ -1,6 +1,7 @@
 /** When your routing table is too long, you can split it into small modules**/
 
 import Layout from '@/layout'
+import { usePermission, useDepartment, useScheduledTask } from '@/settings'
 
 const systemRouter = {
   path: '/system',
@@ -13,39 +14,38 @@ const systemRouter = {
       path: '/system/user',
       name: '管理员',
       component: () => import('@/views/system/user/index'),
-      meta: { title: '管理员', icon: 'table', role: 'system:user' }
+      meta: { title: '管理员', icon: 'account', role: 'system:user' }
     },
     {
       path: '/system/role',
       name: '角色管理',
       component: () => import('@/views/system/role/index'),
-      meta: { title: '角色管理', icon: 'table', role: 'system:role' }
+      meta: { title: '角色管理', icon: 'table', role: 'system:role' },
+      hidden: !usePermission
     },
     {
       path: '/system/permission',
       name: '权限管理',
       component: () => import('@/views/system/permission/index'),
-      meta: { title: '权限管理', icon: 'tree', role: 'system:permission' }
+      meta: { title: '权限管理', icon: 'tree', role: 'system:permission' },
+      hidden: !usePermission
     },
     {
       path: '/system/department',
       name: '部门管理',
       component: () => import('@/views/system/department/index'),
-      meta: { title: '部门管理', icon: 'tree', role: 'system:department' }
+      meta: { title: '部门管理', icon: 'tree', role: 'system:department' },
+      hidden: !useDepartment
     },
     {
       path: '/system/scheduledTask',
       name: '定时任务',
       component: () => import('@/views/system/scheduledTask/index'),
-      meta: { title: '定时任务', icon: 'tree', role: 'system:scheduledTask' }
-    },
-    {
-      path: '/system/dictionary',
-      name: '数据字典',
-      component: () => import('@/views/system/dictionary/index'),
-      meta: { title: '数据字典', icon: 'tree', role: 'system:dictionary' }
+      meta: { title: '定时任务', icon: 'tree', role: 'system:scheduledTask' },
+      hidden: !useScheduledTask
     }
   ]
 }
 
 export default systemRouter
+

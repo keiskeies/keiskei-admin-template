@@ -10,8 +10,6 @@ import Layout from '@/layout'
 import systemRouter from './modules/system.js'
 import generateRouter from './modules/generate'
 import logRouter from './modules/log'
-import emailRouter from './modules/email'
-import contentRouter from './modules/content'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -100,8 +98,6 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
-  contentRouter,
-  emailRouter,
   systemRouter,
   generateRouter,
   logRouter
