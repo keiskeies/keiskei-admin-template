@@ -88,13 +88,13 @@
 
                   <el-table :ref="'table_module_' + moduleIndex + '_table_' + tableIndex" border fit highlight-current-row stripe :data="table.fields">
                     <!--                    -->
-                    <el-table-column label="字段名称" header-align="center" align="left" prop="name" fixed width="200">
+                    <el-table-column label="字段名称" header-align="center" align="left" prop="name" fixed width="150">
                       <template slot-scope="scope">
                         <slot><el-input v-model="scope.row.name" clearable /></slot>
                       </template>
                     </el-table-column>
                     <!--                    -->
-                    <el-table-column label="字段注释" header-align="center" prop="comment" width="220">
+                    <el-table-column label="字段注释" header-align="center" align="left" prop="comment" fixed width="150">
                       <template slot-scope="scope">
                         <slot>
                           <el-tooltip class="item" effect="light" :content="scope.row.comment" placement="right">
@@ -259,16 +259,7 @@
                         <slot><el-input v-model="scope.row.tableWidth" /></slot>
                       </template>
                     </el-table-column>
-                    <el-table-column align="center" fixed="right" width="100">
-                      <template slot-scope="scope">
-                        <slot>
-                          <el-button-group>
-                            <el-button v-if="scope.$index === table.fields.length - 1" type="primary" size="mini" icon="el-icon-plus" circle @click="handleFieldAdd(moduleIndex, tableIndex, scope.$index)" />
-                            <el-button v-if="scope.$index !== 0" type="info" icon="el-icon-minus" circle @click="handleFieldRemove(moduleIndex, tableIndex, scope.$index)" />
-                          </el-button-group>
-                        </slot>
-                      </template>
-                    </el-table-column>
+
                     <!--                    -->
                     <el-table-column header-align="center" prop="validate" width="350">
                       <template slot="header">
@@ -282,12 +273,30 @@
                         </slot>
                       </template>
                     </el-table-column>
+                    <!--                    排序表格-->
+                    <el-table-column label="排序" fixed="right" width="100" align="center">
+                      <el-button-group>
+                        <el-button class="el-icon-top" size="mini" circle @click="changeDataSort(moduleIndex, tableIndex, scope.$index,-1)" />
+                        <el-button class="el-icon-bottom" size="mini" circle @click="changeDataSort(moduleIndex, tableIndex, scope.$index, 1)" />
+                      </el-button-group>
+                    </el-table-column>
                     <!--                    枚举表格-->
                     <el-table-column label="枚举" fixed="right" width="50">
                       <template v-if="scope.row.type === 'DICTIONARY'" slot-scope="scope">
-                        <el-button type="primary" icon="el-icon-edit" circle @click="handleEditFieldEnum(moduleIndex, tableIndex, scope.$index)" />
+                        <el-button type="primary" icon="el-icon-edit" size="mini" circle @click="handleEditFieldEnum(moduleIndex, tableIndex, scope.$index)" />
                       </template>
                     </el-table-column>
+                    <el-table-column align="center" fixed="right" width="100">
+                      <template slot-scope="scope">
+                        <slot>
+                          <el-button-group>
+                            <el-button v-if="scope.$index === table.fields.length - 1" type="primary" size="mini" icon="el-icon-plus" circle @click="handleFieldAdd(moduleIndex, tableIndex, scope.$index)" />
+                            <el-button v-if="scope.$index !== 0" type="info" icon="el-icon-minus" circle @click="handleFieldRemove(moduleIndex, tableIndex, scope.$index)" />
+                          </el-button-group>
+                        </slot>
+                      </template>
+                    </el-table-column>
+
                   </el-table>
                 </el-card>
               </el-tab-pane>
@@ -447,7 +456,7 @@
 </template>
 
 <script>
-import { getBaseList, getBaseDetail, getBaseOptions, addBase, editBase, changeBaseSort, deleteBase } from '@/api/common'
+import { getBaseDetail, addBase, editBase } from '@/api/common'
 import permission from '@/directive/permission' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 export default {
@@ -458,7 +467,7 @@ export default {
   },
   data() {
     return {
-      project: {modules: [{tables: [{fields: [{}]}]}]},
+      project: { modules: [{ tables: [{ fields: [{}] }] }] },
       projectRules: [],
       moduleRules: [],
       tableRules: [],
@@ -608,6 +617,18 @@ export default {
     },
     handleFieldEnumAffectRemove(moduleIndex, tableIndex, fieldIndex, fieldEnumIndex, enumAffectIndex) {
       this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex].fieldEnums[fieldEnumIndex].fieldEnumAffects.splice(enumAffectIndex, 1)
+    },
+    changeDataSort(moduleIndex, tableIndex, fieldIndex, operate) {
+      operate = Number(operate)
+      fieldIndex = Number(fieldIndex)
+      const length = this.project.modules[moduleIndex].tables[tableIndex].fields.length
+      if (fieldIndex + operate < 0 || fieldIndex + operate >= length) {
+        return
+      }
+      const sortBy1 = this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex].sortBy
+      const sortBy2 = this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex + operate].sortBy
+      this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex].sortBy = sortBy2
+      this.project.modules[moduleIndex].tables[tableIndex].fields[fieldIndex + operate].sortBy = sortBy1
     },
     handleSave() {
       this.addLoading = true

@@ -44,13 +44,6 @@ const systemRouter = {
       meta: { title: '定时任务', icon: 'tree', role: 'system:scheduledTask' },
       hidden: !useScheduledTask
     },
-    {
-      path: '/system/dictionary',
-      name: '数据字典',
-      component: () => import('@/views/system/dictionary/index'),
-      meta: { title: '数据字典', icon: 'tree', role: 'system:dictionary' },
-      hidden: true
-    }
   ]
 }
 
