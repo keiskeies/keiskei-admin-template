@@ -1,32 +1,8 @@
 <template>
   <div class="app-container">
-    <!--    <todo-list />-->
-    <!---->
-    <!--    <panel-group @handleSetLineChartData="handleSetLineChartData" />-->
-
-    <!--    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">-->
-    <!--      <line-chart :chart-data="lineChartData" />-->
-    <!--    </el-row>-->
-    <el-row :gutter="10">
-      <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 12}" :lg="{span: 12}" :xl="{span: 12}">
-        <div style="text-align: center">
-          <el-button type="primary" icon="el-icon-plus" circle @click="handleAddDashboard()" />
-        </div>
-      </el-col>
-      <el-col :xs="{span: 16}" :sm="{span: 16}" :md="{span: 8}" :lg="{span: 8}" :xl="{span: 10}">
-        <div style="text-align: center">
-          <el-button type="primary" icon="el-icon-plus" circle @click="handleAddDashboard()" />
-        </div>
-      </el-col>
-      <el-col :xs="{span: 8}" :sm="{span: 8}" :md="{span: 4}" :lg="{span: 4}" :xl="{span: 2}">
-        <div style="text-align: center">
-          <el-button type="primary" icon="el-icon-plus" circle @click="handleAddDashboard()" />
-        </div>
-      </el-col>
-    </el-row>
     <!--    图表列表-->
     <el-row :gutter="10">
-      <el-col v-for="item in charts" :key="item.id" :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: item.span * 8}" :xl="{span: item.span * 8}">
+      <el-col v-for="(item, index) in charts" :key="index" :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: item.span * 8}" :xl="{span: item.span * 6}">
         <el-card class="box-card" shadow="hover" style="margin-top: 10px" :body-style="{padding: 0}">
           <div class="chart-wrapper">
             <pie-chart v-if="item.type === 'PIE'" :ref="'chart_' + item.id" :dashboard-id="item.id" :windows-size="windowsSize" @handleSetDashboard="handleSetDashboard" />
@@ -35,9 +11,25 @@
           </div>
         </el-card>
       </el-col>
+      <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: 8}" :xl="{span: 6}">
+        <el-card class="box-card" shadow="hover" style="margin-top: 10px" :body-style="{padding: 0}">
+          <div class="chart-wrapper">
+            <el-button
+              v-waves
+              v-permission="['dashboard:add']"
+              style="height: 400px;width: 100%;text-align: center"
+              class="filter-button"
+              icon="el-icon-plus"
+              plain
+              @click="handleAddDashboard"
+            >新建统计图表
+            </el-button>
+          </div>
+        </el-card>
+      </el-col>
     </el-row>
     <!--    图表编辑-->
-    <el-dialog :title="(temp.id ? '新增图表 - ' : '编辑图表 - ') + (temp.name || '')" :visible.sync="dialogVisible" :width="$store.state.app.device === 'mobile' ? '100%' : '80%'">
+    <el-dialog :title="(temp.id ? '编辑图表 - ' : '编辑图表 - ') + (temp.name || '')" :visible.sync="dialogVisible" :width="$store.state.app.device === 'mobile' ? '100%' : '80%'">
       <el-form ref="dashboard" :model="temp" label-width="auto" label-suffix=": " style="margin: 0 15px">
         <el-form-item label="图表名称" prop="name">
           <el-input v-model="temp.name" clearable />
@@ -130,7 +122,7 @@
 
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-popconfirm :v-permission="['dashboard:delete']" title="是否删除这条数据？" icon-color="red" icon="el-icon-info" confirm-button-type="danger" style="margin-left: 10px;float: left" @onConfirm="handleDeleteDashboard(temp.id)">
+        <el-popconfirm :v-permission="['dashboard:delete']" title="是否删除这条数据？" icon-color="red" icon="el-icon-info" confirm-button-type="danger" style="margin-left: 10px;float: left" @confirm="handleDeleteDashboard(temp.id)">
           <el-button slot="reference" v-waves type="danger">删除</el-button>
         </el-popconfirm>
         <el-button @click="dialogVisible = false">取 消</el-button>
@@ -154,6 +146,7 @@ export default {
     LineChart,
     RaddarChart,
     PieChart
+    // BarChart
   },
   data() {
     return {
@@ -232,7 +225,6 @@ export default {
       })
     },
     handleAddCondition(index) {
-      console.log(index)
       if (!this.temp.directions[index].conditions) {
         this.$set(this.temp.directions[index], 'conditions', [])
       }
@@ -240,10 +232,9 @@ export default {
     },
     handleAddDashboard() {
       this.temp = {
+        id: undefined,
         directions: [
-          {
-            conditions: []
-          }
+          {}
         ]
       }
       this.dialogVisible = true

@@ -10,6 +10,7 @@
         :rules="rules"
         permission="generate:project"
         edit-page
+        edit-page-width="90%"
         @reloadOptions="handleGetOptions"
       >
         <template slot="raw_actions" slot-scope="scope">
@@ -23,6 +24,9 @@
           >创建
           </el-button>
         </template>
+        <template slot="raw_edit" slot-scope="scope">
+          <project-edit :id="scope.row.id"></project-edit>
+        </template>
       </base-list>
     </div>
   </div>
@@ -33,20 +37,21 @@ import { requestBase } from '@/api/common'
 import permission from '@/directive/permission/index.js' // 权限判断指令
 import waves from '@/directive/waves' // waves directive
 import BaseList from '@/components/BaseList'
+import ProjectEdit from './edit'
 
 export default {
   name: 'ProjectInfo',
-  components: { BaseList },
+  components: { BaseList, ProjectEdit },
   directives: { permission, waves },
   data() {
     return {
       buildLoading: false,
       columns: [
-        { show: true, edit: false, minWidth: 300, key: 'name', label: '项目名称' },
-        { show: true, edit: false, width: 200, key: 'version', label: '版本号' },
+        { show: true, queryable: true, edit: false, minWidth: 300, key: 'name', label: '项目名称', type: 'WORD' },
+        { show: true, queryable: true, edit: false, width: 200, key: 'version', label: '版本号', type: 'WORD' },
+        { show: true, queryable: true, edit: false, width: 200, key: 'author', label: '作者', type: 'WORD' },
         { show: true, edit: false, width: 200, key: 'favicon', label: 'favicon', type: 'IMAGE' },
-        { show: true, edit: false, width: 200, key: 'logo', label: 'LOGO', type: 'IMAGE' },
-        { show: true, edit: false, width: 200, key: 'author', label: '作者' }
+        { show: true, edit: false, width: 200, key: 'logo', label: 'LOGO', type: 'IMAGE' }
       ],
       format: {
       },
